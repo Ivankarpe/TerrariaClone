@@ -7,7 +7,7 @@ void Game::Innit()
 
 	renderer = SDL_CreateRenderer(window, 0, 0);
 	running = true;
-	SDL_Surface* temp = IMG_Load("1.png");
+	SDL_Surface* temp = IMG_Load("d7aem.png");
 	texture = SDL_CreateTextureFromSurface(renderer, temp);
 	SDL_FreeSurface(temp);
 
@@ -67,16 +67,16 @@ void Game::Innit()
 	for (int x = 0; x < MAP_WIDTH; x++) {
 		for (int y = heights[x]; y < MAP_HEIGHT; y++) {
 			if (y == heights[x]) {
-				Map[y][x] = 2;
+				Map[y][x] = 3;
 
 			}
 			else if (y < heights[x] + heights2[x]+5)
 			{
-				Map[y][x] = 1;
+				Map[y][x] = 2;
 			}
 			else
 			{
-				Map[y][x] = 3;
+				Map[y][x] = 1;
 			}
 		}
 	}
@@ -132,8 +132,18 @@ void Game::Render()
 
 		}
 	}
+	int mouseX, mouseY;
+	SDL_GetMouseState(&mouseX, &mouseY);
 
-	SDL_Rect dest = {playerPos.x, playerPos.y, 128, 128};
+	mouseX /= BLOCK_SIZE;
+	mouseY /= BLOCK_SIZE;
+
+	textureIndex = 5;
+	SDL_Rect sours = { textureIndex * TEXTURE_SIZE , textureIndex / 100 * TEXTURE_SIZE ,TEXTURE_SIZE,TEXTURE_SIZE };
+	SDL_Rect dest = { mouseX * BLOCK_SIZE, mouseY * BLOCK_SIZE,BLOCK_SIZE,BLOCK_SIZE };
+	SDL_RenderCopy(renderer, texture, &sours, &dest);
+
+	dest = {playerPos.x, playerPos.y, 128, 128};
 	SDL_RenderCopy(renderer, hoe, NULL, &dest);
 	SDL_RenderPresent(renderer);
 }

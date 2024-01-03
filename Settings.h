@@ -6,7 +6,7 @@ const int CAMERA_WIDTH = 2560;
 const int CAMERA_HEIGHT = 1440;
 
 const int BLOCK_SIZE = 32;
-const int TEXTURE_SIZE = 32;
+const int TEXTURE_SIZE = 16;
 struct Buttons {
 	bool w, a, s, d;
 };
