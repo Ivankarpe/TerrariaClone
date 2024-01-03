@@ -5,6 +5,7 @@
 #include <iostream>
 #include "Settings.h"
 #include "PerlinNoise.hpp"
+#include "Inventory.h"
 class Game
 {
 public:
@@ -45,6 +46,8 @@ private:
 	Vector2 playerPos = { CAMERA_WIDTH / 2 - 64, CAMERA_HEIGHT / 2 - 64 };
 
 	Buttons butt = { 0, 0, 0, 0 };
+
+	Inventory inventory;
 
 };
 
