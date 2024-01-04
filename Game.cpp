@@ -79,6 +79,13 @@ void Game::Innit()
 		}
 
 	}
+
+	int VOID = 0;//
+	int ROCK = 1;
+	int seed = time(NULL);
+	int rockProb = 55;
+	srand(seed);
+
 	for (int x = 0; x < MAP_WIDTH; x++) {//filling map with blocks
 		for (int y = heights[x]; y < MAP_HEIGHT; y++) {
 			if (y == heights[x]) {
@@ -95,7 +102,7 @@ void Game::Innit()
 				if (id_ground >= 22 && id_ground <= 23) Map[y - 1][x] = 94;
 				if (id_ground >= 24 && id_ground <= 25) Map[y - 1][x] = 95;
 				if (id_ground == 26) Map[y - 1][x] = 15;
-				if (id_ground >= 27 && id_ground <= 31) {
+				if (id_ground >= 27 && id_ground <= 31 && x >= 3 && x <= MAP_WIDTH - 3) {
 					int tree_height = rand() % 15 + 7;
 					if (Map[y - 1][x - 1] != 20 && Map[y - 2][x - 1] != 20) {
 						for (int i = y - 1; i >= y - tree_height; i--) {
@@ -128,16 +135,55 @@ void Game::Innit()
 				{
 					Map[y][x] = 2;
 				}
-			else
-				{
-					Map[y][x] = 1;
-
+			else//random spawm rock and void
+			{
+				if (x == 0 || x == MAP_WIDTH) {
+					Map[y][x] = 255;
+				}
+				else {
+				Map[y][x] = 1;
+				if (rand() % 100 > rockProb) Map[y][x] = 0;
 				}
 
 
 			}
+
+
 		}
 	}
+
+	for (int w = 1; w < MAP_WIDTH - 1; w++) {// grouping the rock
+		for (int h = heights[w]; h < MAP_HEIGHT - 1; h++) {
+			int rockCounter = 0;
+
+			for (int x = w - 1; x < w + 2; x++) {
+				for (int y = h - 1; y < h + 2; y++) {
+					if (!(x == w && y == h)) {
+						rockCounter += Map[y][x];
+					}
+				}
+			}
+
+			if (Map[h][w] == VOID && rockCounter >= 6) Map[h][w] = ROCK;
+			if (Map[h][w] == ROCK && rockCounter <= 3) Map[h][w] = VOID;
+		}
+	}
+
+	
+	for (int x = 1; x < MAP_WIDTH - 1; x++) {// ore generation
+		for (int y = heights[x] + heights2[x]; y < MAP_HEIGHT; y++) {
+			int oreChance = rand() % 3000;
+
+			if (oreChance >= 0 && oreChance <= 4 && Map[y][x] == 1) Map[y][x] = 32;
+			if (oreChance >= 5 && oreChance <= 9 && Map[y][x] == 1) Map[y][x] = 33;
+			if (oreChance >= 10 && oreChance <= 14 && Map[y][x] == 1) Map[y][x] = 34;
+			if (oreChance >= 15 && oreChance <= 19 && Map[y][x] == 1) Map[y][x] = 50;
+			if (oreChance >= 20 && oreChance <= 24 && Map[y][x] == 1) Map[y][x] = 51;
+			if (oreChance >= 25 && oreChance <= 29 && Map[y][x] == 1) Map[y][x] = 160;
+
+		}
+	}
+}
 
 
 void Game::Update()
