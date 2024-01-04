@@ -3,7 +3,9 @@
 void Game::Innit()
 {
 	SDL_Init(SDL_INIT_EVERYTHING);
-	window = SDL_CreateWindow("Terraria", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, CAMERA_WIDTH, CAMERA_HEIGHT, SDL_WINDOW_FULLSCREEN);
+	TTF_Init();
+
+	window = SDL_CreateWindow("Terraria", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, CAMERA_WIDTH, CAMERA_HEIGHT, 0);
 
 	renderer = SDL_CreateRenderer(window, 0, 0);
 	running = true;
@@ -93,9 +95,13 @@ void Game::on_left_click(SDL_Event event) {
 	
 	distance = pow((mouseX - CAMERA_WIDTH / 2), 2) + pow((mouseY - CAMERA_HEIGHT / 2), 2);
 	SDL_Log("dist: (%d)", distance);
-
-	if (distance / BLOCK_SIZE <= 90000 / BLOCK_SIZE) {
-		Map[cameraPos.y / BLOCK_SIZE + mouseY / BLOCK_SIZE][cameraPos.x / BLOCK_SIZE + mouseX / BLOCK_SIZE] = 0;
+	
+	if (distance / BLOCK_SIZE <= 90000 / BLOCK_SIZE && Map[cameraPos.y / BLOCK_SIZE + mouseY / BLOCK_SIZE][cameraPos.x / BLOCK_SIZE + mouseX / BLOCK_SIZE] == 0) {
+		int tem = inventory.Place();
+		if (tem != 0) {
+			Map[cameraPos.y / BLOCK_SIZE + mouseY / BLOCK_SIZE][cameraPos.x / BLOCK_SIZE + mouseX / BLOCK_SIZE] = tem;
+		}
+		
 	}
 
 }
@@ -108,8 +114,9 @@ void Game::on_right_click(SDL_Event event) {
 	distance = pow((CAMERA_WIDTH / 2 - mouseX), 2) + pow((CAMERA_HEIGHT / 2 - mouseY), 2);
 	SDL_Log("dist: (%d)", distance);
 
-	if (distance / BLOCK_SIZE <= 90000 / BLOCK_SIZE) {
-		Map[cameraPos.y / BLOCK_SIZE + mouseY / BLOCK_SIZE][cameraPos.x / BLOCK_SIZE + mouseX / BLOCK_SIZE] = 1;
+	if (distance / BLOCK_SIZE <= 90000 / BLOCK_SIZE && Map[cameraPos.y / BLOCK_SIZE + mouseY / BLOCK_SIZE][cameraPos.x / BLOCK_SIZE + mouseX / BLOCK_SIZE] != 0) {
+		inventory.PickUp({static_cast<ItemsID>(Map[cameraPos.y / BLOCK_SIZE + mouseY / BLOCK_SIZE][cameraPos.x / BLOCK_SIZE + mouseX / BLOCK_SIZE]) , 1});
+		Map[cameraPos.y / BLOCK_SIZE + mouseY / BLOCK_SIZE][cameraPos.x / BLOCK_SIZE + mouseX / BLOCK_SIZE] = 0;
 	}
 }
 
@@ -144,7 +151,7 @@ void Game::Render()
 		for (size_t j = 0; j < CAMERA_HEIGHT / BLOCK_SIZE; j++)
 		{
 			textureIndex = Map[firstPos.y + j][firstPos.x + i];
-			SDL_Rect sours = { textureIndex* TEXTURE_SIZE ,textureIndex/100 * TEXTURE_SIZE ,TEXTURE_SIZE,TEXTURE_SIZE };
+			SDL_Rect sours = { textureIndex* TEXTURE_SIZE ,textureIndex/16 * TEXTURE_SIZE ,TEXTURE_SIZE,TEXTURE_SIZE };
 			SDL_Rect dest = { i * BLOCK_SIZE,j * BLOCK_SIZE,BLOCK_SIZE,BLOCK_SIZE };
 			SDL_RenderCopy(renderer, texture, &sours, &dest);
 
@@ -157,12 +164,55 @@ void Game::Render()
 	mouseY /= BLOCK_SIZE;
 
 	textureIndex = 5;
-	SDL_Rect sours = { textureIndex * TEXTURE_SIZE , textureIndex / 100 * TEXTURE_SIZE ,TEXTURE_SIZE,TEXTURE_SIZE };
+	SDL_Rect sours = { textureIndex % 16 * TEXTURE_SIZE , textureIndex / 16 * TEXTURE_SIZE ,TEXTURE_SIZE,TEXTURE_SIZE };
 	SDL_Rect dest = { mouseX * BLOCK_SIZE, mouseY * BLOCK_SIZE,BLOCK_SIZE,BLOCK_SIZE };
 	SDL_RenderCopy(renderer, texture, &sours, &dest);
+	
+	SDL_Rect rect;
+	rect.x = 25;
+	rect.y = 25;
+	rect.w = 408;
+	rect.h = 48;
+
+	SDL_SetRenderDrawColor(renderer, 255, 255, 255, 10);
+	SDL_RenderFillRect(renderer, &rect);
+	TTF_Font* rFont = TTF_OpenFont("arial.ttf", 24);
+	
+	for (size_t i = 0; i < inventory.GetSize(); i++)
+	{
+		Item item = inventory.GetSlotItem(i);
+		if (i == inventory.GetActiveSlotIndex()) {
+			SDL_Rect rect;
+			rect.x = i * BLOCK_SIZE + (i + 1) * 8 + 25-4;
+			rect.y = 25 + 8-4;
+			rect.w = 40;
+			rect.h = 40;
+
+			SDL_SetRenderDrawColor(renderer, 255, 0, 0, 10);
+			SDL_RenderFillRect(renderer, &rect);
+		}
+		textureIndex = item.ID;
+		SDL_Rect sours = { textureIndex % 16 * TEXTURE_SIZE , textureIndex / 16 * TEXTURE_SIZE ,TEXTURE_SIZE,TEXTURE_SIZE };
+		SDL_Rect dest = { i * BLOCK_SIZE + (i+1)*8+25, 25 + 8, BLOCK_SIZE, BLOCK_SIZE};
+		SDL_RenderCopy(renderer, texture, &sours, &dest);
+
+		SDL_Surface* textSurface = TTF_RenderText_Solid(rFont, std::to_string(item.count).c_str(), SDL_Color(20, 20, 20));
+
+		SDL_Rect abcPosition = { i * BLOCK_SIZE + (i + 1) * 8 + 25, 48,textSurface->w,textSurface->h };
+
+		SDL_Texture* mTexture = SDL_CreateTextureFromSurface(renderer, textSurface);
+		SDL_RenderCopy(renderer, mTexture, NULL, &abcPosition);
+	}
+
+	
+
+	
+	
+
 
 	dest = {player.GetPos().x -cameraPos.x-64, player.GetPos().y - cameraPos.y-64, 128, 128};
 	SDL_RenderCopy(renderer, hoe, NULL, &dest);
+	SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
 	SDL_RenderPresent(renderer);
 }
 
@@ -174,6 +224,16 @@ void Game::Inputs()
 		{
 		case SDL_QUIT:
 			Quit();
+		case SDL_MOUSEWHEEL:
+			if (event.wheel.y > 0) // scroll up
+			{
+				inventory.ChangeActiveSlot(inventory.GetActiveSlotIndex() + 1);
+			}
+			else if (event.wheel.y < 0) // scroll down
+			{
+				inventory.ChangeActiveSlot(inventory.GetActiveSlotIndex() - 1);
+			}
+			SDL_Log("%d", inventory.GetActiveSlotIndex());
 		case SDL_MOUSEBUTTONDOWN:
 			switch (event.button.button) {
 			case SDL_BUTTON_LEFT:

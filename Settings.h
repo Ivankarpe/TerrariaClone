@@ -17,3 +17,8 @@ struct Vector2
 	int x;
 	int y;
 };
+
+enum ItemsID
+{
+	AIR, STONE, DIRT, GRASS, PLANK,GLASS, NONE, BRICKWALL, TNT, NONE2, NONE3, WEB, FLOWER,NONE4,NONE5,NONE6,STONEWALL
+};
