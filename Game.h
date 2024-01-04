@@ -4,6 +4,7 @@
 #include <vector>
 #include <iostream>
 #include "Settings.h"
+#include "Player.h"
 #include "PerlinNoise.hpp"
 class Game
 {
@@ -41,7 +42,8 @@ private:
 
 	std::vector<std::vector<int>> Map;
 
-	Vector2 cameraPos = { 0,0 };
+	Vector2 cameraPos = { CAMERA_HEIGHT,CAMERA_WIDTH };
+	Player player;
 	Vector2 playerPos = { CAMERA_WIDTH / 2 - 64, CAMERA_HEIGHT / 2 - 64 };
 
 	Buttons butt = { 0, 0, 0, 0 };

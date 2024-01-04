@@ -117,7 +117,25 @@ void Game::on_right_click(SDL_Event event) {
 void Game::Render()
 {
 	SDL_RenderClear(renderer);
+	cameraPos.x = player.GetPos().x - CAMERA_WIDTH / 2;
+	cameraPos.y = player.GetPos().y - CAMERA_HEIGHT / 2;
 
+	if (cameraPos.x <=0)
+	{
+		cameraPos.x = 0;
+	}
+	if (cameraPos.y < 0)
+	{
+		cameraPos.y= 0;
+	}
+	if (cameraPos.x >= MAP_WIDTH*BLOCK_SIZE-CAMERA_WIDTH)
+	{
+		cameraPos.x = MAP_WIDTH * BLOCK_SIZE - CAMERA_WIDTH;
+	}
+	if (cameraPos.y >= MAP_HEIGHT * BLOCK_SIZE - CAMERA_HEIGHT)
+	{
+		cameraPos.y = MAP_HEIGHT * BLOCK_SIZE - CAMERA_HEIGHT;
+	}
 	Vector2 firstPos = { cameraPos.x / BLOCK_SIZE,cameraPos.y / BLOCK_SIZE };
 
 	int textureIndex = 1;
@@ -143,7 +161,7 @@ void Game::Render()
 	SDL_Rect dest = { mouseX * BLOCK_SIZE, mouseY * BLOCK_SIZE,BLOCK_SIZE,BLOCK_SIZE };
 	SDL_RenderCopy(renderer, texture, &sours, &dest);
 
-	dest = {playerPos.x, playerPos.y, 128, 128};
+	dest = {player.GetPos().x -cameraPos.x-64, player.GetPos().y - cameraPos.y-64, 128, 128};
 	SDL_RenderCopy(renderer, hoe, NULL, &dest);
 	SDL_RenderPresent(renderer);
 }
@@ -216,20 +234,20 @@ void Game::Inputs()
 		}
 
 	}
-
-	if (butt.w && cameraPos.y != 0){
-		cameraPos.y -= 1;
+	Vector2 dir = { 0,0 };
+	if (butt.w && player.GetPos().y != 0) {
+		dir.y -= 1;
 	}
-	if (butt.s && cameraPos.y < (MAP_HEIGHT - 52) * BLOCK_SIZE) {
-		cameraPos.y += 1;
+	if (butt.s && player.GetPos().y < MAP_HEIGHT*BLOCK_SIZE) {
+		dir.y += 1;
 	}
-	if (butt.a && cameraPos.x != 0) {
-		cameraPos.x -= 1;
+	if (butt.a && player.GetPos().x != 0) {
+		dir.x -= 1;
 	}
-	if (butt.d && cameraPos.x < (MAP_WIDTH - 65) * BLOCK_SIZE) {
-		cameraPos.x += 1;
+	if (butt.d && player.GetPos().x < MAP_WIDTH*BLOCK_SIZE) {
+		dir.x += 1;
 	}
-
+	player.Move(dir);
 	
 }
 
