@@ -25,25 +25,37 @@ void Game::Innit()
 	int heights[MAP_WIDTH];
 	int heights2[MAP_WIDTH];
 	heights[0] = rand() % 30 + 80;
+	heights[1] = heights[0];
 	heights2[0] = rand() % 15 + 5;
-	for (size_t x = 1; x < MAP_WIDTH; x++)//generate surface
+	for (size_t x = 2; x < MAP_WIDTH; x++)//generate surface
 	{
 		int num = rand() % 3;
 		if (num ==1) {
 			heights[x] = heights[x - 1] + 1;
-
 		}
-		else if (num == 2) {
-			heights[x] = heights[x - 1];
-		
-		}
-		else
+		else if(num == 0)
 		{
 			heights[x] = heights[x - 1] - 1;
 			if (heights[x] < 0) {
 				heights[x] = 0;
 			}
 		}
+		else {
+			heights[x] = heights[x - 1];
+		
+		}
+		
+
+	}
+	for (size_t x = 1; x < MAP_WIDTH - 1; x++)//generate surface
+	{
+		if (heights[x] > heights[x - 1] && heights[x] > heights[x + 1]) {
+			heights[x]--;
+		}
+		if (heights[x] < heights[x - 1] && heights[x] < heights[x + 1]) {
+			heights[x]++;
+		}
+
 
 	}
 	cameraPos = { 0,heights[(CAMERA_WIDTH / 2) / BLOCK_SIZE] * BLOCK_SIZE - CAMERA_HEIGHT / 2 - 2*BLOCK_SIZE };//set camera to the ground
@@ -68,11 +80,11 @@ void Game::Innit()
 
 	}
 	for (int x = 0; x < MAP_WIDTH; x++) {//filling map with blocks
-		int id_ground = rand() % 40;
 		for (int y = heights[x]; y < MAP_HEIGHT; y++) {
 			if (y == heights[x]) {
 				Map[y][x] = 3;
-				if (id_ground >= 0 && id_ground <= 3) Map[y - 1][x] = 12;//add plants
+				int id_ground = rand() % 40;//add plants
+				if (id_ground >= 0 && id_ground <= 3) Map[y - 1][x] = 12;
 				if (id_ground >= 4 && id_ground <= 7) Map[y - 1][x] = 13;
 				if (id_ground >= 10 && id_ground <= 11) Map[y - 1][x] = 88;
 				if (id_ground >= 12 && id_ground <= 13) Map[y - 1][x] = 89;
@@ -89,9 +101,9 @@ void Game::Innit()
 						for (int i = y - 1; i >= y - tree_height; i--) {
 							Map[i][x] = 20;
 							if (i == y - tree_height) {
-									for (int j = i; j >= i - 4; j--) {
+									for (int j = i - 1; j >= i - 5; j--) {
 								for (int p = x - 2; p <= x + 2; p++) {
-									if ((j == i && p == x - 2) || (j == i && p == x + 2) || (j == i - 4 && p == x - 2) || (j == i - 4 && p == x + 2) || (Map[j][p] == 20)) {
+									if ((j == i - 1 && p == x - 2) || (j == i - 1 && p == x + 2) || (j == i - 5 && p == x - 2) || (j == i - 5 && p == x + 2) || (Map[j][p] == 20)) {
 										continue;
 									}
 											Map[j][p] = 145;
@@ -102,18 +114,26 @@ void Game::Innit()
 						}
 
 					}
+
+			int lake_chance = rand() % 150;//add lakes
+			if (lake_chance == 0 && x < MAP_HEIGHT - 5) {
+				int tempie = y;
+				for (int i = 0; i < 5; i++) {
+				Map[tempie][x+i] = 205;
+
 				}
-			
-				else if (y < heights[x] + heights2[x] + 5)
+			}
+				}
+			else if (y < heights[x] + heights2[x] + 5)
 				{
 					Map[y][x] = 2;
 				}
-				else
+			else
 				{
 					Map[y][x] = 1;
 
 				}
-			int lake_chance = rand() % 150;
+
 
 			}
 		}
