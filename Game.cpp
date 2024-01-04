@@ -3,6 +3,8 @@
 void Game::Innit()
 {
 	SDL_Init(SDL_INIT_EVERYTHING);
+	TTF_Init();
+
 	window = SDL_CreateWindow("Terraria", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, CAMERA_WIDTH, CAMERA_HEIGHT, 0);
 
 	renderer = SDL_CreateRenderer(window, 0, 0);
@@ -93,9 +95,13 @@ void Game::on_left_click(SDL_Event event) {
 	
 	distance = pow((mouseX - CAMERA_WIDTH / 2), 2) + pow((mouseY - CAMERA_HEIGHT / 2), 2);
 	SDL_Log("dist: (%d)", distance);
-
-	if (distance / BLOCK_SIZE <= 90000 / BLOCK_SIZE) {
-		Map[cameraPos.y / BLOCK_SIZE + mouseY / BLOCK_SIZE][cameraPos.x / BLOCK_SIZE + mouseX / BLOCK_SIZE] = inventory.GetActiveSlotItem().ID;
+	
+	if (distance / BLOCK_SIZE <= 90000 / BLOCK_SIZE && Map[cameraPos.y / BLOCK_SIZE + mouseY / BLOCK_SIZE][cameraPos.x / BLOCK_SIZE + mouseX / BLOCK_SIZE] == 0) {
+		int tem = inventory.Place();
+		if (tem != 0) {
+			Map[cameraPos.y / BLOCK_SIZE + mouseY / BLOCK_SIZE][cameraPos.x / BLOCK_SIZE + mouseX / BLOCK_SIZE] = tem;
+		}
+		
 	}
 
 }
@@ -108,8 +114,9 @@ void Game::on_right_click(SDL_Event event) {
 	distance = pow((CAMERA_WIDTH / 2 - mouseX), 2) + pow((CAMERA_HEIGHT / 2 - mouseY), 2);
 	SDL_Log("dist: (%d)", distance);
 
-	if (distance / BLOCK_SIZE <= 90000 / BLOCK_SIZE) {
-		Map[cameraPos.y / BLOCK_SIZE + mouseY / BLOCK_SIZE][cameraPos.x / BLOCK_SIZE + mouseX / BLOCK_SIZE] = 1;
+	if (distance / BLOCK_SIZE <= 90000 / BLOCK_SIZE && Map[cameraPos.y / BLOCK_SIZE + mouseY / BLOCK_SIZE][cameraPos.x / BLOCK_SIZE + mouseX / BLOCK_SIZE] != 0) {
+		inventory.PickUp({static_cast<ItemsID>(Map[cameraPos.y / BLOCK_SIZE + mouseY / BLOCK_SIZE][cameraPos.x / BLOCK_SIZE + mouseX / BLOCK_SIZE]) , 1});
+		Map[cameraPos.y / BLOCK_SIZE + mouseY / BLOCK_SIZE][cameraPos.x / BLOCK_SIZE + mouseX / BLOCK_SIZE] = 0;
 	}
 }
 
@@ -151,6 +158,7 @@ void Game::Render()
 
 	SDL_SetRenderDrawColor(renderer, 255, 255, 255, 10);
 	SDL_RenderFillRect(renderer, &rect);
+	TTF_Font* rFont = TTF_OpenFont("arial.ttf", 24);
 	
 	for (size_t i = 0; i < inventory.GetSize(); i++)
 	{
@@ -169,7 +177,21 @@ void Game::Render()
 		SDL_Rect sours = { textureIndex % 16 * TEXTURE_SIZE , textureIndex / 16 * TEXTURE_SIZE ,TEXTURE_SIZE,TEXTURE_SIZE };
 		SDL_Rect dest = { i * BLOCK_SIZE + (i+1)*8+25, 25 + 8, BLOCK_SIZE, BLOCK_SIZE};
 		SDL_RenderCopy(renderer, texture, &sours, &dest);
+
+		SDL_Surface* textSurface = TTF_RenderText_Solid(rFont, std::to_string(item.count).c_str(), SDL_Color(20, 20, 20));
+
+		SDL_Rect abcPosition = { i * BLOCK_SIZE + (i + 1) * 8 + 25, 48,textSurface->w,textSurface->h };
+
+		SDL_Texture* mTexture = SDL_CreateTextureFromSurface(renderer, textSurface);
+		SDL_RenderCopy(renderer, mTexture, NULL, &abcPosition);
 	}
+
+	
+
+	
+	
+
+
 	dest = {playerPos.x, playerPos.y, 128, 128};
 	SDL_RenderCopy(renderer, hoe, NULL, &dest);
 	SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);

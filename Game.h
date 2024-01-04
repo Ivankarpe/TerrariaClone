@@ -1,11 +1,14 @@
 #pragma once
 #include <SDL.h>
 #include <SDL_image.h>
+#include <SDL_ttf.h>
 #include <vector>
+#include <string>
 #include <iostream>
 #include "Settings.h"
 #include "PerlinNoise.hpp"
 #include "Inventory.h"
+
 class Game
 {
 public:

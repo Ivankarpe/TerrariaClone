@@ -12,6 +12,7 @@ public:
 	Inventory();
 
 	bool PickUp(Item item);
+	int Place();
 
 	void ChangeActiveSlot(int slot);
 

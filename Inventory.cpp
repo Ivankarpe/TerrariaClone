@@ -9,31 +9,31 @@ Inventory::Inventory() {
             inventory.push_back({ AIR,0 });
             break;
         case 1:
-            inventory.push_back({ STONE,0 });
+            inventory.push_back({ AIR,0 });
             break;
         case 2:
-            inventory.push_back({ DIRT,0 });
+            inventory.push_back({ AIR,0 });
             break;
         case 3:
-            inventory.push_back({ GRASS,0 });
+            inventory.push_back({ AIR,0 });
             break;
         case 4:
-            inventory.push_back({ PLANK,0 });
+            inventory.push_back({ AIR,0 });
             break;
         case 5:
-            inventory.push_back({ GLASS,0 });
+            inventory.push_back({ AIR,0 });
             break;
         case 6:
-            inventory.push_back({ NONE,0 });
+            inventory.push_back({ AIR,0 });
             break;
         case 7:
-            inventory.push_back({ BRICKWALL,0 });
+            inventory.push_back({ AIR,0 });
             break;
         case 8:
-            inventory.push_back({ TNT,0 });
+            inventory.push_back({ AIR,0 });
             break;
         case 9:
-            inventory.push_back({ NONE2,0 });
+            inventory.push_back({ AIR,0 });
             break;
         default:
             inventory.push_back({ AIR,0 });
@@ -48,9 +48,19 @@ bool Inventory::PickUp(Item item)
     int firstEmptyIndex = -1;
     for (size_t i = 0; i < size; i++)
     {
-        if (inventory[i].ID == AIR || inventory[i].ID == item.ID) {
+        if (inventory[i].ID == item.ID) {
             firstEmptyIndex = i;
             break;
+        }
+    }
+    if (firstEmptyIndex == -1) {
+
+        for (size_t i = 0; i < size; i++)
+        {
+            if (inventory[i].ID == AIR) {
+                firstEmptyIndex = i;
+                break;
+            }
         }
     }
 
@@ -62,6 +72,19 @@ bool Inventory::PickUp(Item item)
     inventory[firstEmptyIndex].ID = item.ID;
 
     return true;
+}
+
+int Inventory::Place()
+{
+    if (GetActiveSlotItem().ID == AIR) {
+    return false;
+
+    }
+    inventory[activeSlot].count -= 1;
+    if (inventory[activeSlot].count <= 0) {
+        DeleteActiveItem();
+    }
+    return static_cast<int>(inventory[activeSlot].ID);
 }
 
 void Inventory::ChangeActiveSlot(int slot)
