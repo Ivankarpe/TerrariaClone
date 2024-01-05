@@ -1,10 +1,15 @@
 #pragma once
 #include <SDL.h>
 #include <SDL_image.h>
+#include <SDL_ttf.h>
 #include <vector>
+#include <string>
 #include <iostream>
 #include "Settings.h"
+#include "Player.h"
 #include "PerlinNoise.hpp"
+#include "Inventory.h"
+
 class Game
 {
 public:
@@ -41,10 +46,13 @@ private:
 
 	std::vector<std::vector<int>> Map;
 
-	Vector2 cameraPos = { 0,0 };
+	Vector2 cameraPos = { CAMERA_HEIGHT,CAMERA_WIDTH };
+	Player player;
 	Vector2 playerPos = { CAMERA_WIDTH / 2 - 64, CAMERA_HEIGHT / 2 - 64 };
 
 	Buttons butt = { 0, 0, 0, 0 };
+
+	Inventory inventory;
 
 };
 
