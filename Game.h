@@ -33,6 +33,7 @@ public:
 
 	void on_right_click(SDL_Event event);
 
+	void oreSpawn();
 private:
 	SDL_Window* window;
 
