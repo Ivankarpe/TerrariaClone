@@ -86,9 +86,9 @@ void Game::Innit()
 	}
 
 	int VOID = 0;//
-	int ROCK = 1;
+	int STONE = 1;
 	int seed = time(NULL);
-	int rockProb = 55;
+	int STONEProb = 55;
 	srand(seed);
 
 	for (int x = 0; x < MAP_WIDTH; x++) {//filling map with blocks
@@ -140,14 +140,14 @@ void Game::Innit()
 			{
 				Map[y][x] = 2;
 			}
-			else//random spawm rock and void
+			else//random spawm STONE and void
 			{
 				if (x == 0 || x == MAP_WIDTH) {
 					Map[y][x] = 255;
 				}
 				else {
 					Map[y][x] = 1;
-					if (rand() % 100 > 100/*rockProb*/) Map[y][x] = 0;
+					if (rand() % 100 > 58/*STONEProb*/) Map[y][x] = 0;
 				}
 
 
@@ -157,90 +157,73 @@ void Game::Innit()
 		}
 	}
 
-	for (int w = 1; w < MAP_WIDTH - 1; w++) {// grouping the rock
+	for (int w = 1; w < MAP_WIDTH - 1; w++) {// grouping the STONE
 		for (int h = heights[w]; h < MAP_HEIGHT - 1; h++) {
-			int rockCounter = 0;
+			int STONECounter = 0;
 
 			for (int x = w - 1; x < w + 2; x++) {
 				for (int y = h - 1; y < h + 2; y++) {
 					if (!(x == w && y == h)) {
-						rockCounter += Map[y][x];
+						STONECounter += Map[y][x];
 					}
 				}
 			}
 
-			if (Map[h][w] == VOID && rockCounter >= 6) Map[h][w] = ROCK;
-			if (Map[h][w] == ROCK && rockCounter <= 3) Map[h][w] = VOID;
+			if (Map[h][w] == VOID && STONECounter >= 6) Map[h][w] = STONE;
+			if (Map[h][w] == STONE && STONECounter <= 3) Map[h][w] = VOID;
 		}
 	}
 
 
 	for (int x = 1; x < MAP_WIDTH - 1; x++) {// ore generation
-		for (int y = heights[x] + heights2[x]; y < MAP_HEIGHT; y++) {
-			int oreChance = rand() % 1000;
+		for (int y = heights[x] + heights2[x] + 5; y < MAP_HEIGHT; y++) {
+			int oreProb = rand() % 3000;
 
-			int coalDepositsSize = rand() % 15 + 1;
-			/*int ironDepositsSize = rand() % 12 + 1;
-			int goldDepositsSize = rand() % 10 + 1;
-			int diamondDepositsSize = rand() % 7 + 1;
-			int rubyDepositsSize = rand() % 5 + 1;
-			int sapphireDepositsSize = rand() % 5 + 1;*/
-			int orecount = 0;
-			if (oreChance >= 0 && oreChance <= 4/* && Map[y][x] == 1 && x > (MAP_WIDTH + 15) && x < (MAP_WIDTH - 15) && y < (MAP_HEIGHT - 15)*/) {
-					if (x > 15 && x < (MAP_WIDTH - 15) && y < (MAP_HEIGHT - 15)) {
-						for (int w = x - 2; w <= x+2; w++) {
-							for (int h = y - 2; h <= y + 2; h++) {
-								if (rand() % 100 > 55) Map[h][w] = 34;
-							}
-						}
-					}
+			//int orecount = 0;
+			int defaultHeight = heights[x] + heights2[x];
 
+			oreSpawn(rand() % 3000, x, y, heights, heights2, COAL_ORE, defaultHeight, coalOreChance);
+			oreSpawn(rand() % 3000, x, y, heights, heights2, IRON_ORE, defaultHeight, ironOreChance);
+			oreSpawn(rand() % 4000, x, y, heights, heights2, GOLD_ORE, goldOreHight, goldOreChance);
+			oreSpawn(rand() % 6000, x, y, heights, heights2, DIAMOND_ORE, diamondOreHight, diamondOreChance);
+			oreSpawn(rand() % 6000, x, y, heights, heights2, RUBY_ORE, rubyOreHight, rubyOreChance);
+			oreSpawn(rand() % 6000, x, y, heights, heights2, SAPHIRE_ORE, saphireOreHight, saphireOreChance);
 
-						for (int w = 1; w < MAP_WIDTH - 1; w++) {// grouping the rock
-							for (int h = heights[w]; h < MAP_HEIGHT - 1; h++) {
-								int coalCounter = 0;
-
-								for (int p = w - 1; p < w + 2; p++) {
-									for (int t = h - 1; t < h + 2; t++) {
-										if (!(p == w && t == h) && (Map[t][p] == 34)) {
-											coalCounter++;
-										}
-									}
-								}
-								//SDL_Log("rockCounter = : (%d)", rockCounter);
-
-								if (Map[h][w] == 34 && coalCounter <= 1) Map[h][w] = ROCK;
-								if (Map[h][w] == ROCK && coalCounter >= 5 ) Map[h][w] = 34;
-							} 
-						}
-			}
 		}
 	}
 }
 
-//void oreSpawn(int heights[], int heights2[], int oreChance, vector Map[][], int coalDepositsSize) {
-//	for (int x = 1; x < MAP_WIDTH - 1; x++) {// ore generation
-//		for (int y = heights[x] + heights2[x]; y < MAP_HEIGHT; y++) {
-//			
-//
-//			if (oreChance >= 0 && oreChance <= 4 && Map[y][x] == 1) {
-//				for (int i = 0; i <= coalDepositsSize; i++) {
-////if (rand() % 100 > 16) Map[y][x] = 1;
-						//orecount++;
-				//}
-				//}
-				/*if (oreChance >= 5 && oreChance <= 9 && Map[y][x] == 1) Map[y][x] = 33;
-				if (oreChance >= 10 && oreChance <= 14 && Map[y][x] == 1) Map[y][x] = 34;
-				if (oreChance >= 15 && oreChance <= 19 && Map[y][x] == 1) Map[y][x] = 50;
-				if (oreChance >= 20 && oreChance <= 24 && Map[y][x] == 1) Map[y][x] = 51;
-				if (oreChance >= 25 && oreChance <= 29 && Map[y][x] == 1) Map[y][x] = 160;*/
-//					Map[y][x] = 34;
-//				}
-//			}
-//			
-//		}
-//	}
-//}
+void Game::oreSpawn(int oreProb, int x, int y, int heights[MAP_WIDTH], int heights2[MAP_WIDTH], ItemsID oreID, const int oreSpawnHight, const int oreSpawnChance) {
+	int oreType = static_cast<int>(oreID);
+	int oreHight = oreSpawnHight;
+	int oreChance = oreSpawnChance;
+	if (oreProb >= 0 && oreProb <= 4 && x > 5 && x < (MAP_WIDTH - 5) && y < (MAP_HEIGHT - 5) && y >= oreHight) {
+		for (int w = x - 2; w <= x + 2; w++) {
+			for (int h = y - 2; h <= y + 2; h++) {
+				if (rand() % 100 <= oreChance) Map[h][w] = oreType;
+			}
+		}
+
+
+		for (int w = 1; w < MAP_WIDTH - 1; w++) {// grouping the ore
+			for (int h = heights[w]; h < MAP_HEIGHT - 1; h++) {
+				int coalCounter = 0;
+
+				for (int p = w - 1; p < w + 2; p++) {
+					for (int t = h - 1; t < h + 2; t++) {
+						if (!(p == w && t == h) && (Map[t][p] == oreType)) {
+							coalCounter++;
+						}
+					}
+				}
+				//SDL_Log("rockCounter = : (%d)", rockCounter);
+
+				if (Map[h][w] == oreType && coalCounter <= 1) Map[h][w] = STONE;
+				if (Map[h][w] == !oreType && coalCounter >= 5) Map[h][w] = oreType;
+			}
+		}
+	}
+}
 
 void Game::Update()
 {

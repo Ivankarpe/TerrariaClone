@@ -33,7 +33,7 @@ public:
 
 	void on_right_click(SDL_Event event);
 
-	void oreSpawn();
+	void oreSpawn(int oreChance, int x, int y, int heights[MAP_WIDTH], int heights2[MAP_WIDTH], ItemsID oreID, const int oreSpawnHight, const int oreSpawnChance);
 private:
 	SDL_Window* window;
 
