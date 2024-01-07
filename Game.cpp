@@ -147,7 +147,7 @@ void Game::Innit()
 				}
 				else {
 					Map[y][x] = 1;
-					if (rand() % 100 > rockProb) Map[y][x] = 0;
+					if (rand() % 100 > 100/*rockProb*/) Map[y][x] = 0;
 				}
 
 
@@ -186,11 +186,11 @@ void Game::Innit()
 			int rubyDepositsSize = rand() % 5 + 1;
 			int sapphireDepositsSize = rand() % 5 + 1;*/
 			int orecount = 0;
-			if (oreChance >= 0 && oreChance <= 4 && Map[y][x] == 1/* && x > (MAP_WIDTH + 15) && x < (MAP_WIDTH - 15) && y < (MAP_HEIGHT - 15)*/) {
+			if (oreChance >= 0 && oreChance <= 4/* && Map[y][x] == 1 && x > (MAP_WIDTH + 15) && x < (MAP_WIDTH - 15) && y < (MAP_HEIGHT - 15)*/) {
 					if (x > 15 && x < (MAP_WIDTH - 15) && y < (MAP_HEIGHT - 15)) {
 						for (int w = x - 2; w <= x+2; w++) {
 							for (int h = y - 2; h <= y + 2; h++) {
-								if (rand() % 100 > 59) Map[h][w] = 34;
+								if (rand() % 100 > 55) Map[h][w] = 34;
 							}
 						}
 					}
@@ -198,19 +198,20 @@ void Game::Innit()
 
 						for (int w = 1; w < MAP_WIDTH - 1; w++) {// grouping the rock
 							for (int h = heights[w]; h < MAP_HEIGHT - 1; h++) {
-								int rockCounter = 0;
+								int coalCounter = 0;
 
 								for (int p = w - 1; p < w + 2; p++) {
 									for (int t = h - 1; t < h + 2; t++) {
-										if (!(p == w && t == h) && Map[p][t] == 34) {
-											rockCounter++;
+										if (!(p == w && t == h) && (Map[t][p] == 34)) {
+											coalCounter++;
 										}
 									}
 								}
+								//SDL_Log("rockCounter = : (%d)", rockCounter);
 
-								if (Map[h][w] == 34 && rockCounter >= 6) Map[h][w] = ROCK;
-								if (Map[h][w] == ROCK && rockCounter <= 3) Map[h][w] = 34;
-							}
+								if (Map[h][w] == 34 && coalCounter <= 1) Map[h][w] = ROCK;
+								if (Map[h][w] == ROCK && coalCounter >= 5 ) Map[h][w] = 34;
+							} 
 						}
 			}
 		}
