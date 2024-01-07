@@ -26,6 +26,7 @@ public:
 
 	int GetSize() { return size; }
 
+	void Render(SDL_Renderer* renderer, SDL_Texture* texture);
 private:
 
 	int activeSlot;

@@ -1,4 +1,11 @@
 #pragma once
+#include <SDL.h>
+#include <SDL_image.h>
+#include <SDL_ttf.h>
+#include <SDL_thread.h>
+#include <vector>
+#include <string>
+#include <iostream>
 const int MAP_WIDTH = 2000;
 const int MAP_HEIGHT = 300;
 
@@ -24,3 +31,4 @@ enum ItemsID
 {
 	AIR, STONE, DIRT, GRASS, PLANK,GLASS, NONE, BRICKWALL, TNT, NONE2, NONE3, WEB, FLOWER,NONE4,NONE5,NONE6,STONEWALL
 };
+

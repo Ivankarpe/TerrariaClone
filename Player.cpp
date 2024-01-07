@@ -4,11 +4,10 @@ void Player::Move(Vector2 dir, std::vector<std::vector<int>> Map)
 {
 	int dx = dir.x;
 	int dy = dir.y;
-	//SDL_Log("x: %d , y: %d", (cord.x + dx) / BLOCK_SIZE , (cord.y + dy) / BLOCK_SIZE);
-	
-	bool x = true;
 
+	bool x = true;
 	bool y = true;
+
 	if (Map[(cord.y - 16 + dy) / BLOCK_SIZE][(cord.x - 16) / BLOCK_SIZE] != 0) { y = false; }
 	if (Map[(cord.y - 16) / BLOCK_SIZE][(cord.x + dx - 16) / BLOCK_SIZE] != 0) { x = false; }
 
@@ -41,9 +40,14 @@ void Player::Update(std::vector<std::vector<int>> Map)
 	Move({0, dy}, Map);
 }
 
-void Player::Jump()
+void Player::Jump( std::vector<std::vector<int>> Map)
 {
-	if (acc == 0) {
+	bool y = false;
+	
+	if (Map[(cord.y + 16 + 5) / BLOCK_SIZE][(cord.x - 16) / BLOCK_SIZE] != 0) { y = true; }
+	if (Map[(cord.y + 16 + 5) / BLOCK_SIZE][(cord.x + 16) / BLOCK_SIZE] != 0) { y = true; }
+
+	if (y) {
 		acc = -9;
 
 	}

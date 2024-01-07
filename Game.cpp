@@ -195,6 +195,7 @@ void Game::Update()
 }
 
 void Game::on_left_click(SDL_Event event) {
+	
 	int mouseX, mouseY, distance;
 
 	
@@ -233,6 +234,26 @@ void Game::on_right_click(SDL_Event event) {
 	}
 }
 
+void Game::DrawMap(InfoForRender info) {
+	
+	int textureIndex;
+	for (size_t i = info.Start; i < info.End; i++)//filling screen with blocks
+	{
+		for (size_t j = 0; j < CAMERA_HEIGHT / BLOCK_SIZE + 2; j++)
+		{
+			textureIndex = Map[info.firstPos.y + j][info.firstPos.x + i];
+
+			SDL_Rect sours = { textureIndex % 16 * TEXTURE_SIZE ,textureIndex / 16 * TEXTURE_SIZE ,TEXTURE_SIZE,TEXTURE_SIZE };
+
+			//SDL_Rect dest = { i * BLOCK_SIZE ,j * BLOCK_SIZE,BLOCK_SIZE,BLOCK_SIZE };
+			SDL_Rect dest = { i * BLOCK_SIZE - info.dosPos.x,j * BLOCK_SIZE - info.dosPos.y,BLOCK_SIZE,BLOCK_SIZE };
+
+			SDL_RenderCopy(renderer, texture, &sours, &dest);
+
+		}
+	}
+
+}
 
 void Game::Render()
 {
@@ -258,21 +279,8 @@ void Game::Render()
 	}
 	Vector2 firstPos = { cameraPos.x / BLOCK_SIZE, cameraPos.y / BLOCK_SIZE};
 	Vector2 dosPos = { cameraPos.x - firstPos.x*BLOCK_SIZE, cameraPos.y - firstPos.y*BLOCK_SIZE };
-	int textureIndex = 1;
-	for (size_t i = 0; i < CAMERA_WIDTH/BLOCK_SIZE+1; i++)//filling screen with blocks
-	{
-		for (size_t j = 0; j < CAMERA_HEIGHT / BLOCK_SIZE+2; j++)
-		{
-			textureIndex = Map[firstPos.y + j][firstPos.x + i];
-
-			SDL_Rect sours = { textureIndex%16* TEXTURE_SIZE ,textureIndex/16 * TEXTURE_SIZE ,TEXTURE_SIZE,TEXTURE_SIZE };
-
-			//SDL_Rect dest = { i * BLOCK_SIZE ,j * BLOCK_SIZE,BLOCK_SIZE,BLOCK_SIZE };
-			SDL_Rect dest = { i * BLOCK_SIZE - dosPos.x,j * BLOCK_SIZE - dosPos.y,BLOCK_SIZE,BLOCK_SIZE };
-			SDL_RenderCopy(renderer, texture, &sours, &dest);
-
-		}
-	}
+	InfoForRender info = { firstPos,dosPos,0,CAMERA_WIDTH / 2 + 1 };
+	DrawMap(info);
 	int mouseX, mouseY;
 	SDL_GetMouseState(&mouseX, &mouseY);
 	mouseX += dosPos.x;
@@ -281,58 +289,17 @@ void Game::Render()
 	mouseX /= BLOCK_SIZE;
 	mouseY /= BLOCK_SIZE;
 
-	textureIndex = 5;
+	int textureIndex = 5;
 	SDL_Rect sours = { textureIndex % 16 * TEXTURE_SIZE , textureIndex / 16 * TEXTURE_SIZE ,TEXTURE_SIZE,TEXTURE_SIZE };
 	SDL_Rect dest = { mouseX * BLOCK_SIZE - dosPos.x, mouseY * BLOCK_SIZE - dosPos.y, BLOCK_SIZE, BLOCK_SIZE };
 
 
 	SDL_RenderCopy(renderer, texture, &sours, &dest);
 	
-	SDL_Rect rect;
-	rect.x = 25;
-	rect.y = 25;
-	rect.w = 408;
-	rect.h = 48;
-
-	SDL_SetRenderDrawColor(renderer, 255, 255, 255, 10);
-	SDL_RenderFillRect(renderer, &rect);
-	TTF_Font* rFont = TTF_OpenFont("arial.ttf", 24);
-	
-	for (size_t i = 0; i < inventory.GetSize(); i++)
-	{
-		Item item = inventory.GetSlotItem(i);
-		if (i == inventory.GetActiveSlotIndex()) {
-			SDL_Rect rect;
-			rect.x = i * BLOCK_SIZE + (i + 1) * 8 + 25-4;
-			rect.y = 25 + 8-4;
-			rect.w = 40;
-			rect.h = 40;
-
-			SDL_SetRenderDrawColor(renderer, 255, 0, 0, 10);
-			SDL_RenderFillRect(renderer, &rect);
-		}
-		textureIndex = item.ID;
-		SDL_Rect sours = { textureIndex % 16 * TEXTURE_SIZE , textureIndex / 16 * TEXTURE_SIZE ,TEXTURE_SIZE,TEXTURE_SIZE };
-		SDL_Rect dest = { i * BLOCK_SIZE + (i+1)*8+25, 25 + 8, BLOCK_SIZE, BLOCK_SIZE};
-		SDL_RenderCopy(renderer, texture, &sours, &dest);
-
-		SDL_Surface* textSurface = TTF_RenderText_Solid(rFont, std::to_string(item.count).c_str(), SDL_Color(20, 20, 20));
-
-		SDL_Rect abcPosition = { i * BLOCK_SIZE + (i + 1) * 8 + 25, 48,textSurface->w,textSurface->h };
-
-		SDL_Texture* mTexture = SDL_CreateTextureFromSurface(renderer, textSurface);
-		SDL_RenderCopy(renderer, mTexture, NULL, &abcPosition);
-	}
-
-	
-
-	
-	
-
-
+	inventory.Render(renderer, texture);
 	//dest = {player.GetPos().x -cameraPos.x-64, player.GetPos().y - cameraPos.y-64, 128, 128};
 	//SDL_RenderCopy(renderer, hoe, NULL, &dest);
-
+	SDL_Rect rect;
 	rect.x = player.GetPos().x - cameraPos.x - 16;
 	rect.y = player.GetPos().y - cameraPos.y - 16;
 	rect.w = 32;
@@ -433,12 +400,6 @@ void Game::Inputs()
 
 	}
 	Vector2 dir = { 0,0 };
-	if (butt.w && player.GetPos().y != 0) {
-		dir.y -= 1;
-	}
-	if (butt.s && player.GetPos().y < MAP_HEIGHT*BLOCK_SIZE) {
-		dir.y += 1;
-	}
 	if (butt.a && player.GetPos().x != 0) {
 		dir.x -= 1;
 	}
@@ -446,7 +407,7 @@ void Game::Inputs()
 		dir.x += 1;
 	}
 	if (butt.space ) {
-		player.Jump();
+		player.Jump(Map);
 	}
 	player.Move(dir, Map);
 	
