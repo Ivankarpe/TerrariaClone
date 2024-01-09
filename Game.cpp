@@ -7,7 +7,7 @@ void Game::Innit()
 
 
 
-	window = SDL_CreateWindow("Terraria", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, CAMERA_WIDTH, CAMERA_HEIGHT, 0/*SDL_WINDOW_FULLSCREEN*/);
+	window = SDL_CreateWindow("Terraria", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, CAMERA_WIDTH, CAMERA_HEIGHT, SDL_WINDOW_FULLSCREEN);
 
 	renderer = SDL_CreateRenderer(window, 0, 0);
 	running = true;
@@ -336,7 +336,15 @@ void Game::Render()
 	inventory.Render(renderer, texture);
 	//dest = {player.GetPos().x -cameraPos.x-64, player.GetPos().y - cameraPos.y-64, 128, 128};
 	//SDL_RenderCopy(renderer, hoe, NULL, &dest);
-	
+	SDL_Rect rect;
+	rect.x = player.GetPos().x - cameraPos.x - 16;
+	rect.y = player.GetPos().y - cameraPos.y - 16;
+	rect.w = 32;
+	rect.h = 32;
+
+	SDL_SetRenderDrawColor(renderer, 255, 0, 0, 10);
+	SDL_RenderFillRect(renderer, &rect);
+
 
 
 	SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
