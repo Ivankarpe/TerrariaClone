@@ -14,6 +14,20 @@ const int CAMERA_WIDTH = 1920;
 const int CAMERA_HEIGHT = 1080;
 
 
+const int coalOreChance = 45;
+const int ironOreChance = 40;
+const int goldOreChance = 35;
+const int diamondOreChance = 30;
+const int rubyOreChance = 28;
+const int saphireOreChance = 28;
+
+
+const int goldOreHight = 175;
+const int diamondOreHight = 200;
+const int rubyOreHight = 225;
+const int saphireOreHight = 250;
+
+
 const int BLOCK_SIZE = 32;
 const int TEXTURE_SIZE = 16;
 struct Buttons {
@@ -27,8 +41,10 @@ struct Vector2
 	int y;
 };
 
+
 enum ItemsID
 {
-	AIR, STONE, DIRT, GRASS, PLANK,GLASS, NONE, BRICKWALL, TNT, NONE2, NONE3, WEB, FLOWER,NONE4,NONE5,NONE6,STONEWALL
+	AIR, STONE, DIRT, GRASS, PLANK,GLASS, NONE, BRICKWALL, TNT, NONE2, NONE3, WEB, FLOWER,NONE4,NONE5,NONE6,STONEWALL,GOLD_ORE = 32,IRON_ORE,COAL_ORE,DIAMOND_ORE=50,RUBY_ORE,SAPHIRE_ORE=160,
 };
+
 

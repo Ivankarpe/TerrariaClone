@@ -6,7 +6,8 @@ void Game::Innit()
 	TTF_Init();
 
 
-	window = SDL_CreateWindow("Terraria", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, CAMERA_WIDTH, CAMERA_HEIGHT, SDL_WINDOW_FULLSCREEN);
+
+	window = SDL_CreateWindow("Terraria", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, CAMERA_WIDTH, CAMERA_HEIGHT, 0/*SDL_WINDOW_FULLSCREEN*/);
 
 	renderer = SDL_CreateRenderer(window, 0, 0);
 	running = true;
@@ -33,10 +34,10 @@ void Game::Innit()
 	for (size_t x = 2; x < MAP_WIDTH; x++)//generate surface
 	{
 		int num = rand() % 3;
-		if (num ==1) {
+		if (num == 1) {
 			heights[x] = heights[x - 1] + 1;
 		}
-		else if(num == 0)
+		else if (num == 0)
 		{
 			heights[x] = heights[x - 1] - 1;
 			if (heights[x] < 0) {
@@ -45,9 +46,9 @@ void Game::Innit()
 		}
 		else {
 			heights[x] = heights[x - 1];
-		
+
 		}
-		
+
 
 	}
 	for (size_t x = 1; x < MAP_WIDTH - 1; x++)//generate surface
@@ -61,7 +62,9 @@ void Game::Innit()
 
 
 	}
-	cameraPos = { 0,heights[(CAMERA_WIDTH / 2) / BLOCK_SIZE] * BLOCK_SIZE - CAMERA_HEIGHT / 2 - 2*BLOCK_SIZE };//set camera to the ground
+	cameraPos = { 0,heights[(CAMERA_WIDTH / 2) / BLOCK_SIZE] * BLOCK_SIZE - CAMERA_HEIGHT / 2 - 2 * BLOCK_SIZE };//set camera to the ground
+
+
 	for (size_t x = 1; x < MAP_WIDTH; x++)//height of dirt layer
 	{
 		int num = rand() % 3;
@@ -84,9 +87,9 @@ void Game::Innit()
 	}
 
 	int VOID = 0;//
-	int ROCK = 1;
+	int STONE = 1;
 	int seed = time(NULL);
-	int rockProb = 55;
+	int STONEProb = 55;
 	srand(seed);
 
 	for (int x = 0; x < MAP_WIDTH; x++) {//filling map with blocks
@@ -111,41 +114,41 @@ void Game::Innit()
 						for (int i = y - 1; i >= y - tree_height; i--) {
 							Map[i][x] = 20;
 							if (i == y - tree_height) {
-									for (int j = i - 1; j >= i - 5; j--) {
-								for (int p = x - 2; p <= x + 2; p++) {
-									if ((j == i - 1 && p == x - 2) || (j == i - 1 && p == x + 2) || (j == i - 5 && p == x - 2) || (j == i - 5 && p == x + 2) || (Map[j][p] == 20)) {
-										continue;
-									}
-											Map[j][p] = 145;
+								for (int j = i - 1; j >= i - 5; j--) {
+									for (int p = x - 2; p <= x + 2; p++) {
+										if ((j == i - 1 && p == x - 2) || (j == i - 1 && p == x + 2) || (j == i - 5 && p == x - 2) || (j == i - 5 && p == x + 2) || (Map[j][p] == 20)) {
+											continue;
 										}
+										Map[j][p] = 145;
 									}
 								}
 							}
 						}
-
 					}
 
-			int lake_chance = rand() % 150;//add lakes
-			if (lake_chance == 0 && x < MAP_HEIGHT - 5) {
-				int tempie = y;
-				for (int i = 0; i < 5; i++) {
-				Map[tempie][x+i] = 205;
+				}
 
+				int lake_chance = rand() % 150;//add lakes
+				if (lake_chance == 0 && x < MAP_HEIGHT - 5) {
+					int tempie = y;
+					for (int i = 0; i < 5; i++) {
+						Map[tempie][x + i] = 205;
+
+					}
 				}
 			}
-				}
 			else if (y < heights[x] + heights2[x] + 5)
-				{
-					Map[y][x] = 2;
-				}
-			else//random spawm rock and void
+			{
+				Map[y][x] = 2;
+			}
+			else//random spawm STONE and void
 			{
 				if (x == 0 || x == MAP_WIDTH) {
 					Map[y][x] = 255;
 				}
 				else {
-				Map[y][x] = 1;
-				if (rand() % 100 > rockProb) Map[y][x] = 0;
+					Map[y][x] = 1;
+					if (rand() % 100 > 58/*STONEProb*/) Map[y][x] = 0;
 				}
 
 
@@ -155,39 +158,73 @@ void Game::Innit()
 		}
 	}
 
-	for (int w = 1; w < MAP_WIDTH - 1; w++) {// grouping the rock
+	for (int w = 1; w < MAP_WIDTH - 1; w++) {// grouping the STONE
 		for (int h = heights[w]; h < MAP_HEIGHT - 1; h++) {
-			int rockCounter = 0;
+			int STONECounter = 0;
 
 			for (int x = w - 1; x < w + 2; x++) {
 				for (int y = h - 1; y < h + 2; y++) {
 					if (!(x == w && y == h)) {
-						rockCounter += Map[y][x];
+						STONECounter += Map[y][x];
 					}
 				}
 			}
 
-			if (Map[h][w] == VOID && rockCounter >= 6) Map[h][w] = ROCK;
-			if (Map[h][w] == ROCK && rockCounter <= 3) Map[h][w] = VOID;
+			if (Map[h][w] == VOID && STONECounter >= 6) Map[h][w] = STONE;
+			if (Map[h][w] == STONE && STONECounter <= 3) Map[h][w] = VOID;
 		}
 	}
 
-	
-	for (int x = 1; x < MAP_WIDTH - 1; x++) {// ore generation
-		for (int y = heights[x] + heights2[x]; y < MAP_HEIGHT; y++) {
-			int oreChance = rand() % 3000;
 
-			if (oreChance >= 0 && oreChance <= 4 && Map[y][x] == 1) Map[y][x] = 32;
-			if (oreChance >= 5 && oreChance <= 9 && Map[y][x] == 1) Map[y][x] = 33;
-			if (oreChance >= 10 && oreChance <= 14 && Map[y][x] == 1) Map[y][x] = 34;
-			if (oreChance >= 15 && oreChance <= 19 && Map[y][x] == 1) Map[y][x] = 50;
-			if (oreChance >= 20 && oreChance <= 24 && Map[y][x] == 1) Map[y][x] = 51;
-			if (oreChance >= 25 && oreChance <= 29 && Map[y][x] == 1) Map[y][x] = 160;
+	for (int x = 1; x < MAP_WIDTH - 1; x++) {// ore generation
+		for (int y = heights[x] + heights2[x] + 5; y < MAP_HEIGHT; y++) {
+			int oreProb = rand() % 3000;
+
+			//int orecount = 0;
+			int defaultHeight = heights[x] + heights2[x];
+
+			oreSpawn(rand() % 3000, x, y, heights, heights2, COAL_ORE, defaultHeight, coalOreChance);
+			oreSpawn(rand() % 3000, x, y, heights, heights2, IRON_ORE, defaultHeight, ironOreChance);
+			oreSpawn(rand() % 4000, x, y, heights, heights2, GOLD_ORE, goldOreHight, goldOreChance);
+			oreSpawn(rand() % 6000, x, y, heights, heights2, DIAMOND_ORE, diamondOreHight, diamondOreChance);
+			oreSpawn(rand() % 6000, x, y, heights, heights2, RUBY_ORE, rubyOreHight, rubyOreChance);
+			oreSpawn(rand() % 6000, x, y, heights, heights2, SAPHIRE_ORE, saphireOreHight, saphireOreChance);
 
 		}
 	}
 }
 
+void Game::oreSpawn(int oreProb, int x, int y, int heights[MAP_WIDTH], int heights2[MAP_WIDTH], ItemsID oreID, const int oreSpawnHight, const int oreSpawnChance) {
+	int oreType = static_cast<int>(oreID);
+	int oreHight = oreSpawnHight;
+	int oreChance = oreSpawnChance;
+	if (oreProb >= 0 && oreProb <= 4 && x > 5 && x < (MAP_WIDTH - 5) && y < (MAP_HEIGHT - 5) && y >= oreHight) {
+		for (int w = x - 2; w <= x + 2; w++) {
+			for (int h = y - 2; h <= y + 2; h++) {
+				if (rand() % 100 <= oreChance) Map[h][w] = oreType;
+			}
+		}
+
+
+		for (int w = 1; w < MAP_WIDTH - 1; w++) {// grouping the ore
+			for (int h = heights[w]; h < MAP_HEIGHT - 1; h++) {
+				int coalCounter = 0;
+
+				for (int p = w - 1; p < w + 2; p++) {
+					for (int t = h - 1; t < h + 2; t++) {
+						if (!(p == w && t == h) && (Map[t][p] == oreType)) {
+							coalCounter++;
+						}
+					}
+				}
+				//SDL_Log("rockCounter = : (%d)", rockCounter);
+
+				if (Map[h][w] == oreType && coalCounter <= 1) Map[h][w] = STONE;
+				if (Map[h][w] == !oreType && coalCounter >= 5) Map[h][w] = oreType;
+			}
+		}
+	}
+}
 
 void Game::Update()
 {
@@ -307,6 +344,38 @@ void Game::Render()
 
 	SDL_SetRenderDrawColor(renderer, 255, 0, 0, 10);
 	SDL_RenderFillRect(renderer, &rect);
+
+	TTF_Font* rFont = TTF_OpenFont("arial.ttf", 24);
+	
+	for (size_t i = 0; i < inventory.GetSize(); i++)
+	{
+		Item item = inventory.GetSlotItem(i);
+		if (i == inventory.GetActiveSlotIndex()) {
+			SDL_Rect rect;
+			rect.x = i * BLOCK_SIZE + (i + 1) * 8 + 25-4;
+			rect.y = 25 + 8-4;
+			rect.w = 40;
+			rect.h = 40;
+
+			SDL_SetRenderDrawColor(renderer, 255, 0, 0, 10);
+			SDL_RenderFillRect(renderer, &rect);
+		}
+		textureIndex = item.ID;
+		SDL_Rect sours = { textureIndex % 16 * TEXTURE_SIZE , textureIndex / 16 * TEXTURE_SIZE ,TEXTURE_SIZE,TEXTURE_SIZE };
+		SDL_Rect dest = { i * BLOCK_SIZE + (i+1)*8+25, 25 + 8, BLOCK_SIZE, BLOCK_SIZE};
+		if(item.count != 0)SDL_RenderCopy(renderer, texture, &sours, &dest);
+
+		SDL_Surface* textSurface = TTF_RenderText_Solid(rFont, std::to_string(item.count).c_str(), SDL_Color(20, 20, 20));
+
+		SDL_Rect abcPosition = { i * BLOCK_SIZE + (i + 1) * 8 + 25, 48,textSurface->w,textSurface->h };
+
+		SDL_Texture* mTexture = SDL_CreateTextureFromSurface(renderer, textSurface);
+		SDL_RenderCopy(renderer, mTexture, NULL, &abcPosition);
+	SDL_FreeSurface(textSurface);
+	SDL_DestroyTexture(mTexture);
+	}
+	TTF_CloseFont(rFont);
+
 
 
 	SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);

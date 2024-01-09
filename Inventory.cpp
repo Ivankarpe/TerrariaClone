@@ -81,7 +81,7 @@ int Inventory::Place()
 
     }
     inventory[activeSlot].count -= 1;
-    if (inventory[activeSlot].count <= 0) {
+    if (inventory[activeSlot].count < 0) {
         DeleteActiveItem();
     }
     return static_cast<int>(inventory[activeSlot].ID);

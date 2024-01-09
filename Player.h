@@ -5,7 +5,6 @@
 class Player
 {
 public:
-	
 	Vector2 GetPos() { return cord; }
 
 	void Move(Vector2 dir, std::vector<std::vector<int>> Map);
