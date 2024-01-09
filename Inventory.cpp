@@ -151,12 +151,8 @@ void Inventory::Render(SDL_Renderer* renderer, SDL_Texture* texture)
 
         SDL_Texture* mTexture = SDL_CreateTextureFromSurface(renderer, textSurface);
         SDL_RenderCopy(renderer, mTexture, NULL, &abcPosition);
+        SDL_FreeSurface(textSurface);
+        SDL_DestroyTexture(mTexture);
     }
-
-
-
-
-
-
-
+    TTF_CloseFont(rFont);
 }

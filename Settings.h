@@ -30,6 +30,9 @@ const int saphireOreHight = 250;
 
 const int BLOCK_SIZE = 32;
 const int TEXTURE_SIZE = 16;
+
+
+
 struct Buttons {
 	bool w, a, s, d, space;
 };

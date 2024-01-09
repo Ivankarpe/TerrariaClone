@@ -11,6 +11,7 @@ public:
 	void Update(std::vector<std::vector<int>> Map);
 	void Jump(std::vector<std::vector<int>> Map);
 private:
+	int gamemode = 0;
 	Vector2 cord = { CAMERA_WIDTH , CAMERA_HEIGHT};
 	float acc = 0;
 

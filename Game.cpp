@@ -336,46 +336,7 @@ void Game::Render()
 	inventory.Render(renderer, texture);
 	//dest = {player.GetPos().x -cameraPos.x-64, player.GetPos().y - cameraPos.y-64, 128, 128};
 	//SDL_RenderCopy(renderer, hoe, NULL, &dest);
-	SDL_Rect rect;
-	rect.x = player.GetPos().x - cameraPos.x - 16;
-	rect.y = player.GetPos().y - cameraPos.y - 16;
-	rect.w = 32;
-	rect.h = 32;
-
-	SDL_SetRenderDrawColor(renderer, 255, 0, 0, 10);
-	SDL_RenderFillRect(renderer, &rect);
-
-	TTF_Font* rFont = TTF_OpenFont("arial.ttf", 24);
 	
-	for (size_t i = 0; i < inventory.GetSize(); i++)
-	{
-		Item item = inventory.GetSlotItem(i);
-		if (i == inventory.GetActiveSlotIndex()) {
-			SDL_Rect rect;
-			rect.x = i * BLOCK_SIZE + (i + 1) * 8 + 25-4;
-			rect.y = 25 + 8-4;
-			rect.w = 40;
-			rect.h = 40;
-
-			SDL_SetRenderDrawColor(renderer, 255, 0, 0, 10);
-			SDL_RenderFillRect(renderer, &rect);
-		}
-		textureIndex = item.ID;
-		SDL_Rect sours = { textureIndex % 16 * TEXTURE_SIZE , textureIndex / 16 * TEXTURE_SIZE ,TEXTURE_SIZE,TEXTURE_SIZE };
-		SDL_Rect dest = { i * BLOCK_SIZE + (i+1)*8+25, 25 + 8, BLOCK_SIZE, BLOCK_SIZE};
-		if(item.count != 0)SDL_RenderCopy(renderer, texture, &sours, &dest);
-
-		SDL_Surface* textSurface = TTF_RenderText_Solid(rFont, std::to_string(item.count).c_str(), SDL_Color(20, 20, 20));
-
-		SDL_Rect abcPosition = { i * BLOCK_SIZE + (i + 1) * 8 + 25, 48,textSurface->w,textSurface->h };
-
-		SDL_Texture* mTexture = SDL_CreateTextureFromSurface(renderer, textSurface);
-		SDL_RenderCopy(renderer, mTexture, NULL, &abcPosition);
-	SDL_FreeSurface(textSurface);
-	SDL_DestroyTexture(mTexture);
-	}
-	TTF_CloseFont(rFont);
-
 
 
 	SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
