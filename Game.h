@@ -1,15 +1,16 @@
 #pragma once
-#include <SDL.h>
-#include <SDL_image.h>
-#include <SDL_ttf.h>
-#include <vector>
-#include <string>
-#include <iostream>
+
 #include "Settings.h"
 #include "Player.h"
 #include "PerlinNoise.hpp"
 #include "Inventory.h"
+struct InfoForRender {
+	Vector2 firstPos;
+	Vector2 dosPos;
+	int Start;
+	int End;
 
+};
 class Game
 {
 public:
@@ -33,7 +34,11 @@ public:
 
 	void on_right_click(SDL_Event event);
 
+
 	void oreSpawn(int oreChance, int x, int y, int heights[MAP_WIDTH], int heights2[MAP_WIDTH], ItemsID oreID, const int oreSpawnHight, const int oreSpawnChance);
+
+	void DrawMap(InfoForRender info);
+
 private:
 	SDL_Window* window;
 
@@ -44,7 +49,7 @@ private:
 	SDL_Texture* hoe;
 
 	bool running = false;
-
+	
 	std::vector<std::vector<int>> Map;
 
 	Vector2 cameraPos = { CAMERA_HEIGHT,CAMERA_WIDTH };

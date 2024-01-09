@@ -5,11 +5,12 @@
 
 int main()
 {
-    
+
 	Game* game = new Game;
 	game->Innit();
 
 	while (game->IsRunning()) {
+
 		game->Inputs();
 		game->Update();
 		game->Render();

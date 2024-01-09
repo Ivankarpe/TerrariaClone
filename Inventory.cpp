@@ -114,3 +114,49 @@ Item Inventory::GetSlotItem(int slot)
 {
     return inventory[slot];
 }
+
+void Inventory::Render(SDL_Renderer* renderer, SDL_Texture* texture)
+{
+    SDL_Rect rect;
+    rect.x = 25;
+    rect.y = 25;
+    rect.w = 408;
+    rect.h = 48;
+
+    SDL_SetRenderDrawColor(renderer, 255, 255, 255, 10);
+    SDL_RenderFillRect(renderer, &rect);
+    TTF_Font* rFont = TTF_OpenFont("arial.ttf", 24);
+
+    for (size_t i = 0; i < size; i++)
+    {
+        Item item = inventory[i];
+        if (i == activeSlot) {
+            SDL_Rect rect;
+            rect.x = i * BLOCK_SIZE + (i + 1) * 8 + 25 - 4;
+            rect.y = 25 + 8 - 4;
+            rect.w = 40;
+            rect.h = 40;
+
+            SDL_SetRenderDrawColor(renderer, 255, 0, 0, 10);
+            SDL_RenderFillRect(renderer, &rect);
+        }
+        int textureIndex = item.ID;
+        SDL_Rect sours = { textureIndex % 16 * TEXTURE_SIZE , textureIndex / 16 * TEXTURE_SIZE ,TEXTURE_SIZE,TEXTURE_SIZE };
+        SDL_Rect dest = { i * BLOCK_SIZE + (i + 1) * 8 + 25, 25 + 8, BLOCK_SIZE, BLOCK_SIZE };
+        SDL_RenderCopy(renderer, texture, &sours, &dest);
+
+        SDL_Surface* textSurface = TTF_RenderText_Solid(rFont, std::to_string(item.count).c_str(), SDL_Color(20, 20, 20));
+
+        SDL_Rect abcPosition = { i * BLOCK_SIZE + (i + 1) * 8 + 25, 48,textSurface->w,textSurface->h };
+
+        SDL_Texture* mTexture = SDL_CreateTextureFromSurface(renderer, textSurface);
+        SDL_RenderCopy(renderer, mTexture, NULL, &abcPosition);
+    }
+
+
+
+
+
+
+
+}
