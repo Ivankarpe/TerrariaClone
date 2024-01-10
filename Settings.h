@@ -10,8 +10,8 @@ const int MAP_WIDTH = 2000;
 const int MAP_HEIGHT = 300;
 
 
-const int CAMERA_WIDTH = 2560;
-const int CAMERA_HEIGHT = 1440;
+const int CAMERA_WIDTH = 1360;
+const int CAMERA_HEIGHT = 768;
 
 
 const int coalOreChance = 45;
@@ -28,7 +28,7 @@ const int rubyOreHight = 225;
 const int saphireOreHight = 250;
 
 
-const int BLOCK_SIZE = 128;
+const int BLOCK_SIZE = 25;
 const int TEXTURE_SIZE = 16;
 
 

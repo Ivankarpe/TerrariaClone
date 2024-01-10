@@ -7,7 +7,7 @@ void Game::Innit()
 
 
 
-	window = SDL_CreateWindow("Terraria", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, CAMERA_WIDTH, CAMERA_HEIGHT, SDL_WINDOW_FULLSCREEN);
+	window = SDL_CreateWindow("Terraria", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, CAMERA_WIDTH, CAMERA_HEIGHT, 0/*SDL_WINDOW_FULLSCREEN*/);
 
 	renderer = SDL_CreateRenderer(window, 0, 0);
 	running = true;
@@ -111,7 +111,7 @@ void Game::Innit()
 				if (id_ground >= 27 && id_ground <= 31 && x >= 3 && x <= MAP_WIDTH - 3) {
 					int tree_height = rand() % 15 + 7;
 					if (Map[y - 1][x - 1] != 20 && Map[y - 2][x - 1] != 20) {
-						for (int i = y - 1; i >= y - tree_height; i--) {
+						/*for (int i = y - 1; i >= y - tree_height; i--) {
 							Map[i][x] = 20;
 							if (i == y - tree_height) {
 								for (int j = i - 1; j >= i - 5; j--) {
@@ -123,18 +123,9 @@ void Game::Innit()
 									}
 								}
 							}
-						}
+						}*/
 					}
 
-				}
-
-				int lake_chance = rand() % 150;//add lakes
-				if (lake_chance == 0 && x < MAP_HEIGHT - 5) {
-					int tempie = y;
-					for (int i = 0; i < 5; i++) {
-						Map[tempie][x + i] = 205;
-
-					}
 				}
 			}
 			else if (y < heights[x] + heights2[x] + 5)
@@ -190,6 +181,76 @@ void Game::Innit()
 			oreSpawn(rand() % 6000, x, y, heights, heights2, RUBY_ORE, rubyOreHight, rubyOreChance);
 			oreSpawn(rand() % 6000, x, y, heights, heights2, SAPHIRE_ORE, saphireOreHight, saphireOreChance);
 
+		}
+	}
+
+	for (int x = 0; x < MAP_WIDTH; x++) {//add lakes
+		int lakeChance = rand() % 100;
+		int lakeSize = rand() % 15 + 10;
+		int y = heights[x] - 1;
+		int y2 = heights[x + lakeSize] - 1;
+		if (y > y2) heights[x] = y;
+		else heights[x] = y2;
+		if (lakeChance == 0) {
+			for (int i = x; i < x + lakeSize; i++)
+			{
+				for (int h = heights[x]; h > heights[x] - 6; h--) {
+
+					//for (int h = y - 1; h < y - 6; h--) {
+					SDL_Log("height(x): (%d, %d)", y - 2, i);
+
+					Map[h][i] = AIR;
+				}
+
+				//}
+					int num = rand() % 3;
+					if (num == 1 && i < lakeSize / 2) {
+						heights[i] = heights[i - 1] + 1;
+					}
+					else if (num == 0 && (i >= (lakeSize / 2)) && heights[i] < y)
+					{
+						heights[i] = heights[i - 1] - 1;
+						if (heights[i] < 0) {
+							heights[i] = 0;
+						}
+					}
+					else {
+						heights[i] = heights[i - 1];
+
+					}
+					Map[heights[i]][i] = 205;
+				
+				/*int num = rand() % 2;
+				if (num == 1) {
+					heights[x] = heights[x - 1];
+					Map[heights[x]][x+i] = 237;
+				}
+				else
+				{
+					Map[heights[x]][x + i] = 205;
+					heights[x] = heights[x - 1] + 1;
+					Map[heights[x]][x+i] = 205;
+
+				}*/
+				/*else {
+					heights[x] = heights[x - 1];
+					Map[heights[x]][x + i] = 205;
+
+					tempie++;
+
+				}*/
+				//Map[heights[x]][x + i] = 205;
+				//SDL_Log("waters %d", tempie);
+				//SDL_Log("i, height: (%d, %d)", i, heights[i]);
+
+
+
+			}
+			/*for (int i = 0; i < 5; i++) {
+				Map[tempie][x + i] = 205;
+
+			}*/
+			//}
 		}
 	}
 }
