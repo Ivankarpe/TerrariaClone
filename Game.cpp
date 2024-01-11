@@ -6,8 +6,13 @@ void Game::Innit()
 	TTF_Init();
 
 
-
-	window = SDL_CreateWindow("Terraria", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, CAMERA_WIDTH, CAMERA_HEIGHT, SDL_WINDOW_FULLSCREEN);
+	if (FULLSCREEN == 1) {
+		window = SDL_CreateWindow("Terraria", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, CAMERA_WIDTH, CAMERA_HEIGHT, SDL_WINDOW_FULLSCREEN);
+	}
+	else
+	{
+		window = SDL_CreateWindow("Terraria", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, CAMERA_WIDTH, CAMERA_HEIGHT, 0);
+	}
 
 	renderer = SDL_CreateRenderer(window, 0, 0);
 	running = true;
@@ -192,6 +197,7 @@ void Game::Innit()
 
 		}
 	}
+	
 }
 
 void Game::oreSpawn(int oreProb, int x, int y, int heights[MAP_WIDTH], int heights2[MAP_WIDTH], ItemsID oreID, const int oreSpawnHight, const int oreSpawnChance) {
@@ -226,9 +232,9 @@ void Game::oreSpawn(int oreProb, int x, int y, int heights[MAP_WIDTH], int heigh
 	}
 }
 
-void Game::Update()
+void Game::Update(float deltaTime)
 {
-	player.Update(Map);
+	player.Update(deltaTime, Map);
 }
 
 void Game::on_left_click(SDL_Event event) {
@@ -437,17 +443,10 @@ void Game::Inputs()
 		}
 
 	}
-	Vector2 dir = { 0,0 };
-	if (butt.a && player.GetPos().x != 0) {
-		dir.x -= 1;
-	}
-	if (butt.d && player.GetPos().x < MAP_WIDTH*BLOCK_SIZE) {
-		dir.x += 1;
-	}
-	if (butt.space ) {
+	if (butt.space) {
 		player.Jump(Map);
 	}
-	player.Move(dir, Map);
+	player.SetKeys(butt);
 	
 }
 

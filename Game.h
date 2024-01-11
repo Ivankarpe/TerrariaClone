@@ -20,7 +20,7 @@ public:
 	
 	void Innit();
 
-	void Update();
+	void Update(float deltaTime);
 
 	void Render();
 
