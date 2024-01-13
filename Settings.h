@@ -6,6 +6,7 @@
 #include <vector>
 #include <string>
 #include <iostream>
+#include <algorithm>
 const int MAP_WIDTH = 2000;
 const int MAP_HEIGHT = 300;
 
