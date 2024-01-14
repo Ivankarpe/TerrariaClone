@@ -34,6 +34,7 @@ public:
 
 	void on_right_click(SDL_Event event);
 
+	void SetDeltaTime(Uint32 deltaTime);
 
 	void oreSpawn(int oreChance, int x, int y, int heights[MAP_WIDTH], int heights2[MAP_WIDTH], ItemsID oreID, const int oreSpawnHight, const int oreSpawnChance);
 
@@ -59,6 +60,6 @@ private:
 	Buttons butt = { 0, 0, 0, 0 };
 
 	Inventory inventory;
-
+	Uint32 deltaTime;
 };
 

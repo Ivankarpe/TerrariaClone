@@ -9,10 +9,12 @@
 #include <algorithm>
 const int MAP_WIDTH = 2000;
 const int MAP_HEIGHT = 300;
+const int FULLSCREEN = 0;
 
 
-const int CAMERA_WIDTH = 1360;
-const int CAMERA_HEIGHT = 768;
+const int CAMERA_WIDTH = 1920;
+const int CAMERA_HEIGHT = 1080;
+
 
 
 const int coalOreChance = 45;
@@ -29,7 +31,9 @@ const int rubyOreHight = 225;
 const int saphireOreHight = 250;
 
 
-const int BLOCK_SIZE = 25;
+
+const int BLOCK_SIZE = 32;
+
 const int TEXTURE_SIZE = 16;
 
 
@@ -44,7 +48,11 @@ struct Vector2
 	int x;
 	int y;
 };
-
+struct Vector2f
+{
+	float x;
+	float y;
+};
 
 enum ItemsID
 {

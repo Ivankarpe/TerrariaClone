@@ -7,7 +7,14 @@ void Game::Innit()
 
 
 
-	window = SDL_CreateWindow("Terraria", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, CAMERA_WIDTH, CAMERA_HEIGHT, 0/*SDL_WINDOW_FULLSCREEN*/);
+	if (FULLSCREEN == 1) {
+		window = SDL_CreateWindow("Terraria", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, CAMERA_WIDTH, CAMERA_HEIGHT, SDL_WINDOW_FULLSCREEN);
+	}
+	else
+	{
+		window = SDL_CreateWindow("Terraria", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, CAMERA_WIDTH, CAMERA_HEIGHT, 0);
+	}
+
 
 	renderer = SDL_CreateRenderer(window, 0, 0);
 	running = true;
@@ -62,7 +69,6 @@ void Game::Innit()
 
 
 	}
-	cameraPos = { 0,heights[(CAMERA_WIDTH / 2) / BLOCK_SIZE] * BLOCK_SIZE - CAMERA_HEIGHT / 2 - 2 * BLOCK_SIZE };//set camera to the ground
 
 
 	for (size_t x = 1; x < MAP_WIDTH; x++)//height of dirt layer
@@ -206,12 +212,12 @@ void Game::Innit()
 			//int orecount = 0;
 			int defaultHeight = heights[x] + heights2[x];
 
-			oreSpawn(rand() % 3000, x, y, heights, heights2, COAL_ORE, defaultHeight, coalOreChance);
-			oreSpawn(rand() % 3000, x, y, heights, heights2, IRON_ORE, defaultHeight, ironOreChance);
-			oreSpawn(rand() % 4000, x, y, heights, heights2, GOLD_ORE, goldOreHight, goldOreChance);
-			oreSpawn(rand() % 6000, x, y, heights, heights2, DIAMOND_ORE, diamondOreHight, diamondOreChance);
-			oreSpawn(rand() % 6000, x, y, heights, heights2, RUBY_ORE, rubyOreHight, rubyOreChance);
-			oreSpawn(rand() % 6000, x, y, heights, heights2, SAPHIRE_ORE, saphireOreHight, saphireOreChance);
+			//oreSpawn(rand() % 3000, x, y, heights, heights2, COAL_ORE, defaultHeight, coalOreChance);
+			//oreSpawn(rand() % 3000, x, y, heights, heights2, IRON_ORE, defaultHeight, ironOreChance);
+			//oreSpawn(rand() % 4000, x, y, heights, heights2, GOLD_ORE, goldOreHight, goldOreChance);
+			//oreSpawn(rand() % 6000, x, y, heights, heights2, DIAMOND_ORE, diamondOreHight, diamondOreChance);
+			//oreSpawn(rand() % 6000, x, y, heights, heights2, RUBY_ORE, rubyOreHight, rubyOreChance);
+			//oreSpawn(rand() % 6000, x, y, heights, heights2, SAPHIRE_ORE, saphireOreHight, saphireOreChance);
 
 		}
 	}
@@ -253,7 +259,7 @@ void Game::oreSpawn(int oreProb, int x, int y, int heights[MAP_WIDTH], int heigh
 
 void Game::Update()
 {
-	player.Update(Map);
+	player.Update(deltaTime, Map);
 }
 
 void Game::on_left_click(SDL_Event event) {
@@ -296,9 +302,62 @@ void Game::on_right_click(SDL_Event event) {
 	}
 }
 
+void Game::SetDeltaTime(Uint32 deltaTime)
+{
+	this->deltaTime = deltaTime;
+}
+
 void Game::DrawMap(InfoForRender info) {
+
+	//int textureIndex;
+	//for (size_t i = info.Start; i < info.End; i++)//filling screen with blocks
+	//{
+	//	for (size_t j = 0; j < CAMERA_HEIGHT / BLOCK_SIZE + 2; j++)
+	//	{
+	//		textureIndex = Map[info.firstPos.y + j][info.firstPos.x + i];
+
+	//		SDL_Rect sours = { textureIndex % 16 * TEXTURE_SIZE ,textureIndex / 16 * TEXTURE_SIZE ,TEXTURE_SIZE,TEXTURE_SIZE };
+
+	//		//SDL_Rect dest = { i * BLOCK_SIZE ,j * BLOCK_SIZE,BLOCK_SIZE,BLOCK_SIZE };
+	//		SDL_Rect dest = { i * BLOCK_SIZE - info.dosPos.x,j * BLOCK_SIZE - info.dosPos.y,BLOCK_SIZE,BLOCK_SIZE };
+
+	//		SDL_RenderCopy(renderer, texture, &sours, &dest);
+
+	//	}
+	//}
 	
-	int textureIndex;
+}
+
+void Game::Render()
+{
+	SDL_RenderClear(renderer);
+	int textureIndex = 0;
+	SDL_Rect sours = { textureIndex % 16 * TEXTURE_SIZE , textureIndex / 16 * TEXTURE_SIZE ,TEXTURE_SIZE,TEXTURE_SIZE };
+
+	SDL_RenderCopy(renderer, texture, &sours, NULL);
+	cameraPos.x = player.GetPos().x - CAMERA_WIDTH / 2;
+	cameraPos.y = player.GetPos().y - CAMERA_HEIGHT / 2;
+
+	if (cameraPos.x <=0)
+	{
+		cameraPos.x = 0;
+	}
+	if (cameraPos.y < 0)
+	{
+		cameraPos.y= 0;
+	}
+	if (cameraPos.x >= MAP_WIDTH*BLOCK_SIZE-CAMERA_WIDTH-BLOCK_SIZE)
+	{
+		cameraPos.x = MAP_WIDTH * BLOCK_SIZE - CAMERA_WIDTH - BLOCK_SIZE;
+	}
+	if (cameraPos.y >= MAP_HEIGHT * BLOCK_SIZE - CAMERA_HEIGHT - BLOCK_SIZE)
+	{
+		cameraPos.y = MAP_HEIGHT * BLOCK_SIZE - CAMERA_HEIGHT - BLOCK_SIZE;
+	}
+	Vector2 firstPos = { cameraPos.x / BLOCK_SIZE, cameraPos.y / BLOCK_SIZE};
+	Vector2 dosPos = { cameraPos.x - firstPos.x*BLOCK_SIZE, cameraPos.y - firstPos.y*BLOCK_SIZE };
+	InfoForRender info = { firstPos,dosPos,0,CAMERA_WIDTH / BLOCK_SIZE + 1 };
+	textureIndex;
 	for (size_t i = info.Start; i < info.End; i++)//filling screen with blocks
 	{
 		for (size_t j = 0; j < CAMERA_HEIGHT / BLOCK_SIZE + 2; j++)
@@ -314,35 +373,7 @@ void Game::DrawMap(InfoForRender info) {
 
 		}
 	}
-
-}
-
-void Game::Render()
-{
-	SDL_RenderClear(renderer);
-	cameraPos.x = player.GetPos().x - CAMERA_WIDTH / 2;
-	cameraPos.y = player.GetPos().y - CAMERA_HEIGHT / 2;
-
-	if (cameraPos.x <=0)
-	{
-		cameraPos.x = 0;
-	}
-	if (cameraPos.y < 0)
-	{
-		cameraPos.y= 0;
-	}
-	if (cameraPos.x >= MAP_WIDTH*BLOCK_SIZE-CAMERA_WIDTH)
-	{
-		cameraPos.x = MAP_WIDTH * BLOCK_SIZE - CAMERA_WIDTH;
-	}
-	if (cameraPos.y >= MAP_HEIGHT * BLOCK_SIZE - CAMERA_HEIGHT)
-	{
-		cameraPos.y = MAP_HEIGHT * BLOCK_SIZE - CAMERA_HEIGHT;
-	}
-	Vector2 firstPos = { cameraPos.x / BLOCK_SIZE, cameraPos.y / BLOCK_SIZE};
-	Vector2 dosPos = { cameraPos.x - firstPos.x*BLOCK_SIZE, cameraPos.y - firstPos.y*BLOCK_SIZE };
-	InfoForRender info = { firstPos,dosPos,0,CAMERA_WIDTH / 2 + 1 };
-	DrawMap(info);
+	//DrawMap(info);
 	int mouseX, mouseY;
 	SDL_GetMouseState(&mouseX, &mouseY);
 	mouseX += dosPos.x;
@@ -351,8 +382,8 @@ void Game::Render()
 	mouseX /= BLOCK_SIZE;
 	mouseY /= BLOCK_SIZE;
 
-	int textureIndex = 5;
-	SDL_Rect sours = { textureIndex % 16 * TEXTURE_SIZE , textureIndex / 16 * TEXTURE_SIZE ,TEXTURE_SIZE,TEXTURE_SIZE };
+	textureIndex = 5;
+	sours = { textureIndex % 16 * TEXTURE_SIZE , textureIndex / 16 * TEXTURE_SIZE ,TEXTURE_SIZE,TEXTURE_SIZE };
 	SDL_Rect dest = { mouseX * BLOCK_SIZE - dosPos.x, mouseY * BLOCK_SIZE - dosPos.y, BLOCK_SIZE, BLOCK_SIZE };
 
 
@@ -411,6 +442,12 @@ void Game::Inputs()
 			case SDLK_ESCAPE:
 				Quit();
 				break;
+			case SDLK_F1:
+				player.SetGamemode(0);
+				break;
+			case SDLK_F2:
+				player.SetGamemode(1);
+				break;
 			case SDLK_w:
 				std::cout << "You Clicked \'W\'" << std::endl;
 				butt.w = true;
@@ -462,7 +499,8 @@ void Game::Inputs()
 		}
 
 	}
-	Vector2 dir = { 0,0 };
+	
+	Vector2f dir = { 0,0 };
 	if (butt.a && player.GetPos().x != 0) {
 		dir.x -= 1;
 	}
@@ -472,8 +510,17 @@ void Game::Inputs()
 	if (butt.space ) {
 		player.Jump(Map);
 	}
-	player.Move(dir, Map);
-	
+	player.Move(dir, deltaTime, Map);
+	if (player.GetGamemode() == 1) {
+		dir = { 0,0 };
+		if (butt.w && player.GetPos().x != 0) {
+			dir.y -= 1;
+		}
+		if (butt.s && player.GetPos().x < MAP_WIDTH * BLOCK_SIZE) {
+			dir.y += 1;
+		}
+		player.Move(dir, deltaTime, Map);
+	}
 }
 
 void Game::Quit()
