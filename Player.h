@@ -5,20 +5,18 @@
 class Player
 {
 public:
-	Vector2 GetPos() { return cord; }
+	Vector2 GetPos() { return { (int)(cord.x), (int)(cord.y) }; }
 
-	void Move(float deltaTime, std::vector<std::vector<int>> Map);
-
-	void Update(float deltaTime, std::vector<std::vector<int>> Map);
-
+	void Move(Vector2f dir, Uint32 deltaTime, std::vector<std::vector<int>> Map);
+	void Update(Uint32 deltaTime,std::vector<std::vector<int>> Map);
 	void Jump(std::vector<std::vector<int>> Map);
 
-	void SetKeys(Buttons buttons);
+	void SetGamemode(int gamemode);
+	int GetGamemode() { return gamemode; }
 private:
 	int gamemode = 0;
-	Vector2 cord = { 120, CAMERA_HEIGHT*1};
+	Vector2f cord = { CAMERA_WIDTH , CAMERA_HEIGHT};
 	float acc = 0;
-	float dx = 0;
-
+	float speed = 10;
 };
 

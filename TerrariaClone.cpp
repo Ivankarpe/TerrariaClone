@@ -8,24 +8,24 @@ int main()
 
 	Game* game = new Game;
 	game->Innit();
-	Uint64 start;
-	Uint64 end;
-	float elapsed= 0;
-	float elapsedMS = 0;
+	
+	Uint32 a = SDL_GetTicks();
+	Uint32 b = 0;
+	Uint32 delta;
 	while (game->IsRunning()) {
-		start = SDL_GetPerformanceCounter();
-		game->Inputs();
-		
-		game->Update(elapsed);
-		game->Render();
-		end = SDL_GetPerformanceCounter();
+		a = SDL_GetTicks();
+		delta = a - b;
 
-		elapsed = (end - start) / (float)SDL_GetPerformanceFrequency();
-		elapsedMS = elapsed * 1000.f;
-		//SDL_Log("%d", elapsed);
-		//SDL_Log("%d", elapsedMS);
-		// Cap to 60 FPS
-		SDL_Delay(floor(16.666f - elapsedMS));
+		if (delta > 1000 / 165.f)
+		{
+			//std::cout << "fps: " << 1000 / delta << std::endl;
+			b = a;
+			game->SetDeltaTime(delta);
+			game->Inputs();
+			game->Update();
+			game->Render();
+		}
+
 	}
 	return 0;
 }

@@ -67,7 +67,6 @@ void Game::Innit()
 
 
 	}
-	cameraPos = { 0,heights[(CAMERA_WIDTH / 2) / BLOCK_SIZE] * BLOCK_SIZE - CAMERA_HEIGHT / 2 - 2 * BLOCK_SIZE };//set camera to the ground
 
 
 	for (size_t x = 1; x < MAP_WIDTH; x++)//height of dirt layer
@@ -101,46 +100,46 @@ void Game::Innit()
 		for (int y = heights[x]; y < MAP_HEIGHT; y++) {
 			if (y == heights[x]) {
 				Map[y][x] = 3;
-				int id_ground = rand() % 40;//add plants
-				if (id_ground >= 0 && id_ground <= 3) Map[y - 1][x] = 12;
-				if (id_ground >= 4 && id_ground <= 7) Map[y - 1][x] = 13;
-				if (id_ground >= 10 && id_ground <= 11) Map[y - 1][x] = 88;
-				if (id_ground >= 12 && id_ground <= 13) Map[y - 1][x] = 89;
-				if (id_ground >= 14 && id_ground <= 15) Map[y - 1][x] = 90;
-				if (id_ground >= 16 && id_ground <= 17) Map[y - 1][x] = 91;
-				if (id_ground >= 18 && id_ground <= 19) Map[y - 1][x] = 92;
-				if (id_ground >= 20 && id_ground <= 21) Map[y - 1][x] = 93;
-				if (id_ground >= 22 && id_ground <= 23) Map[y - 1][x] = 94;
-				if (id_ground >= 24 && id_ground <= 25) Map[y - 1][x] = 95;
-				if (id_ground == 26) Map[y - 1][x] = 15;
-				if (id_ground >= 27 && id_ground <= 31 && x >= 3 && x <= MAP_WIDTH - 3) {
-					int tree_height = rand() % 15 + 7;
-					if (Map[y - 1][x - 1] != 20 && Map[y - 2][x - 1] != 20) {
-						for (int i = y - 1; i >= y - tree_height; i--) {
-							Map[i][x] = 20;
-							if (i == y - tree_height) {
-								for (int j = i - 1; j >= i - 5; j--) {
-									for (int p = x - 2; p <= x + 2; p++) {
-										if ((j == i - 1 && p == x - 2) || (j == i - 1 && p == x + 2) || (j == i - 5 && p == x - 2) || (j == i - 5 && p == x + 2) || (Map[j][p] == 20)) {
-											continue;
-										}
-										Map[j][p] = 145;
-									}
-								}
-							}
-						}
-					}
+				//int id_ground = rand() % 40;//add plants
+				//if (id_ground >= 0 && id_ground <= 3) Map[y - 1][x] = 12;
+				//if (id_ground >= 4 && id_ground <= 7) Map[y - 1][x] = 13;
+				//if (id_ground >= 10 && id_ground <= 11) Map[y - 1][x] = 88;
+				//if (id_ground >= 12 && id_ground <= 13) Map[y - 1][x] = 89;
+				//if (id_ground >= 14 && id_ground <= 15) Map[y - 1][x] = 90;
+				//if (id_ground >= 16 && id_ground <= 17) Map[y - 1][x] = 91;
+				//if (id_ground >= 18 && id_ground <= 19) Map[y - 1][x] = 92;
+				//if (id_ground >= 20 && id_ground <= 21) Map[y - 1][x] = 93;
+				//if (id_ground >= 22 && id_ground <= 23) Map[y - 1][x] = 94;
+				//if (id_ground >= 24 && id_ground <= 25) Map[y - 1][x] = 95;
+				//if (id_ground == 26) Map[y - 1][x] = 15;
+				//if (id_ground >= 27 && id_ground <= 31 && x >= 3 && x <= MAP_WIDTH - 3) {
+				//	int tree_height = rand() % 15 + 7;
+				//	if (Map[y - 1][x - 1] != 20 && Map[y - 2][x - 1] != 20) {
+				//		for (int i = y - 1; i >= y - tree_height; i--) {
+				//			Map[i][x] = 20;
+				//			if (i == y - tree_height) {
+				//				for (int j = i - 1; j >= i - 5; j--) {
+				//					for (int p = x - 2; p <= x + 2; p++) {
+				//						if ((j == i - 1 && p == x - 2) || (j == i - 1 && p == x + 2) || (j == i - 5 && p == x - 2) || (j == i - 5 && p == x + 2) || (Map[j][p] == 20)) {
+				//							continue;
+				//						}
+				//						Map[j][p] = 145;
+				//					}
+				//				}
+				//			}
+				//		}
+				//	}
 
-				}
+				//}
 
-				int lake_chance = rand() % 150;//add lakes
-				if (lake_chance == 0 && x < MAP_HEIGHT - 5) {
-					int tempie = y;
-					for (int i = 0; i < 5; i++) {
-						Map[tempie][x + i] = 205;
+				//int lake_chance = rand() % 150;//add lakes
+				//if (lake_chance == 0 && x < MAP_HEIGHT - 5) {
+				//	int tempie = y;
+				//	for (int i = 0; i < 5; i++) {
+				//		Map[tempie][x + i] = 205;
 
-					}
-				}
+				//	}
+				//}
 			}
 			else if (y < heights[x] + heights2[x] + 5)
 			{
@@ -188,12 +187,12 @@ void Game::Innit()
 			//int orecount = 0;
 			int defaultHeight = heights[x] + heights2[x];
 
-			oreSpawn(rand() % 3000, x, y, heights, heights2, COAL_ORE, defaultHeight, coalOreChance);
-			oreSpawn(rand() % 3000, x, y, heights, heights2, IRON_ORE, defaultHeight, ironOreChance);
-			oreSpawn(rand() % 4000, x, y, heights, heights2, GOLD_ORE, goldOreHight, goldOreChance);
-			oreSpawn(rand() % 6000, x, y, heights, heights2, DIAMOND_ORE, diamondOreHight, diamondOreChance);
-			oreSpawn(rand() % 6000, x, y, heights, heights2, RUBY_ORE, rubyOreHight, rubyOreChance);
-			oreSpawn(rand() % 6000, x, y, heights, heights2, SAPHIRE_ORE, saphireOreHight, saphireOreChance);
+			//oreSpawn(rand() % 3000, x, y, heights, heights2, COAL_ORE, defaultHeight, coalOreChance);
+			//oreSpawn(rand() % 3000, x, y, heights, heights2, IRON_ORE, defaultHeight, ironOreChance);
+			//oreSpawn(rand() % 4000, x, y, heights, heights2, GOLD_ORE, goldOreHight, goldOreChance);
+			//oreSpawn(rand() % 6000, x, y, heights, heights2, DIAMOND_ORE, diamondOreHight, diamondOreChance);
+			//oreSpawn(rand() % 6000, x, y, heights, heights2, RUBY_ORE, rubyOreHight, rubyOreChance);
+			//oreSpawn(rand() % 6000, x, y, heights, heights2, SAPHIRE_ORE, saphireOreHight, saphireOreChance);
 
 		}
 	}
@@ -232,7 +231,7 @@ void Game::oreSpawn(int oreProb, int x, int y, int heights[MAP_WIDTH], int heigh
 	}
 }
 
-void Game::Update(float deltaTime)
+void Game::Update()
 {
 	player.Update(deltaTime, Map);
 }
@@ -277,9 +276,62 @@ void Game::on_right_click(SDL_Event event) {
 	}
 }
 
+void Game::SetDeltaTime(Uint32 deltaTime)
+{
+	this->deltaTime = deltaTime;
+}
+
 void Game::DrawMap(InfoForRender info) {
+
+	//int textureIndex;
+	//for (size_t i = info.Start; i < info.End; i++)//filling screen with blocks
+	//{
+	//	for (size_t j = 0; j < CAMERA_HEIGHT / BLOCK_SIZE + 2; j++)
+	//	{
+	//		textureIndex = Map[info.firstPos.y + j][info.firstPos.x + i];
+
+	//		SDL_Rect sours = { textureIndex % 16 * TEXTURE_SIZE ,textureIndex / 16 * TEXTURE_SIZE ,TEXTURE_SIZE,TEXTURE_SIZE };
+
+	//		//SDL_Rect dest = { i * BLOCK_SIZE ,j * BLOCK_SIZE,BLOCK_SIZE,BLOCK_SIZE };
+	//		SDL_Rect dest = { i * BLOCK_SIZE - info.dosPos.x,j * BLOCK_SIZE - info.dosPos.y,BLOCK_SIZE,BLOCK_SIZE };
+
+	//		SDL_RenderCopy(renderer, texture, &sours, &dest);
+
+	//	}
+	//}
 	
-	int textureIndex;
+}
+
+void Game::Render()
+{
+	SDL_RenderClear(renderer);
+	int textureIndex = 0;
+	SDL_Rect sours = { textureIndex % 16 * TEXTURE_SIZE , textureIndex / 16 * TEXTURE_SIZE ,TEXTURE_SIZE,TEXTURE_SIZE };
+
+	SDL_RenderCopy(renderer, texture, &sours, NULL);
+	cameraPos.x = player.GetPos().x - CAMERA_WIDTH / 2;
+	cameraPos.y = player.GetPos().y - CAMERA_HEIGHT / 2;
+
+	if (cameraPos.x <=0)
+	{
+		cameraPos.x = 0;
+	}
+	if (cameraPos.y < 0)
+	{
+		cameraPos.y= 0;
+	}
+	if (cameraPos.x >= MAP_WIDTH*BLOCK_SIZE-CAMERA_WIDTH-BLOCK_SIZE)
+	{
+		cameraPos.x = MAP_WIDTH * BLOCK_SIZE - CAMERA_WIDTH - BLOCK_SIZE;
+	}
+	if (cameraPos.y >= MAP_HEIGHT * BLOCK_SIZE - CAMERA_HEIGHT - BLOCK_SIZE)
+	{
+		cameraPos.y = MAP_HEIGHT * BLOCK_SIZE - CAMERA_HEIGHT - BLOCK_SIZE;
+	}
+	Vector2 firstPos = { cameraPos.x / BLOCK_SIZE, cameraPos.y / BLOCK_SIZE};
+	Vector2 dosPos = { cameraPos.x - firstPos.x*BLOCK_SIZE, cameraPos.y - firstPos.y*BLOCK_SIZE };
+	InfoForRender info = { firstPos,dosPos,0,CAMERA_WIDTH / BLOCK_SIZE + 1 };
+	textureIndex;
 	for (size_t i = info.Start; i < info.End; i++)//filling screen with blocks
 	{
 		for (size_t j = 0; j < CAMERA_HEIGHT / BLOCK_SIZE + 2; j++)
@@ -295,35 +347,7 @@ void Game::DrawMap(InfoForRender info) {
 
 		}
 	}
-
-}
-
-void Game::Render()
-{
-	SDL_RenderClear(renderer);
-	cameraPos.x = player.GetPos().x - CAMERA_WIDTH / 2;
-	cameraPos.y = player.GetPos().y - CAMERA_HEIGHT / 2;
-
-	if (cameraPos.x <=0)
-	{
-		cameraPos.x = 0;
-	}
-	if (cameraPos.y < 0)
-	{
-		cameraPos.y= 0;
-	}
-	if (cameraPos.x >= MAP_WIDTH*BLOCK_SIZE-CAMERA_WIDTH)
-	{
-		cameraPos.x = MAP_WIDTH * BLOCK_SIZE - CAMERA_WIDTH;
-	}
-	if (cameraPos.y >= MAP_HEIGHT * BLOCK_SIZE - CAMERA_HEIGHT)
-	{
-		cameraPos.y = MAP_HEIGHT * BLOCK_SIZE - CAMERA_HEIGHT;
-	}
-	Vector2 firstPos = { cameraPos.x / BLOCK_SIZE, cameraPos.y / BLOCK_SIZE};
-	Vector2 dosPos = { cameraPos.x - firstPos.x*BLOCK_SIZE, cameraPos.y - firstPos.y*BLOCK_SIZE };
-	InfoForRender info = { firstPos,dosPos,0,CAMERA_WIDTH / 2 + 1 };
-	DrawMap(info);
+	//DrawMap(info);
 	int mouseX, mouseY;
 	SDL_GetMouseState(&mouseX, &mouseY);
 	mouseX += dosPos.x;
@@ -332,8 +356,8 @@ void Game::Render()
 	mouseX /= BLOCK_SIZE;
 	mouseY /= BLOCK_SIZE;
 
-	int textureIndex = 5;
-	SDL_Rect sours = { textureIndex % 16 * TEXTURE_SIZE , textureIndex / 16 * TEXTURE_SIZE ,TEXTURE_SIZE,TEXTURE_SIZE };
+	textureIndex = 5;
+	sours = { textureIndex % 16 * TEXTURE_SIZE , textureIndex / 16 * TEXTURE_SIZE ,TEXTURE_SIZE,TEXTURE_SIZE };
 	SDL_Rect dest = { mouseX * BLOCK_SIZE - dosPos.x, mouseY * BLOCK_SIZE - dosPos.y, BLOCK_SIZE, BLOCK_SIZE };
 
 
@@ -392,6 +416,12 @@ void Game::Inputs()
 			case SDLK_ESCAPE:
 				Quit();
 				break;
+			case SDLK_F1:
+				player.SetGamemode(0);
+				break;
+			case SDLK_F2:
+				player.SetGamemode(1);
+				break;
 			case SDLK_w:
 				std::cout << "You Clicked \'W\'" << std::endl;
 				butt.w = true;
@@ -443,11 +473,28 @@ void Game::Inputs()
 		}
 
 	}
-	if (butt.space) {
+	
+	Vector2f dir = { 0,0 };
+	if (butt.a && player.GetPos().x != 0) {
+		dir.x -= 1;
+	}
+	if (butt.d && player.GetPos().x < MAP_WIDTH*BLOCK_SIZE) {
+		dir.x += 1;
+	}
+	if (butt.space ) {
 		player.Jump(Map);
 	}
-	player.SetKeys(butt);
-	
+	player.Move(dir, deltaTime, Map);
+	if (player.GetGamemode() == 1) {
+		dir = { 0,0 };
+		if (butt.w && player.GetPos().x != 0) {
+			dir.y -= 1;
+		}
+		if (butt.s && player.GetPos().x < MAP_WIDTH * BLOCK_SIZE) {
+			dir.y += 1;
+		}
+		player.Move(dir, deltaTime, Map);
+	}
 }
 
 void Game::Quit()
