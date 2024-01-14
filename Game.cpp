@@ -207,17 +207,17 @@ void Game::Innit()
 
 	for (int x = 1; x < MAP_WIDTH - 1; x++) {// ore generation
 		for (int y = heights[x] + heights2[x] + 5; y < MAP_HEIGHT; y++) {
-			int oreProb = rand() % 3000;
+			//int oreProb = rand() % 3000;
 
 			//int orecount = 0;
 			int defaultHeight = heights[x] + heights2[x];
 
-			//oreSpawn(rand() % 3000, x, y, heights, heights2, COAL_ORE, defaultHeight, coalOreChance);
-			//oreSpawn(rand() % 3000, x, y, heights, heights2, IRON_ORE, defaultHeight, ironOreChance);
-			//oreSpawn(rand() % 4000, x, y, heights, heights2, GOLD_ORE, goldOreHight, goldOreChance);
-			//oreSpawn(rand() % 6000, x, y, heights, heights2, DIAMOND_ORE, diamondOreHight, diamondOreChance);
-			//oreSpawn(rand() % 6000, x, y, heights, heights2, RUBY_ORE, rubyOreHight, rubyOreChance);
-			//oreSpawn(rand() % 6000, x, y, heights, heights2, SAPHIRE_ORE, saphireOreHight, saphireOreChance);
+			oreSpawn(rand() % 3000, x, y, heights, heights2, COAL_ORE, defaultHeight, coalOreChance);
+			oreSpawn(rand() % 3000, x, y, heights, heights2, IRON_ORE, defaultHeight, ironOreChance);
+			oreSpawn(rand() % 4000, x, y, heights, heights2, GOLD_ORE, goldOreHight, goldOreChance);
+			oreSpawn(rand() % 6000, x, y, heights, heights2, DIAMOND_ORE, diamondOreHight, diamondOreChance);
+			oreSpawn(rand() % 6000, x, y, heights, heights2, RUBY_ORE, rubyOreHight, rubyOreChance);
+			oreSpawn(rand() % 6000, x, y, heights, heights2, SAPHIRE_ORE, saphireOreHight, saphireOreChance);
 
 		}
 	}
@@ -309,22 +309,22 @@ void Game::SetDeltaTime(Uint32 deltaTime)
 
 void Game::DrawMap(InfoForRender info) {
 
-	//int textureIndex;
-	//for (size_t i = info.Start; i < info.End; i++)//filling screen with blocks
-	//{
-	//	for (size_t j = 0; j < CAMERA_HEIGHT / BLOCK_SIZE + 2; j++)
-	//	{
-	//		textureIndex = Map[info.firstPos.y + j][info.firstPos.x + i];
+	int textureIndex;
+	for (size_t i = info.Start; i < info.End; i++)//filling screen with blocks
+	{
+		for (size_t j = 0; j < CAMERA_HEIGHT / BLOCK_SIZE + 2; j++)
+		{
+			textureIndex = Map[info.firstPos.y + j][info.firstPos.x + i];
 
-	//		SDL_Rect sours = { textureIndex % 16 * TEXTURE_SIZE ,textureIndex / 16 * TEXTURE_SIZE ,TEXTURE_SIZE,TEXTURE_SIZE };
+			SDL_Rect sours = { textureIndex % 16 * TEXTURE_SIZE ,textureIndex / 16 * TEXTURE_SIZE ,TEXTURE_SIZE,TEXTURE_SIZE };
 
-	//		//SDL_Rect dest = { i * BLOCK_SIZE ,j * BLOCK_SIZE,BLOCK_SIZE,BLOCK_SIZE };
-	//		SDL_Rect dest = { i * BLOCK_SIZE - info.dosPos.x,j * BLOCK_SIZE - info.dosPos.y,BLOCK_SIZE,BLOCK_SIZE };
+			//SDL_Rect dest = { i * BLOCK_SIZE ,j * BLOCK_SIZE,BLOCK_SIZE,BLOCK_SIZE };
+			SDL_Rect dest = { i * BLOCK_SIZE - info.dosPos.x,j * BLOCK_SIZE - info.dosPos.y,BLOCK_SIZE,BLOCK_SIZE };
 
-	//		SDL_RenderCopy(renderer, texture, &sours, &dest);
+			SDL_RenderCopy(renderer, texture, &sours, &dest);
 
-	//	}
-	//}
+		}
+	}
 	
 }
 
@@ -357,23 +357,7 @@ void Game::Render()
 	Vector2 firstPos = { cameraPos.x / BLOCK_SIZE, cameraPos.y / BLOCK_SIZE};
 	Vector2 dosPos = { cameraPos.x - firstPos.x*BLOCK_SIZE, cameraPos.y - firstPos.y*BLOCK_SIZE };
 	InfoForRender info = { firstPos,dosPos,0,CAMERA_WIDTH / BLOCK_SIZE + 1 };
-	textureIndex;
-	for (size_t i = info.Start; i < info.End; i++)//filling screen with blocks
-	{
-		for (size_t j = 0; j < CAMERA_HEIGHT / BLOCK_SIZE + 2; j++)
-		{
-			textureIndex = Map[info.firstPos.y + j][info.firstPos.x + i];
-
-			SDL_Rect sours = { textureIndex % 16 * TEXTURE_SIZE ,textureIndex / 16 * TEXTURE_SIZE ,TEXTURE_SIZE,TEXTURE_SIZE };
-
-			//SDL_Rect dest = { i * BLOCK_SIZE ,j * BLOCK_SIZE,BLOCK_SIZE,BLOCK_SIZE };
-			SDL_Rect dest = { i * BLOCK_SIZE - info.dosPos.x,j * BLOCK_SIZE - info.dosPos.y,BLOCK_SIZE,BLOCK_SIZE };
-
-			SDL_RenderCopy(renderer, texture, &sours, &dest);
-
-		}
-	}
-	//DrawMap(info);
+	DrawMap(info);
 	int mouseX, mouseY;
 	SDL_GetMouseState(&mouseX, &mouseY);
 	mouseX += dosPos.x;

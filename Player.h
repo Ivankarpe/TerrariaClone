@@ -15,7 +15,7 @@ public:
 	int GetGamemode() { return gamemode; }
 private:
 	int gamemode = 0;
-	Vector2f cord = { CAMERA_WIDTH , CAMERA_HEIGHT};
+	Vector2f cord = { 100 , 48};
 	float acc = 0;
 	float speed = 10;
 };
