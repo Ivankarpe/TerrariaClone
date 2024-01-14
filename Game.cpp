@@ -6,6 +6,7 @@ void Game::Innit()
 	TTF_Init();
 
 
+
 	if (FULLSCREEN == 1) {
 		window = SDL_CreateWindow("Terraria", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, CAMERA_WIDTH, CAMERA_HEIGHT, SDL_WINDOW_FULLSCREEN);
 	}
@@ -13,6 +14,7 @@ void Game::Innit()
 	{
 		window = SDL_CreateWindow("Terraria", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, CAMERA_WIDTH, CAMERA_HEIGHT, 0);
 	}
+
 
 	renderer = SDL_CreateRenderer(window, 0, 0);
 	running = true;
@@ -90,7 +92,36 @@ void Game::Innit()
 
 	}
 
-	int VOID = 0;//
+	for (int x = 1; x < MAP_WIDTH - 1; x++) {
+		if (int lakeChance = rand() % 10 == 0) {
+			int w = x;
+			int h = heights[w];
+			int maxSize = 40;
+			int size = 0;
+			while (h + 1<= heights[x + size + 1]) {
+				size++;
+				if (size > maxSize) {
+					break;
+				}
+			}
+			if (size > 10 && size <= maxSize) {
+				for(int  i = 0; i <= size; i++){
+				//while (h < heights[w + 1]) {
+					//w++;
+					for (int h2 = h; h2 < heights[x + i]; h2++) {
+						Map[h2][x + i] = 205;
+						
+
+
+					}
+				}
+			SDL_Log("size, x: (%d, %d)", size, x);
+			}
+		}
+	}
+	
+
+	int VOID = 0;
 	int STONE = 1;
 	int seed = time(NULL);
 	int STONEProb = 55;
@@ -100,46 +131,39 @@ void Game::Innit()
 		for (int y = heights[x]; y < MAP_HEIGHT; y++) {
 			if (y == heights[x]) {
 				Map[y][x] = 3;
-				//int id_ground = rand() % 40;//add plants
-				//if (id_ground >= 0 && id_ground <= 3) Map[y - 1][x] = 12;
-				//if (id_ground >= 4 && id_ground <= 7) Map[y - 1][x] = 13;
-				//if (id_ground >= 10 && id_ground <= 11) Map[y - 1][x] = 88;
-				//if (id_ground >= 12 && id_ground <= 13) Map[y - 1][x] = 89;
-				//if (id_ground >= 14 && id_ground <= 15) Map[y - 1][x] = 90;
-				//if (id_ground >= 16 && id_ground <= 17) Map[y - 1][x] = 91;
-				//if (id_ground >= 18 && id_ground <= 19) Map[y - 1][x] = 92;
-				//if (id_ground >= 20 && id_ground <= 21) Map[y - 1][x] = 93;
-				//if (id_ground >= 22 && id_ground <= 23) Map[y - 1][x] = 94;
-				//if (id_ground >= 24 && id_ground <= 25) Map[y - 1][x] = 95;
-				//if (id_ground == 26) Map[y - 1][x] = 15;
-				//if (id_ground >= 27 && id_ground <= 31 && x >= 3 && x <= MAP_WIDTH - 3) {
-				//	int tree_height = rand() % 15 + 7;
-				//	if (Map[y - 1][x - 1] != 20 && Map[y - 2][x - 1] != 20) {
-				//		for (int i = y - 1; i >= y - tree_height; i--) {
-				//			Map[i][x] = 20;
-				//			if (i == y - tree_height) {
-				//				for (int j = i - 1; j >= i - 5; j--) {
-				//					for (int p = x - 2; p <= x + 2; p++) {
-				//						if ((j == i - 1 && p == x - 2) || (j == i - 1 && p == x + 2) || (j == i - 5 && p == x - 2) || (j == i - 5 && p == x + 2) || (Map[j][p] == 20)) {
-				//							continue;
-				//						}
-				//						Map[j][p] = 145;
-				//					}
-				//				}
-				//			}
-				//		}
-				//	}
+				if (Map[y - 1][x] != 205) {
+					int id_ground = rand() % 40;//add plants
+					if (id_ground >= 0 && id_ground <= 3) Map[y - 1][x] = 12;
+					if (id_ground >= 4 && id_ground <= 7) Map[y - 1][x] = 13;
+					if (id_ground >= 10 && id_ground <= 11) Map[y - 1][x] = 88;
+					if (id_ground >= 12 && id_ground <= 13) Map[y - 1][x] = 89;
+					if (id_ground >= 14 && id_ground <= 15) Map[y - 1][x] = 90;
+					if (id_ground >= 16 && id_ground <= 17) Map[y - 1][x] = 91;
+					if (id_ground >= 18 && id_ground <= 19) Map[y - 1][x] = 92;
+					if (id_ground >= 20 && id_ground <= 21) Map[y - 1][x] = 93;
+					if (id_ground >= 22 && id_ground <= 23) Map[y - 1][x] = 94;
+					if (id_ground >= 24 && id_ground <= 25) Map[y - 1][x] = 95;
+					if (id_ground == 26) Map[y - 1][x] = 15;
+					if (id_ground >= 27 && id_ground <= 31 && x >= 3 && x <= MAP_WIDTH - 3) {
+						int tree_height = rand() % 15 + 7;
+						if (Map[y - 1][x - 1] != 20 && Map[y - 2][x - 1] != 20) {
+							for (int i = y - 1; i >= y - tree_height; i--) {
+								Map[i][x] = 20;
+								if (i == y - tree_height) {
+									for (int j = i - 1; j >= i - 5; j--) {
+										for (int p = x - 2; p <= x + 2; p++) {
+											if ((j == i - 1 && p == x - 2) || (j == i - 1 && p == x + 2) || (j == i - 5 && p == x - 2) || (j == i - 5 && p == x + 2) || (Map[j][p] == 20)) {
+												continue;
+											}
+											Map[j][p] = 145;
+										}
+									}
+								}
+							}
+						}
 
-				//}
-
-				//int lake_chance = rand() % 150;//add lakes
-				//if (lake_chance == 0 && x < MAP_HEIGHT - 5) {
-				//	int tempie = y;
-				//	for (int i = 0; i < 5; i++) {
-				//		Map[tempie][x + i] = 205;
-
-				//	}
-				//}
+					}
+				}
 			}
 			else if (y < heights[x] + heights2[x] + 5)
 			{
@@ -152,7 +176,7 @@ void Game::Innit()
 				}
 				else {
 					Map[y][x] = 1;
-					if (rand() % 100 > 58/*STONEProb*/) Map[y][x] = 0;
+					if (rand() % 100 > STONEProb) Map[y][x] = 0;
 				}
 
 
@@ -161,6 +185,7 @@ void Game::Innit()
 
 		}
 	}
+
 
 	for (int w = 1; w < MAP_WIDTH - 1; w++) {// grouping the STONE
 		for (int h = heights[w]; h < MAP_HEIGHT - 1; h++) {
@@ -196,6 +221,7 @@ void Game::Innit()
 
 		}
 	}
+
 	
 }
 
