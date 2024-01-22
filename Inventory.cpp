@@ -6,37 +6,37 @@ Inventory::Inventory() {
         switch (i)
         {
         case 0:
-            inventory.push_back({ AIR,0 });
+            inventory.push_back({ NONE,0 });
             break;
         case 1:
-            inventory.push_back({ AIR,0 });
+            inventory.push_back({ NONE,0 });
             break;
         case 2:
-            inventory.push_back({ AIR,0 });
+            inventory.push_back({ NONE,0 });
             break;
         case 3:
-            inventory.push_back({ AIR,0 });
+            inventory.push_back({ NONE,0 });
             break;
         case 4:
-            inventory.push_back({ AIR,0 });
+            inventory.push_back({ NONE,0 });
             break;
         case 5:
-            inventory.push_back({ AIR,0 });
+            inventory.push_back({ NONE,0 });
             break;
         case 6:
-            inventory.push_back({ AIR,0 });
+            inventory.push_back({ NONE,0 });
             break;
         case 7:
-            inventory.push_back({ AIR,0 });
+            inventory.push_back({ NONE,0 });
             break;
         case 8:
-            inventory.push_back({ AIR,0 });
+            inventory.push_back({ NONE,0 });
             break;
         case 9:
-            inventory.push_back({ AIR,0 });
+            inventory.push_back({ NONE,0 });
             break;
         default:
-            inventory.push_back({ AIR,0 });
+            inventory.push_back({ NONE,0 });
             break;
         }
     }
@@ -48,7 +48,7 @@ bool Inventory::PickUp(Item item)
     int firstEmptyIndex = -1;
     for (size_t i = 0; i < size; i++)
     {
-        if (inventory[i].ID == item.ID) {
+        if (inventory[i].ID.ID == item.ID.ID) {
             firstEmptyIndex = i;
             break;
         }
@@ -57,7 +57,7 @@ bool Inventory::PickUp(Item item)
 
         for (size_t i = 0; i < size; i++)
         {
-            if (inventory[i].ID == AIR) {
+            if (inventory[i].ID.ID == NONE) {
                 firstEmptyIndex = i;
                 break;
             }
@@ -74,17 +74,16 @@ bool Inventory::PickUp(Item item)
     return true;
 }
 
-int Inventory::Place()
+block Inventory::Place()
 {
     if (GetActiveSlotItem().ID == AIR) {
-    return false;
-
+        return { NONE, 0 };
     }
     inventory[activeSlot].count -= 1;
     if (inventory[activeSlot].count < 0) {
         DeleteActiveItem();
     }
-    return static_cast<int>(inventory[activeSlot].ID);
+    return inventory[activeSlot].ID;
 }
 
 void Inventory::ChangeActiveSlot(int slot)
@@ -105,14 +104,14 @@ int Inventory::GetActiveSlotIndex()
     return activeSlot;
 }
 
-Item Inventory::GetActiveSlotItem()
+block Inventory::GetActiveSlotItem()
 {
-    return inventory[activeSlot];
+    return inventory[activeSlot].ID;
 }
 
-Item Inventory::GetSlotItem(int slot)
+block Inventory::GetSlotItem(int slot)
 {
-    return inventory[slot];
+    return inventory[slot].ID;
 }
 
 void Inventory::Render(SDL_Renderer* renderer, SDL_Texture* texture)
@@ -140,7 +139,7 @@ void Inventory::Render(SDL_Renderer* renderer, SDL_Texture* texture)
             SDL_SetRenderDrawColor(renderer, 255, 0, 0, 10);
             SDL_RenderFillRect(renderer, &rect);
         }
-        int textureIndex = item.ID;
+        int textureIndex = static_cast<int>(item.ID.ID);
         SDL_Rect sours = { textureIndex % 16 * TEXTURE_SIZE , textureIndex / 16 * TEXTURE_SIZE ,TEXTURE_SIZE,TEXTURE_SIZE };
         SDL_Rect dest = { i * BLOCK_SIZE + (i + 1) * 8 + 25, 25 + 8, BLOCK_SIZE, BLOCK_SIZE };
         SDL_RenderCopy(renderer, texture, &sours, &dest);

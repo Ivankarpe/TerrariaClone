@@ -51,7 +51,7 @@ private:
 
 	bool running = false;
 	
-	std::vector<std::vector<int>> Map;
+	std::vector<std::vector<block>> Map;
 
 	Vector2 cameraPos = { CAMERA_HEIGHT,CAMERA_WIDTH };
 	Player player;

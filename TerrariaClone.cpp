@@ -10,15 +10,15 @@ int main()
 	game->Innit();
 	
 	Uint32 a = SDL_GetTicks();
-	Uint32 b = 0;
+	Uint32 b = SDL_GetTicks();
 	Uint32 delta;
 	while (game->IsRunning()) {
 		a = SDL_GetTicks();
 		delta = a - b;
 
-		if (delta > 1000 / 165.f)
+		if (delta > 1000 / 60.f)
 		{
-			//std::cout << "fps: " << 1000 / delta << std::endl;
+			std::cout << "fps: " << 1000 / delta << std::endl;
 			b = a;
 			game->SetDeltaTime(delta);
 			game->Inputs();
