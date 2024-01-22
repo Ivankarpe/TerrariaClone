@@ -7,6 +7,9 @@
 #include <string>
 #include <iostream>
 #include <algorithm>
+#include <chrono>
+#include <thread>
+
 const int MAP_WIDTH = 2000;
 const int MAP_HEIGHT = 300;
 const int FULLSCREEN = 0;

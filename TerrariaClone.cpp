@@ -16,7 +16,7 @@ int main()
 		a = SDL_GetTicks();
 		delta = a - b;
 
-		if (delta > 1000 / 165.f)
+		if (delta > 1000 / 1300000000000.f)
 		{
 			//std::cout << "fps: " << 1000 / delta << std::endl;
 			b = a;

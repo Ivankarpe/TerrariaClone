@@ -40,6 +40,8 @@ public:
 
 	void DrawMap(InfoForRender info);
 
+	void UpdateWater();
+
 private:
 	SDL_Window* window;
 
@@ -61,5 +63,8 @@ private:
 
 	Inventory inventory;
 	Uint32 deltaTime;
+
+	Uint32 counter = 0;
+
 };
 

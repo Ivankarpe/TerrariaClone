@@ -257,9 +257,17 @@ void Game::oreSpawn(int oreProb, int x, int y, int heights[MAP_WIDTH], int heigh
 	}
 }
 
+
 void Game::Update()
 {
 	player.Update(deltaTime, Map);
+
+	counter+= deltaTime;
+	while (counter > 100) {
+	UpdateWater();
+	counter -= 100;
+	}
+
 }
 
 void Game::on_left_click(SDL_Event event) {
@@ -328,6 +336,109 @@ void Game::DrawMap(InfoForRender info) {
 	
 }
 
+void Game::UpdateWater() {
+	bool mooved = false;
+	for (size_t x = 0; x < MAP_WIDTH; x++) {
+		for (size_t y = MAP_HEIGHT - 1; y > 0; y--) {
+			if (Map[y][x] == 205) {//water
+				mooved = false;
+				if (Map[y + 1][x] == AIR || Map[y + 1][x] == 209) {//water under
+					Map[y][x] = AIR;
+					Map[y + 1][x] = 205;
+					mooved = true;
+				}
+				if (0) {
+					if (rand() % 2 == 0) {
+						if ((Map[y + 1][x - 1] == AIR || Map[y + 1][x - 1] == 209) && Map[y][x - 1] == AIR) {//water under-left
+							Map[y][x] = AIR;
+							Map[y + 1][x - 1] = 205;
+							mooved = true;
+						}
+						else if ((Map[y + 1][x + 1] == AIR || Map[y + 1][x + 1] == 209) && Map[y][x + 1] == AIR) {//water under-right
+							Map[y][x] = AIR;
+							Map[y + 1][x + 1] = 205;
+							mooved = true;
+						}
+					}
+					else {
+						if ((Map[y + 1][x + 1] == AIR || Map[y + 1][x + 1] == 209) && Map[y][x+1] == AIR) {//water under-right
+							Map[y][x] = AIR;
+							Map[y + 1][x + 1] = 205;
+							mooved = true;
+						}
+						else if ((Map[y + 1][x - 1] == AIR || Map[y + 1][x - 1] == 209) && Map[y][x-1] == AIR) {//water under-left
+							Map[y][x] = AIR;
+							Map[y + 1][x - 1] = 205;
+							mooved = true;
+						}
+					}
+				}
+				if (!mooved) {
+					if (rand() % 2 == 0) {
+						if (Map[y][x + 1] == AIR) {//water right
+							Map[y][x] = AIR;
+							Map[y][x + 1] = 205;
+							mooved = true;
+							x++;
+						}
+						else if (Map[y][x - 1] == AIR) {//water left
+							Map[y][x] = AIR;
+							Map[y][x - 1] = 205;
+							mooved = true;
+						}
+					}
+					else {
+						if (Map[y][x - 1] == AIR) {//water left
+							Map[y][x] = AIR;
+							Map[y][x - 1] = 205;
+							mooved = true;
+						}
+						else if (Map[y][x + 1] == AIR) {//water right
+							Map[y][x] = AIR;
+							Map[y][x + 1] = 205;
+							mooved = true;
+							x++;
+						}
+					}
+
+				}
+
+				//if (Map[y][x] == 209) {
+				//	if (Map[y + 1][x] == AIR) {//flowing under on air
+				//		Map[y][x] = AIR;
+				//		Map[y + 1][x] = 209;
+				//	}
+				//	else if (Map[y + 1][x] == 209) {//flowing under on flowing
+				//		Map[y][x] = AIR;
+				//		Map[y + 1][x] = 205;
+				//	}
+				//	else if (Map[y + 1][x - 1] == 209 && Map[y + 1][x] == 205) {//flowing under-left
+				//		Map[y][x] = AIR;
+				//		Map[y + 1][x - 1] = 205;
+				//	}
+				//	else if (Map[y + 1][x + 1] == 209 && Map[y + 1][x] == 205) {//flowing under-right
+				//		Map[y+1][x] = AIR;
+				//		Map[y + 1][x + 1] = 205;
+				//	}
+				//	else if (Map[y][x - 1] == AIR && Map[y+1][x + 1] != AIR) {//flowing left
+				//		Map[y][x] = 209;
+				//		Map[y][x - 1] = 209;
+				//	}
+				//	else if (Map[y][x + 1] == AIR && Map[y+1][x - 1] != AIR) {//flowing right
+				//		Map[y][x] = 209;
+				//		Map[y][x + 1] = 209;
+				//	}
+				//}
+				/*if (Map[y][x] == AIR && Map[y][x - 1] == 205 && Map[y + 1][x] != 209) {
+					Map[y][x] = 209;
+
+				}*/
+			}
+		}
+
+	}
+}
+
 void Game::Render()
 {
 	SDL_RenderClear(renderer);
@@ -389,6 +500,7 @@ void Game::Render()
 
 	SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
 	SDL_RenderPresent(renderer);
+
 }
 
 void Game::Inputs()
