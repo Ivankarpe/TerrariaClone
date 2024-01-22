@@ -12,7 +12,7 @@
 
 const int MAP_WIDTH = 2000;
 const int MAP_HEIGHT = 300;
-const int FULLSCREEN = 0;
+const int FULLSCREEN = 1;
 
 
 const int CAMERA_WIDTH = 1920;
@@ -63,4 +63,5 @@ enum ItemsID
 struct block {
 	ItemsID ID;
 	bool colideable;
+	float area=0;
 };
