@@ -1,6 +1,6 @@
 #include "Player.h"
 
-void Player::Move(Vector2f dir, Uint32 deltaTime, std::vector<std::vector<int>> Map)
+void Player::Move(Vector2f dir, Uint32 deltaTime, std::vector<std::vector<block>> Map)
 {
 	if (cord.x < 0) {
 		cord.x = 0;
@@ -20,15 +20,15 @@ void Player::Move(Vector2f dir, Uint32 deltaTime, std::vector<std::vector<int>> 
 		bool y = true;
 		if (gamemode == 0) {
 
-			if (Map[(cord.y - 16 + dy / div) / BLOCK_SIZE][(cord.x - 16) / BLOCK_SIZE] != 0) { y = false; }
-			else if (Map[(cord.y - 16 + dy / div) / BLOCK_SIZE][(cord.x + 16) / BLOCK_SIZE] != 0) { y = false; }
-			else if (Map[(cord.y + 16 + dy / div) / BLOCK_SIZE][(cord.x - 16) / BLOCK_SIZE] != 0) { y = false; }
-			else if (Map[(cord.y + 16 + dy / div) / BLOCK_SIZE][(cord.x + 16) / BLOCK_SIZE] != 0) { y = false; }
+			if (Map[(cord.y - 16 + dy / div) / BLOCK_SIZE][(cord.x - 16) / BLOCK_SIZE].colideable) { y = false; }
+			else if (Map[(cord.y - 16 + dy / div) / BLOCK_SIZE][(cord.x + 16) / BLOCK_SIZE].colideable) { y = false; }
+			else if (Map[(cord.y + 16 + dy / div) / BLOCK_SIZE][(cord.x - 16) / BLOCK_SIZE].colideable) { y = false; }
+			else if (Map[(cord.y + 16 + dy / div) / BLOCK_SIZE][(cord.x + 16) / BLOCK_SIZE].colideable) { y = false; }
 
-			if (Map[(cord.y - 16) / BLOCK_SIZE][(cord.x - 16 + dx / div) / BLOCK_SIZE] != 0) { x = false; }
-			else if (Map[(cord.y - 16) / BLOCK_SIZE][(cord.x + 16 + dx / div) / BLOCK_SIZE] != 0) { x = false; }
-			else if (Map[(cord.y + 16) / BLOCK_SIZE][(cord.x - 16 + dx / div) / BLOCK_SIZE] != 0) { x = false; }
-			else if (Map[(cord.y + 16) / BLOCK_SIZE][(cord.x + 16 + dx / div) / BLOCK_SIZE] != 0) { x = false; }
+			if (Map[(cord.y - 16) / BLOCK_SIZE][(cord.x - 16 + dx / div) / BLOCK_SIZE].colideable) { x = false; }
+			else if (Map[(cord.y - 16) / BLOCK_SIZE][(cord.x + 16 + dx / div) / BLOCK_SIZE].colideable) { x = false; }
+			else if (Map[(cord.y + 16) / BLOCK_SIZE][(cord.x - 16 + dx / div) / BLOCK_SIZE].colideable) { x = false; }
+			else if (Map[(cord.y + 16) / BLOCK_SIZE][(cord.x + 16 + dx / div) / BLOCK_SIZE].colideable) { x = false; }
 		}
 		else
 		{
@@ -63,10 +63,10 @@ void Player::Move(Vector2f dir, Uint32 deltaTime, std::vector<std::vector<int>> 
 	}
 }
 
-void Player::Update(Uint32 deltaTime, std::vector<std::vector<int>> Map)
+void Player::Update(Uint32 deltaTime, std::vector<std::vector<block>> Map)
 {
 	if (gamemode == 0) {
-		acc += 9*deltaTime/1000.;
+		acc += 9 * deltaTime/ 1000.f;
 		if (acc >= 10) {
 			acc = 10;
 		}
@@ -79,14 +79,14 @@ void Player::Update(Uint32 deltaTime, std::vector<std::vector<int>> Map)
 	}
 }
 
-void Player::Jump( std::vector<std::vector<int>> Map)
+void Player::Jump( std::vector<std::vector<block>> Map)
 {
 	if (gamemode == 0) {
 
 		bool y = false;
 
-		if (Map[(cord.y + 16 + 5) / BLOCK_SIZE][(cord.x - 16) / BLOCK_SIZE] != 0) { y = true; }
-		if (Map[(cord.y + 16 + 5) / BLOCK_SIZE][(cord.x + 16) / BLOCK_SIZE] != 0) { y = true; }
+		if (Map[(cord.y + 16 + 5) / BLOCK_SIZE][(cord.x - 16) / BLOCK_SIZE].colideable) { y = true; }
+		if (Map[(cord.y + 16 + 5) / BLOCK_SIZE][(cord.x + 16) / BLOCK_SIZE].colideable) { y = true; }
 
 		if (y) {
 			acc = -4;

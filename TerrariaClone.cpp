@@ -10,7 +10,7 @@ int main()
 	game->Innit();
 	
 	Uint32 a = SDL_GetTicks();
-	Uint32 b = 0;
+	Uint32 b = SDL_GetTicks();
 	Uint32 delta;
 	while (game->IsRunning()) {
 		a = SDL_GetTicks();
