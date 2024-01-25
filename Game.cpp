@@ -32,7 +32,7 @@ void Game::Innit()
 	}
 	for (int x = 0; x < MAP_WIDTH; x++) {//filling map with blocks
 		for (int y = 0; y < MAP_HEIGHT; y++) {
-			Map[y][x] = { NONE, 0};
+			Map[y][x] = { NONE, 0 };
 		}
 	}
 	srand(time(NULL));
@@ -102,30 +102,30 @@ void Game::Innit()
 			int h = heights[w];
 			int maxSize = 40;
 			int size = 0;
-			while (h + 1<= heights[x + size + 1]) {
+			while (h + 1 <= heights[x + size + 1]) {
 				size++;
 				if (size > maxSize) {
 					break;
 				}
 			}
 			if (size > 10 && size <= maxSize) {
-				for(int  i = 0; i <= size; i++){
-				//while (h < heights[w + 1]) {
-					//w++;
+				for (int i = 0; i <= size; i++) {
+					//while (h < heights[w + 1]) {
+						//w++;
 					for (int h2 = h; h2 < heights[x + i]; h2++) {
-						Map[h2][x + i] = {WATER, 0};
+						Map[h2][x + i] = { WATER, 0 };
 					}
 				}
-			SDL_Log("size, x: (%d, %d)", size, x);
+				SDL_Log("size, x: (%d, %d)", size, x);
 			}
 		}
 	}
-	
+
 
 	//int VOID = 0;
 	//int STONE = 1;
 	int seed = time(NULL);
-	int STONEProb = 55;
+	int STONEProb = 65;
 	srand(seed);
 
 	for (int x = 0; x < MAP_WIDTH; x++) {//filling map with blocks
@@ -149,7 +149,7 @@ void Game::Innit()
 						int tree_height = rand() % 15 + 7;
 						if (Map[y - 1][x - 1].ID != WOOD && Map[y - 2][x - 1].ID != WOOD) {
 							for (int i = y - 1; i >= y - tree_height; i--) {
-								Map[i][x] = { WOOD, 0};
+								Map[i][x] = { WOOD, 0 };
 								if (i == y - tree_height) {
 									for (int j = i - 1; j >= i - 5; j--) {
 										for (int p = x - 2; p <= x + 2; p++) {
@@ -187,6 +187,12 @@ void Game::Innit()
 		}
 	}
 
+	for (int x = 0; x < MAP_WIDTH - 0; ++x) {
+		for (int y = 0 + heights[x] + heights2[x]; y < MAP_HEIGHT - 0; ++y) {
+			caveSpawn(x, y, heights, heights2, 2500, 5, 80);
+			caveSpawn(x, y, heights, heights2, 2500, 105, 175);
+		}
+	}
 
 	for (int w = 1; w < MAP_WIDTH - 1; w++) {// grouping the STONE
 		for (int h = heights[w]; h < MAP_HEIGHT - 1; h++) {
@@ -206,6 +212,7 @@ void Game::Innit()
 		}
 	}
 
+	
 
 	for (int x = 1; x < MAP_WIDTH - 1; x++) {// ore generation
 		for (int y = heights[x] + heights2[x] + 5; y < MAP_HEIGHT; y++) {
@@ -214,13 +221,12 @@ void Game::Innit()
 			//int orecount = 0;
 			int defaultHeight = heights[x] + heights2[x];
 
-			//oreSpawn(rand() % 3000, x, y, heights, heights2, COAL_ORE, defaultHeight, coalOreChance);
-			//oreSpawn(rand() % 3000, x, y, heights, heights2, IRON_ORE, defaultHeight, ironOreChance);
-			//oreSpawn(rand() % 4000, x, y, heights, heights2, GOLD_ORE, goldOreHight, goldOreChance);
-			//oreSpawn(rand() % 6000, x, y, heights, heights2, DIAMOND_ORE, diamondOreHight, diamondOreChance);
-			//oreSpawn(rand() % 6000, x, y, heights, heights2, RUBY_ORE, rubyOreHight, rubyOreChance);
-			//oreSpawn(rand() % 6000, x, y, heights, heights2, SAPHIRE_ORE, saphireOreHight, saphireOreChance);
-
+			/*oreSpawn(rand() % 3000, x, y, heights, heights2, COAL_ORE, defaultHeight, coalOreChance);
+			oreSpawn(rand() % 3000, x, y, heights, heights2, IRON_ORE, defaultHeight, ironOreChance);
+			oreSpawn(rand() % 4000, x, y, heights, heights2, GOLD_ORE, goldOreHight, goldOreChance);
+			oreSpawn(rand() % 6000, x, y, heights, heights2, DIAMOND_ORE, diamondOreHight, diamondOreChance);
+			oreSpawn(rand() % 6000, x, y, heights, heights2, RUBY_ORE, rubyOreHight, rubyOreChance);
+			oreSpawn(rand() % 6000, x, y, heights, heights2, SAPHIRE_ORE, saphireOreHight, saphireOreChance);*/
 		}
 	}
 
@@ -251,23 +257,57 @@ void Game::oreSpawn(int oreProb, int x, int y, int heights[MAP_WIDTH], int heigh
 				}
 				//SDL_Log("rockCounter = : (%d)", rockCounter);
 
-				if (Map[h][w].ID == oreID && coalCounter <= 1) Map[h][w] = { STONE, 1 };
+				if (Map[h][w].ID == oreID && coalCounter <= 2) Map[h][w] = { STONE, 1 };
 				if (Map[h][w].ID != oreID && coalCounter >= 5) Map[h][w] = { oreID, 1 };
 			}
 		}
 	}
 }
 
+void Game::caveSpawn(int x, int y, int heights[MAP_WIDTH], int heights2[MAP_WIDTH], int caveChance, int caveMinAngle, int caveMaxAngle) {
+	if (rand() % caveChance == 0) {
+		int randomAngle = rand() % caveMaxAngle;
+		int caveSize = rand() % 70 + 30;
+		if (randomAngle >= caveMinAngle) {
+
+			int randomX = x + static_cast<int>(caveSize * std::cos(randomAngle * 3.14159 / 180));
+			int randomY = y + static_cast<int>(caveSize * std::sin(randomAngle * 3.14159 / 180));
+
+			double distance = std::sqrt(std::pow(x - randomX, 2) + std::pow(y - randomY, 2));
+			int deltaX = randomX - x;
+			int deltaY = randomY - y;
+			int steps = std::max(std::abs(deltaX), std::abs(deltaY));
+
+
+			for (int step = 0; step <= steps; step++) {
+				int pathWidth = rand() % 2 + 1;
+				int currentX = x + step * deltaX / steps;
+				int currentY = y + step * deltaY / steps;
+
+				for (int i = -pathWidth / 2; i <= pathWidth / 2; ++i) {
+					for (int j = -pathWidth / 2; j <= pathWidth / 2; ++j) {
+						int sideX = currentX + i;
+						int sideY = currentY + j;
+
+						if (sideX >= 0 && sideX < MAP_WIDTH && sideY >= 0 && sideY < MAP_HEIGHT) {
+							Map[sideY][sideX] = { NONE, 0 };
+						}
+					}
+				}
+			}
+		}
+	}
+}
 
 void Game::Update()
 {
 	player.Update(deltaTime, Map);
 
-	counter+= deltaTime;
+	/*counter+= deltaTime;
 	while (counter > 100) {
 	UpdateWater();
 	counter -= 100;
-	}
+	}*/
 
 }
 
@@ -337,108 +377,108 @@ void Game::DrawMap(InfoForRender info) {
 	
 }
 
-void Game::UpdateWater() {
-	bool mooved = false;
-	for (size_t x = 0; x < MAP_WIDTH; x++) {
-		for (size_t y = MAP_HEIGHT - 1; y > 0; y--) {
-			if (Map[y][x] == 205) {//water
-				mooved = false;
-				if (Map[y + 1][x] == AIR || Map[y + 1][x] == 209) {//water under
-					Map[y][x] = AIR;
-					Map[y + 1][x] = 205;
-					mooved = true;
-				}
-				if (0) {
-					if (rand() % 2 == 0) {
-						if ((Map[y + 1][x - 1] == AIR || Map[y + 1][x - 1] == 209) && Map[y][x - 1] == AIR) {//water under-left
-							Map[y][x] = AIR;
-							Map[y + 1][x - 1] = 205;
-							mooved = true;
-						}
-						else if ((Map[y + 1][x + 1] == AIR || Map[y + 1][x + 1] == 209) && Map[y][x + 1] == AIR) {//water under-right
-							Map[y][x] = AIR;
-							Map[y + 1][x + 1] = 205;
-							mooved = true;
-						}
-					}
-					else {
-						if ((Map[y + 1][x + 1] == AIR || Map[y + 1][x + 1] == 209) && Map[y][x+1] == AIR) {//water under-right
-							Map[y][x] = AIR;
-							Map[y + 1][x + 1] = 205;
-							mooved = true;
-						}
-						else if ((Map[y + 1][x - 1] == AIR || Map[y + 1][x - 1] == 209) && Map[y][x-1] == AIR) {//water under-left
-							Map[y][x] = AIR;
-							Map[y + 1][x - 1] = 205;
-							mooved = true;
-						}
-					}
-				}
-				if (!mooved) {
-					if (rand() % 2 == 0) {
-						if (Map[y][x + 1] == AIR) {//water right
-							Map[y][x] = AIR;
-							Map[y][x + 1] = 205;
-							mooved = true;
-							x++;
-						}
-						else if (Map[y][x - 1] == AIR) {//water left
-							Map[y][x] = AIR;
-							Map[y][x - 1] = 205;
-							mooved = true;
-						}
-					}
-					else {
-						if (Map[y][x - 1] == AIR) {//water left
-							Map[y][x] = AIR;
-							Map[y][x - 1] = 205;
-							mooved = true;
-						}
-						else if (Map[y][x + 1] == AIR) {//water right
-							Map[y][x] = AIR;
-							Map[y][x + 1] = 205;
-							mooved = true;
-							x++;
-						}
-					}
-
-				}
-
-				//if (Map[y][x] == 209) {
-				//	if (Map[y + 1][x] == AIR) {//flowing under on air
-				//		Map[y][x] = AIR;
-				//		Map[y + 1][x] = 209;
-				//	}
-				//	else if (Map[y + 1][x] == 209) {//flowing under on flowing
-				//		Map[y][x] = AIR;
-				//		Map[y + 1][x] = 205;
-				//	}
-				//	else if (Map[y + 1][x - 1] == 209 && Map[y + 1][x] == 205) {//flowing under-left
-				//		Map[y][x] = AIR;
-				//		Map[y + 1][x - 1] = 205;
-				//	}
-				//	else if (Map[y + 1][x + 1] == 209 && Map[y + 1][x] == 205) {//flowing under-right
-				//		Map[y+1][x] = AIR;
-				//		Map[y + 1][x + 1] = 205;
-				//	}
-				//	else if (Map[y][x - 1] == AIR && Map[y+1][x + 1] != AIR) {//flowing left
-				//		Map[y][x] = 209;
-				//		Map[y][x - 1] = 209;
-				//	}
-				//	else if (Map[y][x + 1] == AIR && Map[y+1][x - 1] != AIR) {//flowing right
-				//		Map[y][x] = 209;
-				//		Map[y][x + 1] = 209;
-				//	}
-				//}
-				/*if (Map[y][x] == AIR && Map[y][x - 1] == 205 && Map[y + 1][x] != 209) {
-					Map[y][x] = 209;
-
-				}*/
-			}
-		}
-
-	}
-}
+//void Game::UpdateWater() {
+//	bool mooved = false;
+//	for (size_t x = 0; x < MAP_WIDTH; x++) {
+//		for (size_t y = MAP_HEIGHT - 1; y > 0; y--) {
+//			if (Map[y][x] == 205) {//water
+//				mooved = false;
+//				if (Map[y + 1][x] == AIR || Map[y + 1][x] == 209) {//water under
+//					Map[y][x] = AIR;
+//					Map[y + 1][x] = 205;
+//					mooved = true;
+//				}
+//				if (0) {
+//					if (rand() % 2 == 0) {
+//						if ((Map[y + 1][x - 1] == AIR || Map[y + 1][x - 1] == 209) && Map[y][x - 1] == AIR) {//water under-left
+//							Map[y][x] = AIR;
+//							Map[y + 1][x - 1] = 205;
+//							mooved = true;
+//						}
+//						else if ((Map[y + 1][x + 1] == AIR || Map[y + 1][x + 1] == 209) && Map[y][x + 1] == AIR) {//water under-right
+//							Map[y][x] = AIR;
+//							Map[y + 1][x + 1] = 205;
+//							mooved = true;
+//						}
+//					}
+//					else {
+//						if ((Map[y + 1][x + 1] == AIR || Map[y + 1][x + 1] == 209) && Map[y][x+1] == AIR) {//water under-right
+//							Map[y][x] = AIR;
+//							Map[y + 1][x + 1] = 205;
+//							mooved = true;
+//						}
+//						else if ((Map[y + 1][x - 1] == AIR || Map[y + 1][x - 1] == 209) && Map[y][x-1] == AIR) {//water under-left
+//							Map[y][x] = AIR;
+//							Map[y + 1][x - 1] = 205;
+//							mooved = true;
+//						}
+//					}
+//				}
+//				if (!mooved) {
+//					if (rand() % 2 == 0) {
+//						if (Map[y][x + 1] == AIR) {//water right
+//							Map[y][x] = AIR;
+//							Map[y][x + 1] = 205;
+//							mooved = true;
+//							x++;
+//						}
+//						else if (Map[y][x - 1] == AIR) {//water left
+//							Map[y][x] = AIR;
+//							Map[y][x - 1] = 205;
+//							mooved = true;
+//						}
+//					}
+//					else {
+//						if (Map[y][x - 1] == AIR) {//water left
+//							Map[y][x] = AIR;
+//							Map[y][x - 1] = 205;
+//							mooved = true;
+//						}
+//						else if (Map[y][x + 1] == AIR) {//water right
+//							Map[y][x] = AIR;
+//							Map[y][x + 1] = 205;
+//							mooved = true;
+//							x++;
+//						}
+//					}
+//
+//				}
+//
+//				//if (Map[y][x] == 209) {
+//				//	if (Map[y + 1][x] == AIR) {//flowing under on air
+//				//		Map[y][x] = AIR;
+//				//		Map[y + 1][x] = 209;
+//				//	}
+//				//	else if (Map[y + 1][x] == 209) {//flowing under on flowing
+//				//		Map[y][x] = AIR;
+//				//		Map[y + 1][x] = 205;
+//				//	}
+//				//	else if (Map[y + 1][x - 1] == 209 && Map[y + 1][x] == 205) {//flowing under-left
+//				//		Map[y][x] = AIR;
+//				//		Map[y + 1][x - 1] = 205;
+//				//	}
+//				//	else if (Map[y + 1][x + 1] == 209 && Map[y + 1][x] == 205) {//flowing under-right
+//				//		Map[y+1][x] = AIR;
+//				//		Map[y + 1][x + 1] = 205;
+//				//	}
+//				//	else if (Map[y][x - 1] == AIR && Map[y+1][x + 1] != AIR) {//flowing left
+//				//		Map[y][x] = 209;
+//				//		Map[y][x - 1] = 209;
+//				//	}
+//				//	else if (Map[y][x + 1] == AIR && Map[y+1][x - 1] != AIR) {//flowing right
+//				//		Map[y][x] = 209;
+//				//		Map[y][x + 1] = 209;
+//				//	}
+//				//}
+//				/*if (Map[y][x] == AIR && Map[y][x - 1] == 205 && Map[y + 1][x] != 209) {
+//					Map[y][x] = 209;
+//
+//				}*/
+//			}
+//		}
+//
+//	}
+//}
 
 void Game::Render()
 {

@@ -38,6 +38,8 @@ public:
 
 	void oreSpawn(int oreChance, int x, int y, int heights[MAP_WIDTH], int heights2[MAP_WIDTH], ItemsID oreID, const int oreSpawnHight, const int oreSpawnChance);
 
+	void caveSpawn(int x, int y, int heights[MAP_WIDTH], int heights2[MAP_WIDTH], int caveChance, int caveMinAngle, int caveMaxAngle);
+
 	void DrawMap(InfoForRender info);
 
 	void UpdateWater();
