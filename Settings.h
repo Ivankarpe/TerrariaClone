@@ -13,7 +13,7 @@
 const int MAP_WIDTH = 2000;
 const int MAP_HEIGHT = 300;
 const int FULLSCREEN = 1;
-const int WATERCAPACITY = 100;
+const int WATERCAPACITY = 500;
 
 const int CAMERA_WIDTH = 1920;
 const int CAMERA_HEIGHT = 1080;

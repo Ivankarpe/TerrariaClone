@@ -113,7 +113,7 @@ void Game::Innit()
 				//while (h < heights[w + 1]) {
 					//w++;
 					for (int h2 = h; h2 < heights[x + i]; h2++) {
-						Map[h2][x + i] = {WATER, 0,WATERCAPACITY-10};
+						Map[h2][x + i].area = WATERCAPACITY;
 					}
 				}
 			SDL_Log("size, x: (%d, %d)", size, x);
@@ -133,7 +133,7 @@ void Game::Innit()
 		for (int y = heights[x]; y < MAP_HEIGHT; y++) {
 			if (y == heights[x]) {
 				Map[y][x] = { GRASS, 1 };
-				if (Map[y - 1][x].ID != WATER) {
+				if (Map[y - 1][x].area == 0) {
 					int id_ground = rand() % 40;//add plants
 					if (id_ground >= 0 && id_ground <= 3) Map[y - 1][x] = { static_cast<ItemsID>(12), 0 };
 					if (id_ground >= 4 && id_ground <= 7) Map[y - 1][x] = { static_cast<ItemsID>(13), 0 };
@@ -324,19 +324,23 @@ void Game::DrawMap(InfoForRender info) {
 	{
 		for (size_t j = 0; j < CAMERA_HEIGHT / BLOCK_SIZE + 2; j++)
 		{
-			textureIndex = static_cast<int>(Map[info.firstPos.y + j][info.firstPos.x + i].ID);
-
-			SDL_Rect sours = { textureIndex % 16 * TEXTURE_SIZE ,textureIndex / 16 * TEXTURE_SIZE ,TEXTURE_SIZE,TEXTURE_SIZE };
-
-			//SDL_Rect dest = { i * BLOCK_SIZE ,j * BLOCK_SIZE,BLOCK_SIZE,BLOCK_SIZE };
+			int texturIndex;
 			SDL_Rect dest = { i * BLOCK_SIZE - info.dosPos.x,j * BLOCK_SIZE - info.dosPos.y,BLOCK_SIZE,BLOCK_SIZE };
-			if (textureIndex == 205) {
-				if (Map[info.firstPos.y + j - 1][info.firstPos.x + i].ID == WATER) {
+
+
+			textureIndex = static_cast<int>(Map[info.firstPos.y + j][info.firstPos.x + i].ID);
+			SDL_Rect sours = { textureIndex % 16 * TEXTURE_SIZE ,textureIndex / 16 * TEXTURE_SIZE ,TEXTURE_SIZE,TEXTURE_SIZE };
+			//SDL_Rect dest = { i * BLOCK_SIZE ,j * BLOCK_SIZE,BLOCK_SIZE,BLOCK_SIZE };
+			SDL_RenderCopy(renderer, texture, &sours, &dest);
+
+			if (Map[info.firstPos.y + j][info.firstPos.x + i].area != 0) {
+				textureIndex = 205;
+				if (Map[info.firstPos.y + j - 1][info.firstPos.x + i].area != 0) {
 
 				}
 				else {
 
-					dest.h = Map[info.firstPos.y + j][info.firstPos.x + i].area / (float)(WATERCAPACITY)*BLOCK_SIZE;
+					dest.h = Map[info.firstPos.y + j][info.firstPos.x + i].area / (float)(WATERCAPACITY) * (float)(BLOCK_SIZE);
 					if (dest.h < 1) {
 						dest.h = 1;
 					}
@@ -346,9 +350,11 @@ void Game::DrawMap(InfoForRender info) {
 					int dh = BLOCK_SIZE - dest.h;
 					dest.y += dh;
 				}
-			}
-			SDL_RenderCopy(renderer, texture, &sours, &dest);
+				SDL_Rect sours = { textureIndex % 16 * TEXTURE_SIZE ,textureIndex / 16 * TEXTURE_SIZE ,TEXTURE_SIZE,TEXTURE_SIZE };
 
+				SDL_RenderCopy(renderer, texture, &sours, &dest);
+
+			}
 		}
 	}
 	
@@ -359,84 +365,59 @@ void Game::UpdateWater() {
 	for (size_t x = 0; x < MAP_WIDTH; x++) {
 		for (size_t y = MAP_HEIGHT - 2; y > 0; y--) {
 
-			if (Map[y][x].ID == WATER) {//water
+			if (Map[y][x].area!= 0) {//water
 				mooved = false;
 				float curentArea = Map[y][x].area;
-				if (Map[y + 1][x].ID == NONE || (Map[y + 1][x].ID == WATER && Map[ y+1 ][x].area != WATERCAPACITY) ) {//water under
+				if (!Map[y + 1][x].colideable || (Map[y + 1][x].area != 0 && Map[y + 1][x].area != WATERCAPACITY) ) {//water under
 					float targetArea = Map[y + 1][x].area;
 					float availeableArea = WATERCAPACITY - targetArea;
 					if (curentArea - availeableArea >= 0) {
-						Map[y][x] = { WATER, 0,  curentArea - availeableArea};
-						Map[y + 1][x] = { WATER, 0, WATERCAPACITY };
+						Map[y][x].area = curentArea - availeableArea;
+						Map[y + 1][x].area =  WATERCAPACITY;
 					}
 					else {
-						Map[y][x] = { NONE, 0, 0};
-						Map[y + 1][x] = { WATER, 0,targetArea+curentArea};
+						Map[y][x].area = 0;
+						Map[y + 1][x].area = targetArea+curentArea;
 					}
 					
 					mooved = true;
 				}
-				if (0) {
-					if (rand() % 2 == 0) {
-						if ((Map[y + 1][x - 1].ID == NONE || Map[y + 1][x - 1].ID == 209) && Map[y][x - 1].ID == NONE) {//water under-left
-							Map[y][x] = { NONE, 0 };
-							Map[y + 1][x - 1] = { WATER, 0 };
-							mooved = true;
-						}
-						else if ((Map[y + 1][x + 1].ID == NONE || Map[y + 1][x + 1].ID == 209) && Map[y][x + 1].ID == NONE) {//water under-right
-							Map[y][x] = { NONE, 0 };
-							Map[y + 1][x + 1] = { WATER, 0 };
-							mooved = true;
-						}
-					}
-					else {
-						if ((Map[y + 1][x + 1].ID == NONE || Map[y + 1][x + 1].ID == 209) && Map[y][x+1].ID == NONE) {//water under-right
-							Map[y][x] = { NONE, 0 };
-							Map[y + 1][x + 1] = { WATER, 0 };
-							mooved = true;
-						}
-						else if ((Map[y + 1][x - 1].ID == NONE || Map[y + 1][x - 1].ID == 209) && Map[y][x-1].ID == NONE) {//water under-left
-							Map[y][x] = { NONE, 0 };
-							Map[y + 1][x - 1] = { WATER, 0 };
-							mooved = true;
-						}
-					}
-				}
+				
 				curentArea = Map[y][x].area;
 				if (curentArea != 0) {
 					if (rand() % 2 == 0) {
-						if (Map[y][x + 1].ID == NONE || (Map[y][x + 1].ID == WATER && Map[y][x + 1].area != curentArea)) {//water right
+						if (!Map[y][x + 1].colideable || (Map[y][x + 1].area != 0 && Map[y][x + 1].area != curentArea)) {//water right
 							float transArea;
-							if (Map[y][x + 2].ID == NONE || (Map[y][x + 2].ID == WATER && Map[y][x + 2].area != curentArea)) {
+							if (!Map[y][x + 2].colideable || (Map[y][x + 2].area != 0 && Map[y][x + 2].area != curentArea)) {
 								transArea = (Map[y][x + 1].area +Map[y][x + 2].area + curentArea) / 3;
-								Map[y][x] = { WATER, 0, transArea };
-								Map[y][x + 1] = { WATER, 0 , transArea };
-								Map[y][x + 2] = { WATER, 0 , transArea };
+								Map[y][x].area = transArea;
+								Map[y][x + 1].area = transArea;
+								Map[y][x + 2].area = transArea;
 							}
 							else
 							{
 								transArea = (Map[y][x + 1].area + curentArea) / 2;
-								Map[y][x] = { WATER, 0, transArea };
-								Map[y][x + 1] = { WATER, 0 , transArea };
+								Map[y][x].area = transArea;
+								Map[y][x + 1].area = transArea;
 
 							}
 							mooved = true;
 							curentArea = transArea;
 						}
 
-						else if (Map[y][x - 1].ID == NONE || (Map[y][x - 1].ID == WATER && Map[y][x - 1].area != curentArea)) {//water left
+						else if (!Map[y][x - 1].colideable || (Map[y][x - 1].area != 0 && Map[y][x - 1].area != curentArea)) {//water left
 							float transArea;
-							if (Map[y][x - 2].ID == NONE || (Map[y][x - 2].ID == WATER && Map[y][x - 2].area != curentArea)) {
+							if (!Map[y][x - 2].colideable || (Map[y][x - 2].area != 0 && Map[y][x - 2].area != curentArea)) {
 								transArea = (Map[y][x - 1].area + Map[y][x- 2].area + curentArea) / 3;
-								Map[y][x] = { WATER, 0, transArea };
-								Map[y][x - 1] = { WATER, 0 , transArea };
-								Map[y][x - 2] = { WATER, 0 , transArea };
+								Map[y][x].area =  transArea;
+								Map[y][x - 1].area = transArea;
+								Map[y][x - 2].area = transArea;
 							}
 							else
 							{
 								transArea = (Map[y][x - 1].area + curentArea) / 2;
-								Map[y][x] = { WATER, 0, transArea };
-								Map[y][x - 1] = { WATER, 0 , transArea };
+								Map[y][x].area = transArea;
+								Map[y][x - 1].area = transArea;
 
 							}
 							mooved = true;
@@ -444,38 +425,38 @@ void Game::UpdateWater() {
 						}
 					}
 					else {
-						if (Map[y][x - 1].ID == NONE || (Map[y][x - 1].ID == WATER && Map[y][x - 1].area != curentArea)) {//water left
+						if (!Map[y][x - 1].colideable || (Map[y][x - 1].area != 0 && Map[y][x - 1].area != curentArea)) {//water left
 							float transArea;
-							if (Map[y][x - 2].ID == NONE || (Map[y][x - 2].ID == WATER && Map[y][x - 2].area != curentArea)) {
+							if (!Map[y][x - 2].colideable || (Map[y][x - 2].area != 0 && Map[y][x - 2].area != curentArea)) {
 								transArea = (Map[y][x - 1].area + Map[y][x - 2].area + curentArea) / 3;
-								Map[y][x] = { WATER, 0, transArea };
-								Map[y][x - 1] = { WATER, 0 , transArea };
-								Map[y][x - 2] = { WATER, 0 , transArea };
+								Map[y][x].area = transArea;
+								Map[y][x - 1].area = transArea;
+								Map[y][x - 2].area = transArea;
 							}
 							else
 							{
 								transArea = (Map[y][x - 1].area + curentArea) / 2;
-								Map[y][x] = { WATER, 0, transArea };
-								Map[y][x - 1] = { WATER, 0 , transArea };
+								Map[y][x].area = transArea;
+								Map[y][x - 1].area = transArea;
 
 							}
 							mooved = true;
 							curentArea = transArea;
 						}
 
-						else if (Map[y][x + 1].ID == NONE || (Map[y][x + 1].ID == WATER && Map[y][x + 1].area != curentArea)) {//water right
+						else if (!Map[y][x + 1].colideable || (Map[y][x + 1].area != 0 && Map[y][x + 1].area != curentArea)) {//water right
 							float transArea;
-							if (Map[y][x + 2].ID == NONE || (Map[y][x + 2].ID == WATER && Map[y][x + 2].area != curentArea)) {
+							if (!Map[y][x + 2].colideable || (Map[y][x + 2].area != 0 && Map[y][x + 2].area != curentArea)) {
 								transArea = (Map[y][x + 1].area + Map[y][x + 2].area + curentArea) / 3;
-								Map[y][x] = { WATER, 0, transArea };
-								Map[y][x + 1] = { WATER, 0 , transArea };
-								Map[y][x + 2] = { WATER, 0 , transArea };
+								Map[y][x].area = transArea;
+								Map[y][x + 1].area = transArea;
+								Map[y][x + 2].area = transArea;
 							}
 							else
 							{
 								transArea = (Map[y][x + 1].area + curentArea) / 2;
-								Map[y][x] = { WATER, 0, transArea };
-								Map[y][x + 1] = { WATER, 0 , transArea };
+								Map[y][x].area = transArea;
+								Map[y][x + 1].area = transArea;
 
 							}
 							mooved = true;
@@ -487,41 +468,9 @@ void Game::UpdateWater() {
 				}
 
 				if (Map[y][x].area < 1) {
-					Map[y][x] = { NONE, 0, 0 };
+					Map[y][x].area = 0;
 				}
-				/*if (Map[y][x].area > WATERCAPACITY-WATERCAPACITY/100*5) {
-					Map[y][x] = { WATER, 0, WATERCAPACITY };
-				}*/
-				//if (Map[y][x] == 209) {
-				//	if (Map[y + 1][x] == AIR) {//flowing under on air
-				//		Map[y][x] = AIR;
-				//		Map[y + 1][x] = 209;
-				//	}
-				//	else if (Map[y + 1][x] == 209) {//flowing under on flowing
-				//		Map[y][x] = AIR;
-				//		Map[y + 1][x] = WATER;
-				//	}
-				//	else if (Map[y + 1][x - 1] == 209 && Map[y + 1][x] == WATER) {//flowing under-left
-				//		Map[y][x] = AIR;
-				//		Map[y + 1][x - 1] = 205;
-				//	}
-				//	else if (Map[y + 1][x + 1] == 209 && Map[y + 1][x] == 205) {//flowing under-right
-				//		Map[y+1][x] = AIR;
-				//		Map[y + 1][x + 1] = 205;
-				//	}
-				//	else if (Map[y][x - 1] == AIR && Map[y+1][x + 1] != AIR) {//flowing left
-				//		Map[y][x] = 209;
-				//		Map[y][x - 1] = 209;
-				//	}
-				//	else if (Map[y][x + 1] == AIR && Map[y+1][x - 1] != AIR) {//flowing right
-				//		Map[y][x] = 209;
-				//		Map[y][x + 1] = 209;
-				//	}
-				//}
-				/*if (Map[y][x] == AIR && Map[y][x - 1] == 205 && Map[y + 1][x] != 209) {
-					Map[y][x] = 209;
-
-				}*/
+				
 			}
 		}
 
