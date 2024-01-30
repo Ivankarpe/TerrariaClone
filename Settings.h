@@ -60,7 +60,14 @@ enum ItemsID
 	AIR, STONE, DIRT, GRASS, PLANK,GLASS, NONE, BRICKWALL, TNT, NONE2, NONE3, WEB, FLOWER,NONE4,NONE5,NONE6,STONEWALL,WOOD = 20,GOLD_ORE = 32,IRON_ORE,COAL_ORE,DIAMOND_ORE=50,RUBY_ORE, LEAF = 145,SAPHIRE_ORE=160, WATER = 205
 };
 
+enum textures
+{
+	 loh, smoothGrass1, smoothGrass2, smoothGrass3, leftDiagonalGrass1 = 48, rightDiagonalGrass1
+};
+
 struct block {
 	ItemsID ID;
 	bool colideable;
+	textures TEXTURE;
+	bool top = 0;
 };

@@ -51,6 +51,8 @@ private:
 
 	SDL_Texture* texture;
 
+	SDL_Texture* grassTexture;
+
 	SDL_Texture* hoe;
 
 	bool running = false;

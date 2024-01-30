@@ -22,6 +22,10 @@ void Game::Innit()
 	texture = SDL_CreateTextureFromSurface(renderer, temp);
 	SDL_FreeSurface(temp);
 
+	temp = IMG_Load("Grass.png");
+	grassTexture = SDL_CreateTextureFromSurface(renderer, temp);
+	SDL_FreeSurface(temp);
+
 	temp = IMG_Load("klipartz.com.png");
 	hoe = SDL_CreateTextureFromSurface(renderer, temp);
 	SDL_FreeSurface(temp);
@@ -127,12 +131,38 @@ void Game::Innit()
 	int seed = time(NULL);
 	int STONEProb = 65;
 	srand(seed);
-
-	for (int x = 0; x < MAP_WIDTH; x++) {//filling map with blocks
+	int randomLeftDiagonalGrass;
+	int randomRightDiagonalGrass;
+	int randomsmoothGrass;
+	for (int x = 0; x < MAP_WIDTH - 1; x++) {//filling map with blocks
 		for (int y = heights[x]; y < MAP_HEIGHT; y++) {
-			if (y == heights[x]) {
-				Map[y][x] = { GRASS, 1 };
-				if (Map[y - 1][x].ID != WATER) {
+			if (y <= heights[x] + heights2[x] + 5) {
+				Map[heights[x+1]][x+1] = { DIRT, 1, static_cast<textures>(19), 1 };
+				Map[heights[x + 1] + 1][x + 1] = { DIRT, 1, static_cast<textures>(19), 1 };
+				if (Map[y - 1][x].ID == DIRT) {
+					//randomLeftDiagonalGrass = leftDiagonalGrass1 + rand() % 3 * 2;
+					Map[y][x] = { DIRT, 1, static_cast<textures>(19) };
+				}
+				else if (x > 0 && Map[y][x - 1].colideable == 0 && Map[y-1][x].colideable == 0) {//.....'''''
+					randomLeftDiagonalGrass = leftDiagonalGrass1 + rand() % 3 * 2;
+					Map[y][x] = { DIRT, 1, static_cast<textures>(randomLeftDiagonalGrass), 1 };
+				}
+				else if (x > 0 && Map[y][x - 1].top == 1 && Map[y - 1][x].top == 1 && Map[y - 1][x - 1].ID != DIRT) {//.....:'''''
+					Map[y][x] = { DIRT, 1, static_cast<textures>(5)};
+				}
+				else if (x < MAP_WIDTH && Map[y][x + 1].colideable == 0 && Map[y - 1][x].colideable == 0) {//'''''.....
+					randomRightDiagonalGrass = rightDiagonalGrass1 + rand() % 3 * 2;
+					Map[y][x] = { DIRT, 1, static_cast<textures>(randomRightDiagonalGrass), 1 };
+				}
+				else if (x < MAP_WIDTH && Map[y][x + 1].top == 1 && Map[y - 1][x].top == 1 && Map[y - 1][x + 1].ID != DIRT) {//'''':.....
+					Map[y][x] = { DIRT, 1, static_cast<textures>(21)};
+				}
+				else if (Map[y - 1][x].colideable == 0) {//........
+					randomsmoothGrass = smoothGrass1 + rand() % 3;
+					Map[y][x] = { DIRT, 1, static_cast<textures>(randomsmoothGrass), 1 };
+				}
+
+				if (Map[y - 1][x].ID != WATER && y == heights[x]) {
 					int id_ground = rand() % 40;//add plants
 					if (id_ground >= 0 && id_ground <= 3) Map[y - 1][x] = { static_cast<ItemsID>(12), 0 };
 					if (id_ground >= 4 && id_ground <= 7) Map[y - 1][x] = { static_cast<ItemsID>(13), 0 };
@@ -166,10 +196,14 @@ void Game::Innit()
 					}
 				}
 			}
-			else if (y < heights[x] + heights2[x] + 5)
+			/*else if (y < heights[x] + heights2[x] + 5)
 			{
-				Map[y][x] = { DIRT,1 };
-			}
+				if (x > 1 && x < MAP_WIDTH -1) {
+					if (Map[y - 1][x].ID == GRASS && heights[x + 1] > heights[x]) Map[y][x] = { DIRT,1,static_cast <textures>(98) };
+					else if (Map[y - 1][x].ID == GRASS && heights[x - 1] > heights[x]) Map[y][x] = { DIRT,1,static_cast <textures>(99) };
+					else Map[y][x] = { DIRT,1 };
+				}
+			}*/
 			else//random spawm STONE and void
 			{
 				if (x == 0 || x == MAP_WIDTH) {
@@ -201,8 +235,8 @@ void Game::Innit()
 			for (int x = w - 1; x < w + 2; x++) {
 				for (int y = h - 1; y < h + 2; y++) {
 					if (!(x == w && y == h)) {
-						if(Map[y][x].ID == STONE)
-						STONECounter ++;
+						if (Map[y][x].ID == STONE)
+							STONECounter++;
 					}
 				}
 			}
@@ -212,7 +246,7 @@ void Game::Innit()
 		}
 	}
 
-	
+
 
 	for (int x = 1; x < MAP_WIDTH - 1; x++) {// ore generation
 		for (int y = heights[x] + heights2[x] + 5; y < MAP_HEIGHT; y++) {
@@ -230,7 +264,7 @@ void Game::Innit()
 		}
 	}
 
-	
+
 }
 
 void Game::oreSpawn(int oreProb, int x, int y, int heights[MAP_WIDTH], int heights2[MAP_WIDTH], ItemsID oreID, const int oreSpawnHight, const int oreSpawnChance) {
@@ -311,6 +345,8 @@ void Game::Update()
 
 }
 
+
+
 void Game::on_left_click(SDL_Event event) {
 	
 	int mouseX, mouseY, distance;
@@ -359,22 +395,43 @@ void Game::SetDeltaTime(Uint32 deltaTime)
 void Game::DrawMap(InfoForRender info) {
 
 	int textureIndex;
+	int realTextureIndex;
 	for (size_t i = info.Start; i < info.End; i++)//filling screen with blocks
 	{
 		for (size_t j = 0; j < CAMERA_HEIGHT / BLOCK_SIZE + 2; j++)
 		{
 			textureIndex = static_cast<int>(Map[info.firstPos.y + j][info.firstPos.x + i].ID);
+			realTextureIndex = static_cast<int>(Map[info.firstPos.y + j][info.firstPos.x + i].TEXTURE);
+			if (textureIndex != DIRT) {
+				SDL_Rect sours = { textureIndex % 16 * TEXTURE_SIZE ,textureIndex / 16 * TEXTURE_SIZE ,TEXTURE_SIZE,TEXTURE_SIZE };
 
-			SDL_Rect sours = { textureIndex % 16 * TEXTURE_SIZE ,textureIndex / 16 * TEXTURE_SIZE ,TEXTURE_SIZE,TEXTURE_SIZE };
+				//SDL_Rect dest = { i * BLOCK_SIZE ,j * BLOCK_SIZE,BLOCK_SIZE,BLOCK_SIZE };
+				SDL_Rect dest = { i * BLOCK_SIZE - info.dosPos.x,j * BLOCK_SIZE - info.dosPos.y,BLOCK_SIZE,BLOCK_SIZE };
 
-			//SDL_Rect dest = { i * BLOCK_SIZE ,j * BLOCK_SIZE,BLOCK_SIZE,BLOCK_SIZE };
-			SDL_Rect dest = { i * BLOCK_SIZE - info.dosPos.x,j * BLOCK_SIZE - info.dosPos.y,BLOCK_SIZE,BLOCK_SIZE };
+				SDL_RenderCopy(renderer, texture, &sours, &dest);
+			}
+			else if (textureIndex == DIRT/* || (textureIndex == DIRT && (realTextureIndex == 40 || realTextureIndex == 41))*/) {
+				SDL_Rect sours = { realTextureIndex % 16 * 16 + realTextureIndex % 16 * 2,realTextureIndex / 16 * 16 + realTextureIndex / 16 * 2,TEXTURE_SIZE,TEXTURE_SIZE };
 
-			SDL_RenderCopy(renderer, texture, &sours, &dest);
+
+				//SDL_Rect dest = { i * BLOCK_SIZE ,j * BLOCK_SIZE,BLOCK_SIZE,BLOCK_SIZE };
+				SDL_Rect dest = { i * BLOCK_SIZE - info.dosPos.x,j * BLOCK_SIZE - info.dosPos.y,BLOCK_SIZE,BLOCK_SIZE };
+
+				SDL_RenderCopy(renderer, grassTexture, &sours, &dest);
+			}
+			if (textureIndex == DIRT && (realTextureIndex == 98 || realTextureIndex == 99)) {
+				SDL_Rect sours = { realTextureIndex % 16 * 16 + realTextureIndex % 16 * 2,realTextureIndex / 16 * 16 + realTextureIndex / 16 * 2,TEXTURE_SIZE,TEXTURE_SIZE };
+
+
+				//SDL_Rect dest = { i * BLOCK_SIZE ,j * BLOCK_SIZE,BLOCK_SIZE,BLOCK_SIZE };
+				SDL_Rect dest = { i * BLOCK_SIZE - info.dosPos.x,j * BLOCK_SIZE - info.dosPos.y,BLOCK_SIZE,BLOCK_SIZE };
+
+				SDL_RenderCopy(renderer, grassTexture, &sours, &dest);
+			}
 
 		}
 	}
-	
+
 }
 
 //void Game::UpdateWater() {
