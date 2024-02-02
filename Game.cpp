@@ -165,7 +165,7 @@ void Game::Innit()
 			if (y <= heights[x] + heights2[x] + 5 && Map[y][x].ID != NONE5) {
 				
 				
-				setGrass(x, y, randomLeftDiagonalGrass, randomRightDiagonalGrass, randomsmoothGrass, randomUnderLeftDiagonalGrass1);
+				setGrass(x, y, heights, heights2, randomLeftDiagonalGrass, randomRightDiagonalGrass, randomsmoothGrass, randomUnderLeftDiagonalGrass1);
 
 				//if (Map[y - 1][x].ID != WATER && y == heights[x]) {
 				//	int id_ground = rand() % 40;//add plants
@@ -337,15 +337,15 @@ void Game::Update()
 
 }
 
-void Game::setGrass(int x, int y, int randomLeftDiagonalGrass, int randomRightDiagonalGrass, int randomsmoothGrass, int randomUnderLeftDiagonalGrass1) {
+void Game::setGrass(int x, int y, int heights[MAP_WIDTH], int heights2[MAP_WIDTH], int randomLeftDiagonalGrass, int randomRightDiagonalGrass, int randomsmoothGrass, int randomUnderLeftDiagonalGrass1) {
 	bool down = false;
 	bool right = false;
 		bool up = false;
 		bool left = false;
-	if (x > 0 ) {
+	if (x > 1 ) {
 		left = Map[y][x - 1].colideable;
 	}
-	if ( x < MAP_WIDTH) {
+	if ( x < MAP_WIDTH - 1) {
 		right = Map[y][x + 1].colideable;
 	}
 	if (true) {
@@ -383,17 +383,17 @@ void Game::setGrass(int x, int y, int randomLeftDiagonalGrass, int randomRightDi
 	//else if ( Map[y][x - 1].top == 1 && Map[y - 1][x].top == 1 && Map[y - 1][x - 1].colideable == 0) {//.....:'''''
 	//	Map[y][x] = { DIRT, 1, static_cast<textures>(99) };
 	//}
-	//else if ( right == 0 && down == 0) {//'''''.....
-	//	randomRightDiagonalGrass = rightDiagonalGrass1 + rand() % 3 * 2;
-	//	Map[y][x] = { DIRT, 1, static_cast<textures>(randomRightDiagonalGrass), 1 };
-	//}
+	else if (left && up && !down && !right/*Map[y + 1][x].ID != DIRT  && Map[y][x + 1].ID != DIRT*/) {//'''''.....
+		randomRightDiagonalGrass = rightDiagonalGrass1 + rand() % 3 * 2;
+		Map[y][x] = { DIRT, 1, static_cast<textures>(underRightDiagonalGrass1), 1 };
+	}
 	//else if (Map[y][x + 1].top == 1 && Map[y - 1][x].top == 1 && Map[y - 1][x + 1].colideable == 0) {//'''':.....
 	//	Map[y][x] = { DIRT, 1, static_cast<textures>(98) };
 	//}
-	else if (Map[y - 1][x].ID == DIRT) {
-		//randomLeftDiagonalGrass = leftDiagonalGrass1 + rand() % 3 * 2;
-		Map[y][x] = { DIRT, 1, static_cast<textures>(19) };
-	}
+	//else if (Map[y - 1][x].ID == DIRT && y > heights[x] + heights2[x] + 4){
+	//	//randomLeftDiagonalGrass = leftDiagonalGrass1 + rand() % 3 * 2;
+	//	Map[y][x] = { DIRT, 1, static_cast<textures>(202) };
+	//}
 	else if (up == 0) {//........
 		randomsmoothGrass = smoothGrass1 + rand() % 3;
 		Map[y][x] = { DIRT, 1, static_cast<textures>(randomsmoothGrass), 1 };
@@ -413,6 +413,8 @@ void Game::on_left_click(SDL_Event event) {
 	distance = pow((mouseX - CAMERA_WIDTH / 2), 2) + pow((mouseY - CAMERA_HEIGHT / 2), 2);
 	SDL_Log("dist: (%d)", distance);
 	
+	SDL_Log("colid: (%d)", Map[cameraPos.y / BLOCK_SIZE + mouseY / BLOCK_SIZE][cameraPos.x / BLOCK_SIZE + mouseX / BLOCK_SIZE].colideable);
+
 	if (distance / BLOCK_SIZE <= 90000 / BLOCK_SIZE && Map[cameraPos.y / BLOCK_SIZE + mouseY / BLOCK_SIZE][cameraPos.x / BLOCK_SIZE + mouseX / BLOCK_SIZE].ID == NONE) {
 		block tem = inventory.Place();
 		if (tem.ID != NONE) {

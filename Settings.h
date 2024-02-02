@@ -62,7 +62,7 @@ enum ItemsID
 
 enum textures
 {
-	 loh, smoothGrass1, smoothGrass2, smoothGrass3, leftDiagonalGrass1 = 48, rightDiagonalGrass1, underLeftDiagonalGrass1 = 64
+	 loh, smoothGrass1, smoothGrass2, smoothGrass3, leftDiagonalGrass1 = 48, rightDiagonalGrass1, underLeftDiagonalGrass1 = 64, underRightDiagonalGrass1
 };
 
 struct block {
