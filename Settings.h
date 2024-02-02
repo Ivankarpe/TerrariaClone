@@ -15,8 +15,8 @@ const int MAP_HEIGHT = 300;
 const int FULLSCREEN = 0;
 
 
-const int CAMERA_WIDTH = 1920;
-const int CAMERA_HEIGHT = 1080;
+const int CAMERA_WIDTH = 1360;
+const int CAMERA_HEIGHT = 768;
 
 
 

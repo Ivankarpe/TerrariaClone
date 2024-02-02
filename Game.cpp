@@ -151,44 +151,52 @@ void Game::Innit()
 			caveSpawn(x, y, 2500, 105, 175);
 		}
 	}
+	for (int x = 0; x < MAP_WIDTH - 1; x++) {//filling map with blocks
+		for (int y = heights[x]; y < heights[x] + heights2[x] + 7; y++) {
+			if (y <= heights[x] + heights2[x] + 5 && Map[y][x].ID != NONE5) {
+				Map[y][x] = { DIRT, 1, static_cast<textures>(19), 1 };
+				
+			}
+		}
+	}
 
 	for (int x = 0; x < MAP_WIDTH - 1; x++) {//filling map with blocks
 		for (int y = heights[x]; y < MAP_HEIGHT; y++) {
 			if (y <= heights[x] + heights2[x] + 5 && Map[y][x].ID != NONE5) {
-				Map[heights[x + 1]][x + 1] = { DIRT, 1, static_cast<textures>(19), 1 };
-				Map[heights[x + 1] + 1][x + 1] = { DIRT, 1, static_cast<textures>(19), 1 };
-				setGrass(x, y, heights, heights2, randomLeftDiagonalGrass, randomRightDiagonalGrass, randomsmoothGrass, randomUnderLeftDiagonalGrass1);
+				
+				
+				setGrass(x, y, randomLeftDiagonalGrass, randomRightDiagonalGrass, randomsmoothGrass, randomUnderLeftDiagonalGrass1);
 
-				if (Map[y - 1][x].ID != WATER && y == heights[x]) {
-					int id_ground = rand() % 40;//add plants
-					if (id_ground >= 0 && id_ground <= 3) Map[y - 1][x] = { static_cast<ItemsID>(12), 0 };
-					if (id_ground >= 4 && id_ground <= 7) Map[y - 1][x] = { static_cast<ItemsID>(13), 0 };
-					if (id_ground >= 10 && id_ground <= 11) Map[y - 1][x] = { static_cast<ItemsID>(88), 0 };
-					if (id_ground >= 12 && id_ground <= 13) Map[y - 1][x] = { static_cast<ItemsID>(89), 0 };
-					if (id_ground >= 14 && id_ground <= 15) Map[y - 1][x] = { static_cast<ItemsID>(90), 0 };
-					if (id_ground >= 16 && id_ground <= 17) Map[y - 1][x] = { static_cast<ItemsID>(91), 0 };
-					if (id_ground >= 18 && id_ground <= 19) Map[y - 1][x] = { static_cast<ItemsID>(92), 0 };
-					if (id_ground >= 20 && id_ground <= 21) Map[y - 1][x] = { static_cast<ItemsID>(93), 0 };
-					if (id_ground >= 22 && id_ground <= 23) Map[y - 1][x] = { static_cast<ItemsID>(94), 0 };
-					if (id_ground >= 24 && id_ground <= 25) Map[y - 1][x] = { static_cast<ItemsID>(95), 0 };
-					if (id_ground == 26) Map[y - 1][x] = { static_cast<ItemsID>(15), 0 };
-					if (id_ground >= 27 && id_ground <= 31 && x >= 3 && x <= MAP_WIDTH - 3) {
-						int tree_height = rand() % 15 + 7;
-						if (Map[y - 1][x - 1].ID != WOOD && Map[y - 2][x - 1].ID != WOOD) {
-							for (int i = y - 1; i >= y - tree_height; i--) {
-								Map[i][x] = { WOOD, 0 };
-								if (i == y - tree_height) {
-									Map[i-5][x-2] = { NONE5, 0, static_cast<textures>(150) };
-									/*if ((j == i - 1 && p == x - 2) || (j == i - 1 && p == x + 2) || (j == i - 5 && p == x - 2) || (j == i - 5 && p == x + 2) || (Map[j][p].ID == WOOD)) {
-										continue;
-									}
-									Map[j][p] = { LEAF, 0 };*/
-								}
-							}
-						}
+				//if (Map[y - 1][x].ID != WATER && y == heights[x]) {
+				//	int id_ground = rand() % 40;//add plants
+				//	if (id_ground >= 0 && id_ground <= 3) Map[y - 1][x] = { static_cast<ItemsID>(12), 0 };
+				//	if (id_ground >= 4 && id_ground <= 7) Map[y - 1][x] = { static_cast<ItemsID>(13), 0 };
+				//	if (id_ground >= 10 && id_ground <= 11) Map[y - 1][x] = { static_cast<ItemsID>(88), 0 };
+				//	if (id_ground >= 12 && id_ground <= 13) Map[y - 1][x] = { static_cast<ItemsID>(89), 0 };
+				//	if (id_ground >= 14 && id_ground <= 15) Map[y - 1][x] = { static_cast<ItemsID>(90), 0 };
+				//	if (id_ground >= 16 && id_ground <= 17) Map[y - 1][x] = { static_cast<ItemsID>(91), 0 };
+				//	if (id_ground >= 18 && id_ground <= 19) Map[y - 1][x] = { static_cast<ItemsID>(92), 0 };
+				//	if (id_ground >= 20 && id_ground <= 21) Map[y - 1][x] = { static_cast<ItemsID>(93), 0 };
+				//	if (id_ground >= 22 && id_ground <= 23) Map[y - 1][x] = { static_cast<ItemsID>(94), 0 };
+				//	if (id_ground >= 24 && id_ground <= 25) Map[y - 1][x] = { static_cast<ItemsID>(95), 0 };
+				//	if (id_ground == 26) Map[y - 1][x] = { static_cast<ItemsID>(15), 0 };
+				//	if (id_ground >= 27 && id_ground <= 31 && x >= 3 && x <= MAP_WIDTH - 3) {
+				//		int tree_height = rand() % 15 + 7;
+				//		if (Map[y - 1][x - 1].ID != WOOD && Map[y - 2][x - 1].ID != WOOD) {
+				//			for (int i = y - 1; i >= y - tree_height; i--) {
+				//				Map[i][x] = { WOOD, 0 };
+				//				if (i == y - tree_height) {
+				//					Map[i-5][x-2] = { NONE5, 0, static_cast<textures>(150) };
+				//					/*if ((j == i - 1 && p == x - 2) || (j == i - 1 && p == x + 2) || (j == i - 5 && p == x - 2) || (j == i - 5 && p == x + 2) || (Map[j][p].ID == WOOD)) {
+				//						continue;
+				//					}
+				//					Map[j][p] = { LEAF, 0 };*/
+				//				}
+				//			}
+				//		}
 
-					}
-				}
+				//	}
+				//}
 			}
 			/*else if (y < heights[x] + heights2[x] + 5)
 			{
@@ -329,45 +337,64 @@ void Game::Update()
 
 }
 
-void Game::setGrass(int x, int y, int heights[MAP_WIDTH], int heights2[MAP_WIDTH], int randomLeftDiagonalGrass, int randomRightDiagonalGrass, int randomsmoothGrass, int randomUnderLeftDiagonalGrass1) {
-	
-	if (x > 0 && x < MAP_WIDTH && Map[y - 1][x].ID == DIRT && !(Map[y][x + 1].top == 1 && Map[y - 1][x].top == 1 && Map[y - 1][x + 1].ID != DIRT) && !(Map[y][x - 1].top == 1 && Map[y - 1][x].top == 1 && Map[y - 1][x - 1].colideable == 1)) {
-		//randomLeftDiagonalGrass = leftDiagonalGrass1 + rand() % 3 * 2;
-		Map[y][x] = { DIRT, 1, static_cast<textures>(19) };
+void Game::setGrass(int x, int y, int randomLeftDiagonalGrass, int randomRightDiagonalGrass, int randomsmoothGrass, int randomUnderLeftDiagonalGrass1) {
+	bool down = false;
+	bool right = false;
+		bool up = false;
+		bool left = false;
+	if (x > 0 ) {
+		left = Map[y][x - 1].colideable;
 	}
-	if (x > 0 && Map[y][x - 1].colideable == 0 && Map[y - 1][x].colideable == 0) {//.....'''''
+	if ( x < MAP_WIDTH) {
+		right = Map[y][x + 1].colideable;
+	}
+	if (true) {
+		up = Map[y - 1][x].colideable;
+	}
+	if (true) {
+
+		down = Map[y + 1][x].colideable;
+	}
+
+	if (!left && !up && down && right) {//.....'''''
 		randomLeftDiagonalGrass = leftDiagonalGrass1 + rand() % 3 * 2;
 		Map[y][x] = { DIRT, 1, static_cast<textures>(randomLeftDiagonalGrass), 1 };
 	}
-	else if (x > 0 && Map[y][x - 1].top == 1 && Map[y - 1][x].top == 1 && Map[y - 1][x - 1].colideable == 0) {//.....:'''''
+	else if (Map[y][x - 1].top == 1 && Map[y - 1][x].top == 1 && Map[y - 1][x - 1].colideable == 0) {//.....:'''''
 		Map[y][x] = { DIRT, 1, static_cast<textures>(99) };
 	}
-	else if (x < MAP_WIDTH && Map[y][x + 1].colideable == 0 && Map[y - 1][x].colideable == 0) {//'''''.....
+	else if (left && !up && down && !right) {//'''''.....
 		randomRightDiagonalGrass = rightDiagonalGrass1 + rand() % 3 * 2;
-		Map[y][x] = { DIRT, 1, static_cast<textures>(randomRightDiagonalGrass), 1 };
+
+		Map[y][x] = { DIRT, 1, static_cast<textures>(49), 1 };
 	}
-	else if (x < MAP_WIDTH && Map[y][x + 1].top == 1 && Map[y - 1][x].top == 1 && Map[y - 1][x + 1].colideable == 0) {//'''':.....
+	else if (Map[y][x + 1].top == 1 && Map[y - 1][x].top == 1 && Map[y - 1][x + 1].colideable == 0) {//'''':.....
 		Map[y][x] = { DIRT, 1, static_cast<textures>(98) };
 	}
 
+
 	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	//if (x > 0 && Map[y][x - 1].colideable == 0 && Map[y - 1][x].colideable == 1 && Map[y + 1][x].colideable == 0) {//.....'''''
-	//	randomUnderLeftDiagonalGrass1 = underLeftDiagonalGrass1 + rand() % 3 * 2;
-	//	Map[y][x] = { DIRT, 1, static_cast<textures>(randomUnderLeftDiagonalGrass1), 1 };
-	//}
-	//else if (x > 0 && Map[y][x - 1].top == 1 && Map[y - 1][x].top == 1 && Map[y - 1][x - 1].colideable == 0) {//.....:'''''
+	else if (!left && up && !down && right) {//'''''.....
+		randomUnderLeftDiagonalGrass1 = underLeftDiagonalGrass1 + rand() % 3 * 2;
+		Map[y][x] = { DIRT, 1, static_cast<textures>(randomUnderLeftDiagonalGrass1), 1 };
+		SDL_Log("FUUUUUUUUUUUUUUUUUUUUUUCK");
+	}
+	//else if ( Map[y][x - 1].top == 1 && Map[y - 1][x].top == 1 && Map[y - 1][x - 1].colideable == 0) {//.....:'''''
 	//	Map[y][x] = { DIRT, 1, static_cast<textures>(99) };
 	//}
-	//else if (x < MAP_WIDTH && Map[y][x + 1].colideable == 0 && Map[y + 1][x].colideable == 0) {//'''''.....
+	//else if ( right == 0 && down == 0) {//'''''.....
 	//	randomRightDiagonalGrass = rightDiagonalGrass1 + rand() % 3 * 2;
 	//	Map[y][x] = { DIRT, 1, static_cast<textures>(randomRightDiagonalGrass), 1 };
 	//}
-	//else if (x < MAP_WIDTH && Map[y][x + 1].top == 1 && Map[y - 1][x].top == 1 && Map[y - 1][x + 1].colideable == 0) {//'''':.....
+	//else if (Map[y][x + 1].top == 1 && Map[y - 1][x].top == 1 && Map[y - 1][x + 1].colideable == 0) {//'''':.....
 	//	Map[y][x] = { DIRT, 1, static_cast<textures>(98) };
 	//}
-
-	else if (Map[y - 1][x].colideable == 0) {//........
+	else if (Map[y - 1][x].ID == DIRT) {
+		//randomLeftDiagonalGrass = leftDiagonalGrass1 + rand() % 3 * 2;
+		Map[y][x] = { DIRT, 1, static_cast<textures>(19) };
+	}
+	else if (up == 0) {//........
 		randomsmoothGrass = smoothGrass1 + rand() % 3;
 		Map[y][x] = { DIRT, 1, static_cast<textures>(randomsmoothGrass), 1 };
 	}
@@ -393,6 +420,7 @@ void Game::on_left_click(SDL_Event event) {
 		}
 		
 	}
+	
 
 }
 
