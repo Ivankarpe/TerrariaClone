@@ -38,11 +38,15 @@ public:
 
 	void oreSpawn(int oreChance, int x, int y, int heights[MAP_WIDTH], int heights2[MAP_WIDTH], ItemsID oreID, const int oreSpawnHight, const int oreSpawnChance);
 
-	void caveSpawn(int x, int y, int heights[MAP_WIDTH], int heights2[MAP_WIDTH], int caveChance, int caveMinAngle, int caveMaxAngle);
+	void caveSpawn(int x, int y, int caveChance, int caveMinAngle, int caveMaxAngle);
+
+	void setGrass(int x, int y, int heights[MAP_WIDTH], int heights2[MAP_WIDTH], int randomLeftDiagonalGrass, int randomRightDiagonalGrass, int randomsmoothGrass, int randomUnderLeftDiagonalGrass1);
+
 
 	void DrawMap(InfoForRender info);
 
 	void UpdateWater();
+
 
 private:
 	SDL_Window* window;
@@ -54,6 +58,8 @@ private:
 	SDL_Texture* grassTexture;
 
 	SDL_Texture* hoe;
+
+	SDL_Texture* tree_Top;
 
 	bool running = false;
 	

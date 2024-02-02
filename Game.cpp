@@ -30,6 +30,10 @@ void Game::Innit()
 	hoe = SDL_CreateTextureFromSurface(renderer, temp);
 	SDL_FreeSurface(temp);
 
+	temp = IMG_Load("Tree_Tops_0.png");
+	tree_Top = SDL_CreateTextureFromSurface(renderer, temp);
+	SDL_FreeSurface(temp);
+
 	for (size_t i = 0; i < MAP_HEIGHT; i++)
 	{
 		Map.push_back(std::vector<block>(MAP_WIDTH));
@@ -131,36 +135,29 @@ void Game::Innit()
 	int seed = time(NULL);
 	int STONEProb = 65;
 	srand(seed);
-	int randomLeftDiagonalGrass;
-	int randomRightDiagonalGrass;
-	int randomsmoothGrass;
+	int randomLeftDiagonalGrass = 0;
+	int randomRightDiagonalGrass = 0;
+	int randomsmoothGrass = 0;
+	int randomUnderLeftDiagonalGrass1 = 0;
+
+
+	for (int x = 0; x < MAP_WIDTH - 0; ++x) {
+		for (int y = 0 + heights[x] + heights2[x] / 2; y < MAP_HEIGHT - 0; ++y) {
+			if (y > heights[x] + heights2[x]) {
+				Map[y][x] = { STONE, 1 };
+				if (rand() % 100 > STONEProb) Map[y][x] = { NONE, 0 };
+			}
+			caveSpawn(x, y, 2500, 5, 80);
+			caveSpawn(x, y, 2500, 105, 175);
+		}
+	}
+
 	for (int x = 0; x < MAP_WIDTH - 1; x++) {//filling map with blocks
 		for (int y = heights[x]; y < MAP_HEIGHT; y++) {
-			if (y <= heights[x] + heights2[x] + 5) {
-				Map[heights[x+1]][x+1] = { DIRT, 1, static_cast<textures>(19), 1 };
+			if (y <= heights[x] + heights2[x] + 5 && Map[y][x].ID != NONE5) {
+				Map[heights[x + 1]][x + 1] = { DIRT, 1, static_cast<textures>(19), 1 };
 				Map[heights[x + 1] + 1][x + 1] = { DIRT, 1, static_cast<textures>(19), 1 };
-				if (Map[y - 1][x].ID == DIRT) {
-					//randomLeftDiagonalGrass = leftDiagonalGrass1 + rand() % 3 * 2;
-					Map[y][x] = { DIRT, 1, static_cast<textures>(19) };
-				}
-				else if (x > 0 && Map[y][x - 1].colideable == 0 && Map[y-1][x].colideable == 0) {//.....'''''
-					randomLeftDiagonalGrass = leftDiagonalGrass1 + rand() % 3 * 2;
-					Map[y][x] = { DIRT, 1, static_cast<textures>(randomLeftDiagonalGrass), 1 };
-				}
-				else if (x > 0 && Map[y][x - 1].top == 1 && Map[y - 1][x].top == 1 && Map[y - 1][x - 1].ID != DIRT) {//.....:'''''
-					Map[y][x] = { DIRT, 1, static_cast<textures>(5)};
-				}
-				else if (x < MAP_WIDTH && Map[y][x + 1].colideable == 0 && Map[y - 1][x].colideable == 0) {//'''''.....
-					randomRightDiagonalGrass = rightDiagonalGrass1 + rand() % 3 * 2;
-					Map[y][x] = { DIRT, 1, static_cast<textures>(randomRightDiagonalGrass), 1 };
-				}
-				else if (x < MAP_WIDTH && Map[y][x + 1].top == 1 && Map[y - 1][x].top == 1 && Map[y - 1][x + 1].ID != DIRT) {//'''':.....
-					Map[y][x] = { DIRT, 1, static_cast<textures>(21)};
-				}
-				else if (Map[y - 1][x].colideable == 0) {//........
-					randomsmoothGrass = smoothGrass1 + rand() % 3;
-					Map[y][x] = { DIRT, 1, static_cast<textures>(randomsmoothGrass), 1 };
-				}
+				setGrass(x, y, heights, heights2, randomLeftDiagonalGrass, randomRightDiagonalGrass, randomsmoothGrass, randomUnderLeftDiagonalGrass1);
 
 				if (Map[y - 1][x].ID != WATER && y == heights[x]) {
 					int id_ground = rand() % 40;//add plants
@@ -181,14 +178,11 @@ void Game::Innit()
 							for (int i = y - 1; i >= y - tree_height; i--) {
 								Map[i][x] = { WOOD, 0 };
 								if (i == y - tree_height) {
-									for (int j = i - 1; j >= i - 5; j--) {
-										for (int p = x - 2; p <= x + 2; p++) {
-											if ((j == i - 1 && p == x - 2) || (j == i - 1 && p == x + 2) || (j == i - 5 && p == x - 2) || (j == i - 5 && p == x + 2) || (Map[j][p].ID == WOOD)) {
-												continue;
-											}
-											Map[j][p] = { LEAF, 0 };
-										}
+									Map[i-5][x-2] = { NONE5, 0, static_cast<textures>(150) };
+									/*if ((j == i - 1 && p == x - 2) || (j == i - 1 && p == x + 2) || (j == i - 5 && p == x - 2) || (j == i - 5 && p == x + 2) || (Map[j][p].ID == WOOD)) {
+										continue;
 									}
+									Map[j][p] = { LEAF, 0 };*/
 								}
 							}
 						}
@@ -204,27 +198,17 @@ void Game::Innit()
 					else Map[y][x] = { DIRT,1 };
 				}
 			}*/
-			else//random spawm STONE and void
-			{
-				if (x == 0 || x == MAP_WIDTH) {
-					Map[y][x] = { NONE, 0 };
-				}
-				else {
-					Map[y][x] = { STONE, 1 };
-					if (rand() % 100 > STONEProb) Map[y][x] = { NONE, 0 };
-				}
+			//else//random spawm STONE and void
+			//{
+			//	if (x == 0 || x == MAP_WIDTH) {
+			//		Map[y][x] = { NONE, 0 };
+			//	}
+			//	
 
 
-			}
+			//}
 
 
-		}
-	}
-
-	for (int x = 0; x < MAP_WIDTH - 0; ++x) {
-		for (int y = 0 + heights[x] + heights2[x]; y < MAP_HEIGHT - 0; ++y) {
-			caveSpawn(x, y, heights, heights2, 2500, 5, 80);
-			caveSpawn(x, y, heights, heights2, 2500, 105, 175);
 		}
 	}
 
@@ -298,7 +282,7 @@ void Game::oreSpawn(int oreProb, int x, int y, int heights[MAP_WIDTH], int heigh
 	}
 }
 
-void Game::caveSpawn(int x, int y, int heights[MAP_WIDTH], int heights2[MAP_WIDTH], int caveChance, int caveMinAngle, int caveMaxAngle) {
+void Game::caveSpawn(int x, int y, int caveChance, int caveMinAngle, int caveMaxAngle) {
 	if (rand() % caveChance == 0) {
 		int randomAngle = rand() % caveMaxAngle;
 		int caveSize = rand() % 70 + 30;
@@ -324,7 +308,7 @@ void Game::caveSpawn(int x, int y, int heights[MAP_WIDTH], int heights2[MAP_WIDT
 						int sideY = currentY + j;
 
 						if (sideX >= 0 && sideX < MAP_WIDTH && sideY >= 0 && sideY < MAP_HEIGHT) {
-							Map[sideY][sideX] = { NONE, 0 };
+							Map[sideY][sideX] = { NONE5, 0};
 						}
 					}
 				}
@@ -345,7 +329,49 @@ void Game::Update()
 
 }
 
+void Game::setGrass(int x, int y, int heights[MAP_WIDTH], int heights2[MAP_WIDTH], int randomLeftDiagonalGrass, int randomRightDiagonalGrass, int randomsmoothGrass, int randomUnderLeftDiagonalGrass1) {
+	
+	if (x > 0 && x < MAP_WIDTH && Map[y - 1][x].ID == DIRT && !(Map[y][x + 1].top == 1 && Map[y - 1][x].top == 1 && Map[y - 1][x + 1].ID != DIRT) && !(Map[y][x - 1].top == 1 && Map[y - 1][x].top == 1 && Map[y - 1][x - 1].colideable == 1)) {
+		//randomLeftDiagonalGrass = leftDiagonalGrass1 + rand() % 3 * 2;
+		Map[y][x] = { DIRT, 1, static_cast<textures>(19) };
+	}
+	if (x > 0 && Map[y][x - 1].colideable == 0 && Map[y - 1][x].colideable == 0) {//.....'''''
+		randomLeftDiagonalGrass = leftDiagonalGrass1 + rand() % 3 * 2;
+		Map[y][x] = { DIRT, 1, static_cast<textures>(randomLeftDiagonalGrass), 1 };
+	}
+	else if (x > 0 && Map[y][x - 1].top == 1 && Map[y - 1][x].top == 1 && Map[y - 1][x - 1].colideable == 0) {//.....:'''''
+		Map[y][x] = { DIRT, 1, static_cast<textures>(99) };
+	}
+	else if (x < MAP_WIDTH && Map[y][x + 1].colideable == 0 && Map[y - 1][x].colideable == 0) {//'''''.....
+		randomRightDiagonalGrass = rightDiagonalGrass1 + rand() % 3 * 2;
+		Map[y][x] = { DIRT, 1, static_cast<textures>(randomRightDiagonalGrass), 1 };
+	}
+	else if (x < MAP_WIDTH && Map[y][x + 1].top == 1 && Map[y - 1][x].top == 1 && Map[y - 1][x + 1].colideable == 0) {//'''':.....
+		Map[y][x] = { DIRT, 1, static_cast<textures>(98) };
+	}
 
+	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+	//if (x > 0 && Map[y][x - 1].colideable == 0 && Map[y - 1][x].colideable == 1 && Map[y + 1][x].colideable == 0) {//.....'''''
+	//	randomUnderLeftDiagonalGrass1 = underLeftDiagonalGrass1 + rand() % 3 * 2;
+	//	Map[y][x] = { DIRT, 1, static_cast<textures>(randomUnderLeftDiagonalGrass1), 1 };
+	//}
+	//else if (x > 0 && Map[y][x - 1].top == 1 && Map[y - 1][x].top == 1 && Map[y - 1][x - 1].colideable == 0) {//.....:'''''
+	//	Map[y][x] = { DIRT, 1, static_cast<textures>(99) };
+	//}
+	//else if (x < MAP_WIDTH && Map[y][x + 1].colideable == 0 && Map[y + 1][x].colideable == 0) {//'''''.....
+	//	randomRightDiagonalGrass = rightDiagonalGrass1 + rand() % 3 * 2;
+	//	Map[y][x] = { DIRT, 1, static_cast<textures>(randomRightDiagonalGrass), 1 };
+	//}
+	//else if (x < MAP_WIDTH && Map[y][x + 1].top == 1 && Map[y - 1][x].top == 1 && Map[y - 1][x + 1].colideable == 0) {//'''':.....
+	//	Map[y][x] = { DIRT, 1, static_cast<textures>(98) };
+	//}
+
+	else if (Map[y - 1][x].colideable == 0) {//........
+		randomsmoothGrass = smoothGrass1 + rand() % 3;
+		Map[y][x] = { DIRT, 1, static_cast<textures>(randomsmoothGrass), 1 };
+	}
+}
 
 void Game::on_left_click(SDL_Event event) {
 	
@@ -428,7 +454,15 @@ void Game::DrawMap(InfoForRender info) {
 
 				SDL_RenderCopy(renderer, grassTexture, &sours, &dest);
 			}
+			if (realTextureIndex == 150) {
+				SDL_Rect sours = { 1,1,80,80 };
 
+
+				//SDL_Rect dest = { i * BLOCK_SIZE ,j * BLOCK_SIZE,BLOCK_SIZE,BLOCK_SIZE };
+				SDL_Rect dest = { i * BLOCK_SIZE - info.dosPos.x,j * BLOCK_SIZE - info.dosPos.y,164,164 };
+
+				SDL_RenderCopy(renderer, tree_Top, &sours, &dest);
+			}
 		}
 	}
 
