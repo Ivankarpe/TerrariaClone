@@ -6,7 +6,7 @@ Inventory::Inventory() {
         switch (i)
         {
         case 0:
-            inventory.push_back({ NONE,0 });
+            inventory.push_back({ .ID = TORCH, .count = 100 });
             break;
         case 1:
             inventory.push_back({ NONE,0 });
@@ -122,7 +122,7 @@ void Inventory::Render(SDL_Renderer* renderer, SDL_Texture* texture)
     rect.w = 408;
     rect.h = 48;
 
-    SDL_SetRenderDrawColor(renderer, 255, 255, 255, 10);
+    SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
     SDL_RenderFillRect(renderer, &rect);
     TTF_Font* rFont = TTF_OpenFont("arial.ttf", 24);
 
@@ -136,7 +136,7 @@ void Inventory::Render(SDL_Renderer* renderer, SDL_Texture* texture)
             rect.w = 40;
             rect.h = 40;
 
-            SDL_SetRenderDrawColor(renderer, 255, 0, 0, 10);
+            SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
             SDL_RenderFillRect(renderer, &rect);
         }
         int textureIndex = static_cast<int>(item.ID.ID);

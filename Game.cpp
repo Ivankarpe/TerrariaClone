@@ -17,6 +17,7 @@ void Game::Innit()
 
 
 	renderer = SDL_CreateRenderer(window, 0, 0);
+	SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
 	running = true;
 	SDL_Surface* temp = IMG_Load("d7aem.png");
 	texture = SDL_CreateTextureFromSurface(renderer, temp);
@@ -97,7 +98,7 @@ void Game::Innit()
 	}
 
 	for (int x = 1; x < MAP_WIDTH - 1; x++) {
-		if (int lakeChance = rand() % 10 == 0) {
+		if (int lakeChance = rand() % 2 == 0) {
 			int w = x;
 			int h = heights[w];
 			int maxSize = 40;
@@ -126,9 +127,8 @@ void Game::Innit()
 	//int VOID = 0;
 	//int STONE = 1;
 	int seed = time(NULL);
-	int STONEProb = 55;
+	int STONEProb = 65;
 	srand(seed);
-
 	for (int x = 0; x < MAP_WIDTH; x++) {//filling map with blocks
 		for (int y = heights[x]; y < MAP_HEIGHT; y++) {
 			if (y == heights[x]) {
@@ -188,6 +188,13 @@ void Game::Innit()
 		}
 	}
 
+	for (int x = 0; x < MAP_WIDTH; x++) {//filling map with blocks
+		for (int y = 0; y < heights[x]+1; y++) {
+			if (!Map[y][x].colideable) {
+				Map[y][x].lightSource = true;
+		}
+		}
+	}
 
 	for (int w = 1; w < MAP_WIDTH - 1; w++) {// grouping the STONE
 		for (int h = heights[w]; h < MAP_HEIGHT - 1; h++) {
@@ -225,7 +232,7 @@ void Game::Innit()
 		}
 	}
 
-	
+	UpdateLight();
 }
 
 void Game::oreSpawn(int oreProb, int x, int y, int heights[MAP_WIDTH], int heights2[MAP_WIDTH], ItemsID oreID, const int oreSpawnHight, const int oreSpawnChance) {
@@ -273,9 +280,8 @@ void Game::Update()
 }
 
 void Game::on_left_click(SDL_Event event) {
-	
-	int mouseX, mouseY, distance;
 
+	int mouseX, mouseY, distance;
 	
 	SDL_GetMouseState(&mouseX, &mouseY);
 	SDL_Log("left clicked in: (%d, %d)", mouseX, mouseY);
@@ -284,20 +290,25 @@ void Game::on_left_click(SDL_Event event) {
 
 	distance = pow((mouseX - CAMERA_WIDTH / 2), 2) + pow((mouseY - CAMERA_HEIGHT / 2), 2);
 	SDL_Log("dist: (%d)", distance);
-	
+
+	SDL_Log("lightness: (%d)", 255 / MAX_LIGHT * (MAX_LIGHT - Map[cameraPos.y / BLOCK_SIZE + mouseY / BLOCK_SIZE][cameraPos.x / BLOCK_SIZE + mouseX / BLOCK_SIZE].lightness)); 
 	if (distance / BLOCK_SIZE <= 90000 / BLOCK_SIZE && Map[cameraPos.y / BLOCK_SIZE + mouseY / BLOCK_SIZE][cameraPos.x / BLOCK_SIZE + mouseX / BLOCK_SIZE].ID == NONE) {
 		block tem = inventory.Place();
 		if (tem.ID != NONE) {
 			Map[cameraPos.y / BLOCK_SIZE + mouseY / BLOCK_SIZE][cameraPos.x / BLOCK_SIZE + mouseX / BLOCK_SIZE] = tem;
+			if (tem.ID == TORCH) {
+				Map[cameraPos.y / BLOCK_SIZE + mouseY / BLOCK_SIZE][cameraPos.x / BLOCK_SIZE + mouseX / BLOCK_SIZE].lightSource = true;
+			}
 		}
 		
 	}
+	std::thread thread(&Game::UpdateLight, this);
+	thread.detach();
 
 }
 
 void Game::on_right_click(SDL_Event event) {
 	int mouseX, mouseY, distance;
-
 	SDL_GetMouseState(&mouseX, &mouseY);
 	mouseX += cameraPos.x - cameraPos.x / BLOCK_SIZE * BLOCK_SIZE;
 	mouseY += cameraPos.y - cameraPos.y / BLOCK_SIZE * BLOCK_SIZE;
@@ -310,6 +321,9 @@ void Game::on_right_click(SDL_Event event) {
 		inventory.PickUp({Map[cameraPos.y / BLOCK_SIZE + mouseY / BLOCK_SIZE][cameraPos.x / BLOCK_SIZE + mouseX / BLOCK_SIZE], 1});
 		Map[cameraPos.y / BLOCK_SIZE + mouseY / BLOCK_SIZE][cameraPos.x / BLOCK_SIZE + mouseX / BLOCK_SIZE] = { NONE,0 };
 	}
+	debug();
+	std::thread thread(&Game::UpdateLight, this);
+	thread.detach();
 }
 
 void Game::SetDeltaTime(Uint32 deltaTime)
@@ -350,11 +364,22 @@ void Game::DrawMap(InfoForRender info) {
 					int dh = BLOCK_SIZE - dest.h;
 					dest.y += dh;
 				}
-				SDL_Rect sours = { textureIndex % 16 * TEXTURE_SIZE ,textureIndex / 16 * TEXTURE_SIZE ,TEXTURE_SIZE,TEXTURE_SIZE };
+				sours = { textureIndex % 16 * TEXTURE_SIZE ,textureIndex / 16 * TEXTURE_SIZE ,TEXTURE_SIZE,TEXTURE_SIZE };
 
 				SDL_RenderCopy(renderer, texture, &sours, &dest);
 
 			}
+			textureIndex = 221;
+			sours = { textureIndex % 16 * TEXTURE_SIZE ,textureIndex / 16 * TEXTURE_SIZE ,TEXTURE_SIZE,TEXTURE_SIZE };
+			SDL_Rect rect;
+			rect.x = i * BLOCK_SIZE - info.dosPos.x;
+			rect.y = j * BLOCK_SIZE - info.dosPos.y;
+			rect.w = 32;
+			rect.h = 32;
+
+			//SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255 / MAX_LIGHT * (MAX_LIGHT  - Map[info.firstPos.y + j][info.firstPos.x + i].lightness));
+			//SDL_RenderFillRect(renderer, &rect);
+
 		}
 	}
 	
@@ -477,6 +502,108 @@ void Game::UpdateWater() {
 	}
 }
 
+void Game::UpdateLight()
+{
+	for (size_t x = 0; x < MAP_WIDTH; x++) {
+		for (size_t y = 0; y < MAP_HEIGHT; y++) {
+
+			int min_dist = MAX_LIGHT;
+			for (int i = -MAX_LIGHT - 1; i < MAX_LIGHT+1; i++) {
+				for (int j = -MAX_LIGHT-1; j < MAX_LIGHT+1; j++) {
+					if (x + i < 0 || x + i >= MAP_WIDTH || y + j < 0 || y + j >= MAP_HEIGHT) {
+						continue;
+					}
+
+					if (Map[y + j][x + i].lightSource) {
+						int dist = abs(i) + abs(j)-1;
+						if (dist < min_dist) {
+							min_dist = dist;
+						}
+					}
+				}
+			}
+			Map[y][x].lightness = MAX_LIGHT - min_dist;
+			if (Map[y][x].lightness < 0) {
+				Map[y][x].lightness = 0;
+			}
+			if (Map[y][x].lightness > MAX_LIGHT) {
+				Map[y][x].lightness = MAX_LIGHT;
+			}
+		
+		}
+	}
+}
+
+void Game::debug()
+{
+	int mouseX, mouseY;
+	SDL_GetMouseState(&mouseX, &mouseY);
+	mouseX += cameraPos.x - cameraPos.x / BLOCK_SIZE * BLOCK_SIZE;
+	mouseY += cameraPos.y - cameraPos.y / BLOCK_SIZE * BLOCK_SIZE;
+
+
+
+
+	mouseY = cameraPos.y / BLOCK_SIZE + mouseY / BLOCK_SIZE;
+	mouseX = cameraPos.x / BLOCK_SIZE + mouseX / BLOCK_SIZE;
+
+	int dx = -MAX_LIGHT + 3;
+	int dy = MAX_LIGHT;
+	int startX = mouseX;
+	int startY = mouseY;
+	int endX = mouseX + dx;
+	int endY = mouseY + dy;
+	int stepX = (startX < endX) ? 1 : -1;
+	int stepY = (startY < endY) ? 1 : -1;
+
+	int error = dx - dy;
+	while (true) {
+		// Process the current point (startX, startY)
+
+		if (startX == endX && startY == endY) {
+			// Reached the destination
+			
+			break;
+		}
+
+		int doubleError = 2 * error;
+
+		if (doubleError > -dy) {
+			error -= dy;
+			startX += stepX;
+		}
+
+		if (doubleError < dx) {
+			error += dx;
+			startY += stepY;
+		}
+
+	}
+}
+	//}
+	/*
+	dx = -MAX_LIGHT;
+	dy = -MAX_LIGHT;
+	for (; dx <= MAX_LIGHT; dx++) { //down left to right
+
+	}
+
+	dx = MAX_LIGHT;
+	dy = MAX_LIGHT;
+
+	for (; dy >= MAX_LIGHT; dy--) { //right up to down
+
+	}
+	dx = -MAX_LIGHT;
+	dy = MAX_LIGHT;
+
+	for (; dy >= MAX_LIGHT; dy--) { //left up to down
+
+	}
+	*/
+
+
+
 void Game::Render()
 {
 	SDL_RenderClear(renderer);
@@ -531,7 +658,7 @@ void Game::Render()
 	rect.w = 32;
 	rect.h = 32;
 
-	SDL_SetRenderDrawColor(renderer, 255, 0, 0, 10);
+	SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
 	SDL_RenderFillRect(renderer, &rect);
 
 
