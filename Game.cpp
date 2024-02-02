@@ -167,36 +167,36 @@ void Game::Innit()
 				
 				setGrass(x, y, heights, heights2, randomLeftDiagonalGrass, randomRightDiagonalGrass, randomsmoothGrass, randomUnderLeftDiagonalGrass1);
 
-				//if (Map[y - 1][x].ID != WATER && y == heights[x]) {
-				//	int id_ground = rand() % 40;//add plants
-				//	if (id_ground >= 0 && id_ground <= 3) Map[y - 1][x] = { static_cast<ItemsID>(12), 0 };
-				//	if (id_ground >= 4 && id_ground <= 7) Map[y - 1][x] = { static_cast<ItemsID>(13), 0 };
-				//	if (id_ground >= 10 && id_ground <= 11) Map[y - 1][x] = { static_cast<ItemsID>(88), 0 };
-				//	if (id_ground >= 12 && id_ground <= 13) Map[y - 1][x] = { static_cast<ItemsID>(89), 0 };
-				//	if (id_ground >= 14 && id_ground <= 15) Map[y - 1][x] = { static_cast<ItemsID>(90), 0 };
-				//	if (id_ground >= 16 && id_ground <= 17) Map[y - 1][x] = { static_cast<ItemsID>(91), 0 };
-				//	if (id_ground >= 18 && id_ground <= 19) Map[y - 1][x] = { static_cast<ItemsID>(92), 0 };
-				//	if (id_ground >= 20 && id_ground <= 21) Map[y - 1][x] = { static_cast<ItemsID>(93), 0 };
-				//	if (id_ground >= 22 && id_ground <= 23) Map[y - 1][x] = { static_cast<ItemsID>(94), 0 };
-				//	if (id_ground >= 24 && id_ground <= 25) Map[y - 1][x] = { static_cast<ItemsID>(95), 0 };
-				//	if (id_ground == 26) Map[y - 1][x] = { static_cast<ItemsID>(15), 0 };
-				//	if (id_ground >= 27 && id_ground <= 31 && x >= 3 && x <= MAP_WIDTH - 3) {
-				//		int tree_height = rand() % 15 + 7;
-				//		if (Map[y - 1][x - 1].ID != WOOD && Map[y - 2][x - 1].ID != WOOD) {
-				//			for (int i = y - 1; i >= y - tree_height; i--) {
-				//				Map[i][x] = { WOOD, 0 };
-				//				if (i == y - tree_height) {
-				//					Map[i-5][x-2] = { NONE5, 0, static_cast<textures>(150) };
-				//					/*if ((j == i - 1 && p == x - 2) || (j == i - 1 && p == x + 2) || (j == i - 5 && p == x - 2) || (j == i - 5 && p == x + 2) || (Map[j][p].ID == WOOD)) {
-				//						continue;
-				//					}
-				//					Map[j][p] = { LEAF, 0 };*/
-				//				}
-				//			}
-				//		}
+				if (Map[y - 1][x].ID != WATER && y == heights[x]) {
+					int id_ground = rand() % 40;//add plants
+					if (id_ground >= 0 && id_ground <= 3) Map[y - 1][x] = { static_cast<ItemsID>(12), 0 };
+					if (id_ground >= 4 && id_ground <= 7) Map[y - 1][x] = { static_cast<ItemsID>(13), 0 };
+					if (id_ground >= 10 && id_ground <= 11) Map[y - 1][x] = { static_cast<ItemsID>(88), 0 };
+					if (id_ground >= 12 && id_ground <= 13) Map[y - 1][x] = { static_cast<ItemsID>(89), 0 };
+					if (id_ground >= 14 && id_ground <= 15) Map[y - 1][x] = { static_cast<ItemsID>(90), 0 };
+					if (id_ground >= 16 && id_ground <= 17) Map[y - 1][x] = { static_cast<ItemsID>(91), 0 };
+					if (id_ground >= 18 && id_ground <= 19) Map[y - 1][x] = { static_cast<ItemsID>(92), 0 };
+					if (id_ground >= 20 && id_ground <= 21) Map[y - 1][x] = { static_cast<ItemsID>(93), 0 };
+					if (id_ground >= 22 && id_ground <= 23) Map[y - 1][x] = { static_cast<ItemsID>(94), 0 };
+					if (id_ground >= 24 && id_ground <= 25) Map[y - 1][x] = { static_cast<ItemsID>(95), 0 };
+					if (id_ground == 26) Map[y - 1][x] = { static_cast<ItemsID>(15), 0 };
+					if (id_ground >= 27 && id_ground <= 31 && x >= 3 && x <= MAP_WIDTH - 3) {
+						int tree_height = rand() % 15 + 7;
+						if (Map[y - 1][x - 1].ID != WOOD && Map[y - 2][x - 1].ID != WOOD) {
+							for (int i = y - 1; i >= y - tree_height; i--) {
+								Map[i][x] = { WOOD, 0 };
+								if (i == y - tree_height) {
+									Map[i-5][x-2] = { NONE5, 0, static_cast<textures>(150) };
+									/*if ((j == i - 1 && p == x - 2) || (j == i - 1 && p == x + 2) || (j == i - 5 && p == x - 2) || (j == i - 5 && p == x + 2) || (Map[j][p].ID == WOOD)) {
+										continue;
+									}
+									Map[j][p] = { LEAF, 0 };*/
+								}
+							}
+						}
 
-				//	}
-				//}
+					}
+				}
 			}
 			/*else if (y < heights[x] + heights2[x] + 5)
 			{
