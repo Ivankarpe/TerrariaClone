@@ -305,48 +305,48 @@ void Game::setGrass(int x, int y, int heights[MAP_WIDTH], int heights2[MAP_WIDTH
 			down = Map[y + 1][x].ID == Map[y][x].ID;
 		}
 
-		if ((!left) && (!up) && (down) && (right)) {//.....'''''
-			randomLeftDiagonalGrass = leftDiagonalGrass1 + rand() % 3 * 2;
-			Map[y][x] = { DIRT, 1, static_cast<Textures>(randomLeftDiagonalGrass), 1 };
-		}
-		else if (Map[y][x - 1].top == 1 && Map[y - 1][x].top == 1 && Map[y - 1][x - 1].colideable == 0) {//.....:'''''
-			Map[y][x] = { DIRT, 1, static_cast<Textures>(99) };
-		}
-		else if ((left) && (!up) && (down) && (!right)) {//'''''.....
-			randomRightDiagonalGrass = rightDiagonalGrass1 + rand() % 3 * 2;
+		//if ((!left) && (!up) && (down) && (right)) {//.....'''''
+		//	randomLeftDiagonalGrass = leftDiagonalGrass1 + rand() % 3 * 2;
+		//	Map[y][x] = { DIRT, 1, static_cast<Textures>(randomLeftDiagonalGrass), 1 };
+		//}
+		//else if (Map[y][x - 1].top == 1 && Map[y - 1][x].top == 1 && Map[y - 1][x - 1].colideable == 0) {//.....:'''''
+		//	Map[y][x] = { DIRT, 1, static_cast<Textures>(99) };
+		//}
+		//else if ((left) && (!up) && (down) && (!right)) {//'''''.....
+		//	randomRightDiagonalGrass = rightDiagonalGrass1 + rand() % 3 * 2;
 
-			Map[y][x] = { DIRT, 1, static_cast<Textures>(49), 1 };
-		}
-		else if (Map[y][x + 1].top == 1 && Map[y - 1][x].top == 1 && Map[y - 1][x + 1].colideable == 0) {//'''':.....
-			Map[y][x] = { DIRT, 1, static_cast<Textures>(98) };
-		}
+		//	Map[y][x] = { DIRT, 1, static_cast<Textures>(49), 1 };
+		//}
+		//else if (Map[y][x + 1].top == 1 && Map[y - 1][x].top == 1 && Map[y - 1][x + 1].colideable == 0) {//'''':.....
+		//	Map[y][x] = { DIRT, 1, static_cast<Textures>(98) };
+		//}
 
 
-		//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-		else if ((!left) && (up) && (!down) && (right)) {//'''''.....
-			randomUnderLeftDiagonalGrass1 = underLeftDiagonalGrass1 + rand() % 3 * 2;
-			Map[y][x] = { DIRT, 1, static_cast<Textures>(randomUnderLeftDiagonalGrass1), 1 };
-			SDL_Log("FUUUUUUUUUUUUUUUUUUUUUUCK");
-		}
-		else if (Map[y][x - 1].top == 1 && Map[y - 1][x].top == 1 && Map[y - 1][x - 1].colideable == 0) {//.....:'''''
-			Map[y][x] = { DIRT, 1, static_cast<Textures>(99) };
-		}
-		else if ((left) && (up) && (!down) && (!right)/*Map[y + 1][x].ID != DIRT  && Map[y][x + 1].ID != DIRT*/) {//'''''.....
-			randomRightDiagonalGrass = rightDiagonalGrass1 + rand() % 3 * 2;
-			Map[y][x] = { DIRT, 1, static_cast<Textures>(underRightDiagonalGrass1), 1 };
-		}
-		else if (Map[y][x + 1].top == 1 && Map[y - 1][x].top == 1 && Map[y - 1][x + 1].colideable == 0) {//'''':.....
-			Map[y][x] = { DIRT, 1, static_cast<Textures>(98) };
-		}
+		//else if ((!left) && (up) && (!down) && (right)) {//'''''.....
+		//	randomUnderLeftDiagonalGrass1 = underLeftDiagonalGrass1 + rand() % 3 * 2;
+		//	Map[y][x] = { DIRT, 1, static_cast<Textures>(randomUnderLeftDiagonalGrass1), 1 };
+		//	SDL_Log("FUUUUUUUUUUUUUUUUUUUUUUCK");
+		//}
+		//else if (Map[y][x - 1].top == 1 && Map[y - 1][x].top == 1 && Map[y - 1][x - 1].colideable == 0) {//.....:'''''
+		//	Map[y][x] = { DIRT, 1, static_cast<Textures>(99) };
+		//}
+		//else if ((left) && (up) && (!down) && (!right)/*Map[y + 1][x].ID != DIRT  && Map[y][x + 1].ID != DIRT*/) {//'''''.....
+		//	randomRightDiagonalGrass = rightDiagonalGrass1 + rand() % 3 * 2;
+		//	Map[y][x] = { DIRT, 1, static_cast<Textures>(underRightDiagonalGrass1), 1 };
+		//}
+		//else if (Map[y][x + 1].top == 1 && Map[y - 1][x].top == 1 && Map[y - 1][x + 1].colideable == 0) {//'''':.....
+		//	Map[y][x] = { DIRT, 1, static_cast<Textures>(98) };
+		//}
 		//else if (Map[y - 1][x].ID == DIRT && y > heights[x] + heights2[x] + 4){
 		//	//randomLeftDiagonalGrass = leftDiagonalGrass1 + rand() % 3 * 2;
 		//	Map[y][x] = { DIRT, 1, static_cast<Textures>(202) };
 		//}
-		else if (!up) {//........
-			randomsmoothGrass = smoothGrass1 + rand() % 3;
-			Map[y][x] = { DIRT, 1, static_cast<Textures>(randomsmoothGrass), 1 };
-		}
+		//else if (!up) {//........
+		//	randomsmoothGrass = smoothGrass1 + rand() % 3;
+		//	Map[y][x] = { DIRT, 1, static_cast<Textures>(randomsmoothGrass), 1 };
+		//}
 	}
 }
 void Game::debug(int x, int y) {
@@ -362,7 +362,7 @@ void Game::debug(int x, int y) {
 			bool upright = false;
 			bool downleft = false;
 			bool downright = false;
-			if (x >= 1) {
+			if (x >= 1 && y < MAP_HEIGHT - 1) {
 				left = Map[y][x - 1].ID != NONE && Map[y][x - 1].ID != NONE5;
 				downleft = Map[y + 1][x - 1].ID == NONE && Map[y + 1][x - 1].ID == NONE5;
 				upleft = Map[y - 1][x - 1].ID == NONE && Map[y - 1][x - 1].ID == NONE5;
@@ -370,7 +370,7 @@ void Game::debug(int x, int y) {
 			if (x < MAP_WIDTH - 1) {
 				right = Map[y][x + 1].ID != NONE && Map[y][x + 1].ID != NONE5;
 			}
-			if (y >=1) {
+			if (y >=1 && y < MAP_HEIGHT - 1 && x < MAP_WIDTH - 1) {
 				up = Map[y - 1][x].ID != NONE && Map[y - 1][x].ID != NONE5;
 				downright = Map[y + 1][x + 1].ID != NONE && Map[y + 1][x + 1].ID != NONE5;
 				upright = Map[y - 1][x + 1].ID != NONE && Map[y - 1][x + 1].ID != NONE5;
@@ -397,7 +397,7 @@ void Game::debug(int x, int y) {
 			}
 
 
-			//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+			////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 			else if ((!left) && (up) && (!down) && (right)) {//'''''.....
 				int randomUnderLeftDiagonalGrass1 = underLeftDiagonalGrass1 + rand() % 3 * 2;
@@ -419,7 +419,7 @@ void Game::debug(int x, int y) {
 			//	Map[y][x].TEXTURE =static_cast<Textures>(202) ;
 			//}
 
-			/////////////////////////////////////////////////
+			///////////////////////////////////////////////////
 
 			else if (!up && !down && !left && right) {
 				int randomsmoothGrass = 9 + 16 * (rand() % 3);
@@ -441,13 +441,13 @@ void Game::debug(int x, int y) {
 				Map[y][x].TEXTURE = static_cast<Textures>(randomsmoothGrass);
 
 			}
-			///////////////////
+			/////////////////////
 			else if (!up && !down && !left && !right) {
 				int randomsmoothGrass = 57 + rand() % 3;
 				Map[y][x].TEXTURE = static_cast<Textures>(randomsmoothGrass);
 
 			}
-			//////////////////////////
+			////////////////////////////
 
 
 			else if (!up && down && left && right) {//........
@@ -489,7 +489,7 @@ void Game::on_left_click(SDL_Event event) {
 
 	if (distance / BLOCK_SIZE <= 90000 / BLOCK_SIZE && Map[cameraPos.y / BLOCK_SIZE + mouseY / BLOCK_SIZE][cameraPos.x / BLOCK_SIZE + mouseX / BLOCK_SIZE].ID == NONE) {
 		block tem = inventory.Place();
-		if (tem.ID != NONE) {
+		if (tem.ID != NONE || tem.ID != NONE5) {
 			Map[cameraPos.y / BLOCK_SIZE + mouseY / BLOCK_SIZE][cameraPos.x / BLOCK_SIZE + mouseX / BLOCK_SIZE] = tem;
 		}
 		
@@ -499,7 +499,7 @@ void Game::on_left_click(SDL_Event event) {
 }
 
 void Game::on_right_click(SDL_Event event) {
-	int mouseX, mouseY, distance;
+	int mouseX, mouseY, distance, mousePosX, MousePosY;
 
 	SDL_GetMouseState(&mouseX, &mouseY);
 	mouseX += cameraPos.x - cameraPos.x / BLOCK_SIZE * BLOCK_SIZE;
@@ -510,8 +510,15 @@ void Game::on_right_click(SDL_Event event) {
 	SDL_Log("dist: (%d)", distance);
 
 	if (distance / BLOCK_SIZE <= 90000 / BLOCK_SIZE && Map[cameraPos.y / BLOCK_SIZE + mouseY / BLOCK_SIZE][cameraPos.x / BLOCK_SIZE + mouseX / BLOCK_SIZE].ID != NONE) {
-		inventory.PickUp({Map[cameraPos.y / BLOCK_SIZE + mouseY / BLOCK_SIZE][cameraPos.x / BLOCK_SIZE + mouseX / BLOCK_SIZE], 1});
-		Map[cameraPos.y / BLOCK_SIZE + mouseY / BLOCK_SIZE][cameraPos.x / BLOCK_SIZE + mouseX / BLOCK_SIZE] = { NONE,0 };
+		MousePosY = cameraPos.y / BLOCK_SIZE + mouseY / BLOCK_SIZE;
+		mousePosX = cameraPos.x / BLOCK_SIZE + mouseX / BLOCK_SIZE;
+		inventory.PickUp({ Map[MousePosY][mousePosX], 1 });
+		Map[MousePosY][mousePosX] = { NONE,0 };
+		for (int i = mousePosX - 1; i <= mousePosX + 1; i++) {
+			for (int j = MousePosY - 1; j <= MousePosY + 1; j++) {
+				debug(i, j);
+			}
+		}
 	}
 }
 
