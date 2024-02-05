@@ -392,6 +392,10 @@ void Game::setGrass(int x, int y) {
 				int randomLeftDiagonalGrass = leftDiagonalGrass1 + rand() % 3 * 2;
 				Map[y][x].TEXTURE = static_cast<Textures>(randomLeftDiagonalGrass);
 			}
+			else if (up && down && left && right) {//........
+				int randomsmoothGrass = 17 + rand() % 3;
+				Map[y][x].TEXTURE = static_cast<Textures>(randomsmoothGrass);
+			}
 			else if ((left) && (up) && (down) && (right) && !upleft) {//.....:'''''
 				Map[y][x].TEXTURE = static_cast<Textures>(97);
 			}
