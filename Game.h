@@ -41,9 +41,9 @@ public:
 
 	void caveSpawn(int x, int y, int caveChance, int caveMinAngle, int caveMaxAngle);
 
-	void setGrass(int x, int y, int heights[MAP_WIDTH], int heights2[MAP_WIDTH], int randomLeftDiagonalGrass, int randomRightDiagonalGrass, int randomsmoothGrass, int randomUnderLeftDiagonalGrass1);
+	void setGrass(int x, int y);
 
-	void debug(int x, int y);
+	
 
 	void DrawMap(InfoForRender info);
 

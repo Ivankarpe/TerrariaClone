@@ -17,7 +17,7 @@ public:
 private:
 	int gamemode = 0;
 
-	Vector2f cord = { 100, 50};
+
 
 	float acc = 0;
 	float speed = 10;

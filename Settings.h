@@ -14,7 +14,7 @@ const int MAP_WIDTH = 2000;
 const int MAP_HEIGHT = 300;
 const int FULLSCREEN = 0;
 const int WATERCAPACITY = 500;
-const int MAX_LIGHT = 10;
+const int MAX_LIGHT = 20;
 
 const int CAMERA_WIDTH = 1920;
 const int CAMERA_HEIGHT = 1080;
@@ -35,7 +35,7 @@ const int saphireOreHight = 250;
 
 
 
-const int BLOCK_SIZE = 16;
+const int BLOCK_SIZE = 32;
 
 const int TEXTURE_SIZE = 16;
 
