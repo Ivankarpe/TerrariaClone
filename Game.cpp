@@ -321,7 +321,6 @@ void Game::on_right_click(SDL_Event event) {
 		inventory.PickUp({Map[cameraPos.y / BLOCK_SIZE + mouseY / BLOCK_SIZE][cameraPos.x / BLOCK_SIZE + mouseX / BLOCK_SIZE], 1});
 		Map[cameraPos.y / BLOCK_SIZE + mouseY / BLOCK_SIZE][cameraPos.x / BLOCK_SIZE + mouseX / BLOCK_SIZE] = { NONE,0 };
 	}
-	debug();
 	std::thread thread(&Game::UpdateLight, this);
 	thread.detach();
 }
@@ -377,8 +376,8 @@ void Game::DrawMap(InfoForRender info) {
 			rect.w = 32;
 			rect.h = 32;
 
-			//SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255 / MAX_LIGHT * (MAX_LIGHT  - Map[info.firstPos.y + j][info.firstPos.x + i].lightness));
-			//SDL_RenderFillRect(renderer, &rect);
+			SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255 / MAX_LIGHT * (MAX_LIGHT  - Map[info.firstPos.y + j][info.firstPos.x + i].lightness));
+			SDL_RenderFillRect(renderer, &rect);
 
 		}
 	}
@@ -534,73 +533,6 @@ void Game::UpdateLight()
 	}
 }
 
-void Game::debug()
-{
-	int mouseX, mouseY;
-	SDL_GetMouseState(&mouseX, &mouseY);
-	mouseX += cameraPos.x - cameraPos.x / BLOCK_SIZE * BLOCK_SIZE;
-	mouseY += cameraPos.y - cameraPos.y / BLOCK_SIZE * BLOCK_SIZE;
-
-
-
-
-	mouseY = cameraPos.y / BLOCK_SIZE + mouseY / BLOCK_SIZE;
-	mouseX = cameraPos.x / BLOCK_SIZE + mouseX / BLOCK_SIZE;
-
-	int dx = -MAX_LIGHT + 3;
-	int dy = MAX_LIGHT;
-	int startX = mouseX;
-	int startY = mouseY;
-	int endX = mouseX + dx;
-	int endY = mouseY + dy;
-	int stepX = (startX < endX) ? 1 : -1;
-	int stepY = (startY < endY) ? 1 : -1;
-
-	int error = dx - dy;
-	while (true) {
-		// Process the current point (startX, startY)
-
-		if (startX == endX && startY == endY) {
-			// Reached the destination
-			
-			break;
-		}
-
-		int doubleError = 2 * error;
-
-		if (doubleError > -dy) {
-			error -= dy;
-			startX += stepX;
-		}
-
-		if (doubleError < dx) {
-			error += dx;
-			startY += stepY;
-		}
-
-	}
-}
-	//}
-	/*
-	dx = -MAX_LIGHT;
-	dy = -MAX_LIGHT;
-	for (; dx <= MAX_LIGHT; dx++) { //down left to right
-
-	}
-
-	dx = MAX_LIGHT;
-	dy = MAX_LIGHT;
-
-	for (; dy >= MAX_LIGHT; dy--) { //right up to down
-
-	}
-	dx = -MAX_LIGHT;
-	dy = MAX_LIGHT;
-
-	for (; dy >= MAX_LIGHT; dy--) { //left up to down
-
-	}
-	*/
 
 
 

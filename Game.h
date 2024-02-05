@@ -43,7 +43,6 @@ public:
 	void UpdateWater();
 
 	void UpdateLight();
-	void debug();
 
 private:
 	SDL_Window* window;
