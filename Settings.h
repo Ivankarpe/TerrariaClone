@@ -35,7 +35,7 @@ const int saphireOreHight = 250;
 
 
 
-const int BLOCK_SIZE = 32;
+const int BLOCK_SIZE = 16;
 
 const int TEXTURE_SIZE = 16;
 
@@ -60,10 +60,17 @@ enum ItemsID
 	AIR, STONE, DIRT, GRASS, PLANK,GLASS, NONE, BRICKWALL, TNT, NONE2, NONE3, WEB, FLOWER,NONE4,NONE5,NONE6,STONEWALL,WOOD = 20,GOLD_ORE = 32,IRON_ORE,COAL_ORE,DIAMOND_ORE=50,RUBY_ORE,TORCH = 80, LEAF = 145,SAPHIRE_ORE=160, WATER = 205
 };
 
+enum Textures
+{
+	 loh, smoothGrass1, smoothGrass2, smoothGrass3, leftDiagonalGrass1 = 48, rightDiagonalGrass1, underLeftDiagonalGrass1 = 64, underRightDiagonalGrass1
+};
+
 struct block {
 	ItemsID ID;
 	bool colideable;
 	float area = 0;
 	int lightness = MAX_LIGHT-2;
 	bool lightSource = false;
+  Textures TEXTURE;
+	bool top = 0;
 };
