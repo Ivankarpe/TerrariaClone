@@ -44,6 +44,8 @@ public:
 
 	void UpdateWater();
 
+	void UpdateLight();
+
 private:
 	SDL_Window* window;
 

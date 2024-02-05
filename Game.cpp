@@ -17,6 +17,7 @@ void Game::Innit()
 
 
 	renderer = SDL_CreateRenderer(window, 0, 0);
+	SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
 	running = true;
 	SDL_Surface* temp = IMG_Load("d7aem.png");
 	texture = SDL_CreateTextureFromSurface(renderer, temp);
@@ -97,7 +98,7 @@ void Game::Innit()
 	}
 
 	for (int x = 1; x < MAP_WIDTH - 1; x++) {
-		if (int lakeChance = rand() % 10 == 0) {
+		if (int lakeChance = rand() % 2 == 0) {
 			int w = x;
 			int h = heights[w];
 			int maxSize = 40;
@@ -113,10 +114,12 @@ void Game::Innit()
 					//while (h < heights[w + 1]) {
 						//w++;
 					for (int h2 = h; h2 < heights[x + i]; h2++) {
-						Map[h2][x + i] = { WATER, 0 };
+
+						Map[h2][x + i].area = WATERCAPACITY;
 					}
 				}
-				SDL_Log("size, x: (%d, %d)", size, x);
+			SDL_Log("size, x: (%d, %d)", size, x);
+			player.cord = { 100, (float)(x ) };
 			}
 		}
 	}
@@ -127,12 +130,11 @@ void Game::Innit()
 	int seed = time(NULL);
 	int STONEProb = 65;
 	srand(seed);
-
 	for (int x = 0; x < MAP_WIDTH; x++) {//filling map with blocks
 		for (int y = heights[x]; y < MAP_HEIGHT; y++) {
 			if (y == heights[x]) {
 				Map[y][x] = { GRASS, 1 };
-				if (Map[y - 1][x].ID != WATER) {
+				if (Map[y - 1][x].area == 0) {
 					int id_ground = rand() % 40;//add plants
 					if (id_ground >= 0 && id_ground <= 3) Map[y - 1][x] = { static_cast<ItemsID>(12), 0 };
 					if (id_ground >= 4 && id_ground <= 7) Map[y - 1][x] = { static_cast<ItemsID>(13), 0 };
@@ -187,10 +189,19 @@ void Game::Innit()
 		}
 	}
 
+
+	for (int x = 0; x < MAP_WIDTH; x++) {//filling map with blocks
+		for (int y = 0; y < heights[x]+1; y++) {
+			if (!Map[y][x].colideable) {
+				Map[y][x].lightSource = true;
+  		}
+    }
+  }
 	for (int x = 0; x < MAP_WIDTH - 0; ++x) {
 		for (int y = 0 + heights[x] + heights2[x]; y < MAP_HEIGHT - 0; ++y) {
 			caveSpawn(x, y, heights, heights2, 2500, 5, 80);
 			caveSpawn(x, y, heights, heights2, 2500, 105, 175);
+
 		}
 	}
 
@@ -230,7 +241,7 @@ void Game::Innit()
 		}
 	}
 
-	
+	UpdateLight();
 }
 
 void Game::oreSpawn(int oreProb, int x, int y, int heights[MAP_WIDTH], int heights2[MAP_WIDTH], ItemsID oreID, const int oreSpawnHight, const int oreSpawnChance) {
@@ -303,18 +314,19 @@ void Game::Update()
 {
 	player.Update(deltaTime, Map);
 
-	/*counter+= deltaTime;
-	while (counter > 100) {
+
+	counter+= deltaTime;
+	while (counter > 50) {
 	UpdateWater();
-	counter -= 100;
-	}*/
+	counter -= 50;
+	}
+
 
 }
 
 void Game::on_left_click(SDL_Event event) {
-	
-	int mouseX, mouseY, distance;
 
+	int mouseX, mouseY, distance;
 	
 	SDL_GetMouseState(&mouseX, &mouseY);
 	SDL_Log("left clicked in: (%d, %d)", mouseX, mouseY);
@@ -323,20 +335,25 @@ void Game::on_left_click(SDL_Event event) {
 
 	distance = pow((mouseX - CAMERA_WIDTH / 2), 2) + pow((mouseY - CAMERA_HEIGHT / 2), 2);
 	SDL_Log("dist: (%d)", distance);
-	
+
+	SDL_Log("lightness: (%d)", 255 / MAX_LIGHT * (MAX_LIGHT - Map[cameraPos.y / BLOCK_SIZE + mouseY / BLOCK_SIZE][cameraPos.x / BLOCK_SIZE + mouseX / BLOCK_SIZE].lightness)); 
 	if (distance / BLOCK_SIZE <= 90000 / BLOCK_SIZE && Map[cameraPos.y / BLOCK_SIZE + mouseY / BLOCK_SIZE][cameraPos.x / BLOCK_SIZE + mouseX / BLOCK_SIZE].ID == NONE) {
 		block tem = inventory.Place();
 		if (tem.ID != NONE) {
 			Map[cameraPos.y / BLOCK_SIZE + mouseY / BLOCK_SIZE][cameraPos.x / BLOCK_SIZE + mouseX / BLOCK_SIZE] = tem;
+			if (tem.ID == TORCH) {
+				Map[cameraPos.y / BLOCK_SIZE + mouseY / BLOCK_SIZE][cameraPos.x / BLOCK_SIZE + mouseX / BLOCK_SIZE].lightSource = true;
+			}
 		}
 		
 	}
+	std::thread thread(&Game::UpdateLight, this);
+	thread.detach();
 
 }
 
 void Game::on_right_click(SDL_Event event) {
 	int mouseX, mouseY, distance;
-
 	SDL_GetMouseState(&mouseX, &mouseY);
 	mouseX += cameraPos.x - cameraPos.x / BLOCK_SIZE * BLOCK_SIZE;
 	mouseY += cameraPos.y - cameraPos.y / BLOCK_SIZE * BLOCK_SIZE;
@@ -349,6 +366,8 @@ void Game::on_right_click(SDL_Event event) {
 		inventory.PickUp({Map[cameraPos.y / BLOCK_SIZE + mouseY / BLOCK_SIZE][cameraPos.x / BLOCK_SIZE + mouseX / BLOCK_SIZE], 1});
 		Map[cameraPos.y / BLOCK_SIZE + mouseY / BLOCK_SIZE][cameraPos.x / BLOCK_SIZE + mouseX / BLOCK_SIZE] = { NONE,0 };
 	}
+	std::thread thread(&Game::UpdateLight, this);
+	thread.detach();
 }
 
 void Game::SetDeltaTime(Uint32 deltaTime)
@@ -363,122 +382,205 @@ void Game::DrawMap(InfoForRender info) {
 	{
 		for (size_t j = 0; j < CAMERA_HEIGHT / BLOCK_SIZE + 2; j++)
 		{
-			textureIndex = static_cast<int>(Map[info.firstPos.y + j][info.firstPos.x + i].ID);
-
-			SDL_Rect sours = { textureIndex % 16 * TEXTURE_SIZE ,textureIndex / 16 * TEXTURE_SIZE ,TEXTURE_SIZE,TEXTURE_SIZE };
-
-			//SDL_Rect dest = { i * BLOCK_SIZE ,j * BLOCK_SIZE,BLOCK_SIZE,BLOCK_SIZE };
+			int texturIndex;
 			SDL_Rect dest = { i * BLOCK_SIZE - info.dosPos.x,j * BLOCK_SIZE - info.dosPos.y,BLOCK_SIZE,BLOCK_SIZE };
 
+
+			textureIndex = static_cast<int>(Map[info.firstPos.y + j][info.firstPos.x + i].ID);
+			SDL_Rect sours = { textureIndex % 16 * TEXTURE_SIZE ,textureIndex / 16 * TEXTURE_SIZE ,TEXTURE_SIZE,TEXTURE_SIZE };
+			//SDL_Rect dest = { i * BLOCK_SIZE ,j * BLOCK_SIZE,BLOCK_SIZE,BLOCK_SIZE };
 			SDL_RenderCopy(renderer, texture, &sours, &dest);
+
+			if (Map[info.firstPos.y + j][info.firstPos.x + i].area != 0) {
+				textureIndex = 205;
+				if (Map[info.firstPos.y + j - 1][info.firstPos.x + i].area != 0) {
+
+				}
+				else {
+
+					dest.h = Map[info.firstPos.y + j][info.firstPos.x + i].area / (float)(WATERCAPACITY) * (float)(BLOCK_SIZE);
+					if (dest.h < 1) {
+						dest.h = 1;
+					}
+					if (dest.h > BLOCK_SIZE) {
+						dest.h = BLOCK_SIZE;
+					}
+					int dh = BLOCK_SIZE - dest.h;
+					dest.y += dh;
+				}
+				sours = { textureIndex % 16 * TEXTURE_SIZE ,textureIndex / 16 * TEXTURE_SIZE ,TEXTURE_SIZE,TEXTURE_SIZE };
+
+				SDL_RenderCopy(renderer, texture, &sours, &dest);
+
+			}
+			textureIndex = 221;
+			sours = { textureIndex % 16 * TEXTURE_SIZE ,textureIndex / 16 * TEXTURE_SIZE ,TEXTURE_SIZE,TEXTURE_SIZE };
+			SDL_Rect rect;
+			rect.x = i * BLOCK_SIZE - info.dosPos.x;
+			rect.y = j * BLOCK_SIZE - info.dosPos.y;
+			rect.w = 32;
+			rect.h = 32;
+
+			SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255 / MAX_LIGHT * (MAX_LIGHT  - Map[info.firstPos.y + j][info.firstPos.x + i].lightness));
+			SDL_RenderFillRect(renderer, &rect);
 
 		}
 	}
 	
 }
 
-//void Game::UpdateWater() {
-//	bool mooved = false;
-//	for (size_t x = 0; x < MAP_WIDTH; x++) {
-//		for (size_t y = MAP_HEIGHT - 1; y > 0; y--) {
-//			if (Map[y][x] == 205) {//water
-//				mooved = false;
-//				if (Map[y + 1][x] == AIR || Map[y + 1][x] == 209) {//water under
-//					Map[y][x] = AIR;
-//					Map[y + 1][x] = 205;
-//					mooved = true;
-//				}
-//				if (0) {
-//					if (rand() % 2 == 0) {
-//						if ((Map[y + 1][x - 1] == AIR || Map[y + 1][x - 1] == 209) && Map[y][x - 1] == AIR) {//water under-left
-//							Map[y][x] = AIR;
-//							Map[y + 1][x - 1] = 205;
-//							mooved = true;
-//						}
-//						else if ((Map[y + 1][x + 1] == AIR || Map[y + 1][x + 1] == 209) && Map[y][x + 1] == AIR) {//water under-right
-//							Map[y][x] = AIR;
-//							Map[y + 1][x + 1] = 205;
-//							mooved = true;
-//						}
-//					}
-//					else {
-//						if ((Map[y + 1][x + 1] == AIR || Map[y + 1][x + 1] == 209) && Map[y][x+1] == AIR) {//water under-right
-//							Map[y][x] = AIR;
-//							Map[y + 1][x + 1] = 205;
-//							mooved = true;
-//						}
-//						else if ((Map[y + 1][x - 1] == AIR || Map[y + 1][x - 1] == 209) && Map[y][x-1] == AIR) {//water under-left
-//							Map[y][x] = AIR;
-//							Map[y + 1][x - 1] = 205;
-//							mooved = true;
-//						}
-//					}
-//				}
-//				if (!mooved) {
-//					if (rand() % 2 == 0) {
-//						if (Map[y][x + 1] == AIR) {//water right
-//							Map[y][x] = AIR;
-//							Map[y][x + 1] = 205;
-//							mooved = true;
-//							x++;
-//						}
-//						else if (Map[y][x - 1] == AIR) {//water left
-//							Map[y][x] = AIR;
-//							Map[y][x - 1] = 205;
-//							mooved = true;
-//						}
-//					}
-//					else {
-//						if (Map[y][x - 1] == AIR) {//water left
-//							Map[y][x] = AIR;
-//							Map[y][x - 1] = 205;
-//							mooved = true;
-//						}
-//						else if (Map[y][x + 1] == AIR) {//water right
-//							Map[y][x] = AIR;
-//							Map[y][x + 1] = 205;
-//							mooved = true;
-//							x++;
-//						}
-//					}
-//
-//				}
-//
-//				//if (Map[y][x] == 209) {
-//				//	if (Map[y + 1][x] == AIR) {//flowing under on air
-//				//		Map[y][x] = AIR;
-//				//		Map[y + 1][x] = 209;
-//				//	}
-//				//	else if (Map[y + 1][x] == 209) {//flowing under on flowing
-//				//		Map[y][x] = AIR;
-//				//		Map[y + 1][x] = 205;
-//				//	}
-//				//	else if (Map[y + 1][x - 1] == 209 && Map[y + 1][x] == 205) {//flowing under-left
-//				//		Map[y][x] = AIR;
-//				//		Map[y + 1][x - 1] = 205;
-//				//	}
-//				//	else if (Map[y + 1][x + 1] == 209 && Map[y + 1][x] == 205) {//flowing under-right
-//				//		Map[y+1][x] = AIR;
-//				//		Map[y + 1][x + 1] = 205;
-//				//	}
-//				//	else if (Map[y][x - 1] == AIR && Map[y+1][x + 1] != AIR) {//flowing left
-//				//		Map[y][x] = 209;
-//				//		Map[y][x - 1] = 209;
-//				//	}
-//				//	else if (Map[y][x + 1] == AIR && Map[y+1][x - 1] != AIR) {//flowing right
-//				//		Map[y][x] = 209;
-//				//		Map[y][x + 1] = 209;
-//				//	}
-//				//}
-//				/*if (Map[y][x] == AIR && Map[y][x - 1] == 205 && Map[y + 1][x] != 209) {
-//					Map[y][x] = 209;
-//
-//				}*/
-//			}
-//		}
-//
-//	}
-//}
+void Game::UpdateWater() {
+	bool mooved = false;
+	for (size_t x = 0; x < MAP_WIDTH; x++) {
+		for (size_t y = MAP_HEIGHT - 2; y > 0; y--) {
+
+			if (Map[y][x].area!= 0) {//water
+				mooved = false;
+				float curentArea = Map[y][x].area;
+				if (!Map[y + 1][x].colideable || (Map[y + 1][x].area != 0 && Map[y + 1][x].area != WATERCAPACITY) ) {//water under
+					float targetArea = Map[y + 1][x].area;
+					float availeableArea = WATERCAPACITY - targetArea;
+					if (curentArea - availeableArea >= 0) {
+						Map[y][x].area = curentArea - availeableArea;
+						Map[y + 1][x].area =  WATERCAPACITY;
+					}
+					else {
+						Map[y][x].area = 0;
+						Map[y + 1][x].area = targetArea+curentArea;
+					}
+					
+					mooved = true;
+				}
+				
+				curentArea = Map[y][x].area;
+				if (curentArea != 0) {
+					if (rand() % 2 == 0) {
+						if (!Map[y][x + 1].colideable || (Map[y][x + 1].area != 0 && Map[y][x + 1].area != curentArea)) {//water right
+							float transArea;
+							if (!Map[y][x + 2].colideable || (Map[y][x + 2].area != 0 && Map[y][x + 2].area != curentArea)) {
+								transArea = (Map[y][x + 1].area +Map[y][x + 2].area + curentArea) / 3;
+								Map[y][x].area = transArea;
+								Map[y][x + 1].area = transArea;
+								Map[y][x + 2].area = transArea;
+							}
+							else
+							{
+								transArea = (Map[y][x + 1].area + curentArea) / 2;
+								Map[y][x].area = transArea;
+								Map[y][x + 1].area = transArea;
+
+							}
+							mooved = true;
+							curentArea = transArea;
+						}
+
+						else if (!Map[y][x - 1].colideable || (Map[y][x - 1].area != 0 && Map[y][x - 1].area != curentArea)) {//water left
+							float transArea;
+							if (!Map[y][x - 2].colideable || (Map[y][x - 2].area != 0 && Map[y][x - 2].area != curentArea)) {
+								transArea = (Map[y][x - 1].area + Map[y][x- 2].area + curentArea) / 3;
+								Map[y][x].area =  transArea;
+								Map[y][x - 1].area = transArea;
+								Map[y][x - 2].area = transArea;
+							}
+							else
+							{
+								transArea = (Map[y][x - 1].area + curentArea) / 2;
+								Map[y][x].area = transArea;
+								Map[y][x - 1].area = transArea;
+
+							}
+							mooved = true;
+							curentArea = transArea;
+						}
+					}
+					else {
+						if (!Map[y][x - 1].colideable || (Map[y][x - 1].area != 0 && Map[y][x - 1].area != curentArea)) {//water left
+							float transArea;
+							if (!Map[y][x - 2].colideable || (Map[y][x - 2].area != 0 && Map[y][x - 2].area != curentArea)) {
+								transArea = (Map[y][x - 1].area + Map[y][x - 2].area + curentArea) / 3;
+								Map[y][x].area = transArea;
+								Map[y][x - 1].area = transArea;
+								Map[y][x - 2].area = transArea;
+							}
+							else
+							{
+								transArea = (Map[y][x - 1].area + curentArea) / 2;
+								Map[y][x].area = transArea;
+								Map[y][x - 1].area = transArea;
+
+							}
+							mooved = true;
+							curentArea = transArea;
+						}
+
+						else if (!Map[y][x + 1].colideable || (Map[y][x + 1].area != 0 && Map[y][x + 1].area != curentArea)) {//water right
+							float transArea;
+							if (!Map[y][x + 2].colideable || (Map[y][x + 2].area != 0 && Map[y][x + 2].area != curentArea)) {
+								transArea = (Map[y][x + 1].area + Map[y][x + 2].area + curentArea) / 3;
+								Map[y][x].area = transArea;
+								Map[y][x + 1].area = transArea;
+								Map[y][x + 2].area = transArea;
+							}
+							else
+							{
+								transArea = (Map[y][x + 1].area + curentArea) / 2;
+								Map[y][x].area = transArea;
+								Map[y][x + 1].area = transArea;
+
+							}
+							mooved = true;
+							curentArea = transArea;
+							
+						}
+					}
+
+				}
+
+				if (Map[y][x].area < 1) {
+					Map[y][x].area = 0;
+				}
+				
+			}
+		}
+
+	}
+}
+
+
+void Game::UpdateLight()
+{
+	for (size_t x = 0; x < MAP_WIDTH; x++) {
+		for (size_t y = 0; y < MAP_HEIGHT; y++) {
+
+			int min_dist = MAX_LIGHT;
+			for (int i = -MAX_LIGHT - 1; i < MAX_LIGHT+1; i++) {
+				for (int j = -MAX_LIGHT-1; j < MAX_LIGHT+1; j++) {
+					if (x + i < 0 || x + i >= MAP_WIDTH || y + j < 0 || y + j >= MAP_HEIGHT) {
+						continue;
+					}
+
+					if (Map[y + j][x + i].lightSource) {
+						int dist = abs(i) + abs(j)-1;
+						if (dist < min_dist) {
+							min_dist = dist;
+						}
+					}
+				}
+			}
+			Map[y][x].lightness = MAX_LIGHT - min_dist;
+			if (Map[y][x].lightness < 0) {
+				Map[y][x].lightness = 0;
+			}
+			if (Map[y][x].lightness > MAX_LIGHT) {
+				Map[y][x].lightness = MAX_LIGHT;
+			}
+		
+		}
+	}
+}
+
+
+
 
 void Game::Render()
 {
@@ -534,7 +636,7 @@ void Game::Render()
 	rect.w = 32;
 	rect.h = 32;
 
-	SDL_SetRenderDrawColor(renderer, 255, 0, 0, 10);
+	SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
 	SDL_RenderFillRect(renderer, &rect);
 
 
