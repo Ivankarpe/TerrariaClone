@@ -13,11 +13,11 @@
 const int MAP_WIDTH = 2000;
 const int MAP_HEIGHT = 300;
 const int FULLSCREEN = 0;
-
+const int WATERCAPACITY = 500;
+const int MAX_LIGHT = 10;
 
 const int CAMERA_WIDTH = 1920;
 const int CAMERA_HEIGHT = 1080;
-
 
 
 const int coalOreChance = 45;
@@ -57,7 +57,7 @@ struct Vector2f
 
 enum ItemsID
 {
-	AIR, STONE, DIRT, GRASS, PLANK,GLASS, NONE, BRICKWALL, TNT, NONE2, NONE3, WEB, FLOWER,NONE4,NONE5,NONE6,STONEWALL,WOOD = 20,GOLD_ORE = 32,IRON_ORE,COAL_ORE,DIAMOND_ORE=50,RUBY_ORE, LEAF = 145,SAPHIRE_ORE=160, WATER = 205
+	AIR, STONE, DIRT, GRASS, PLANK,GLASS, NONE, BRICKWALL, TNT, NONE2, NONE3, WEB, FLOWER,NONE4,NONE5,NONE6,STONEWALL,WOOD = 20,GOLD_ORE = 32,IRON_ORE,COAL_ORE,DIAMOND_ORE=50,RUBY_ORE,TORCH = 80, LEAF = 145,SAPHIRE_ORE=160, WATER = 205
 };
 
 enum Textures
@@ -68,6 +68,9 @@ enum Textures
 struct block {
 	ItemsID ID;
 	bool colideable;
-	Textures TEXTURE;
+	float area = 0;
+	int lightness = MAX_LIGHT-2;
+	bool lightSource = false;
+  Textures TEXTURE;
 	bool top = 0;
 };

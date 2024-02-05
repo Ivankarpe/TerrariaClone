@@ -13,9 +13,12 @@ public:
 
 	void SetGamemode(int gamemode);
 	int GetGamemode() { return gamemode; }
+	Vector2f cord = { 2 , 0};
 private:
 	int gamemode = 0;
+
 	Vector2f cord = { 100, 50};
+
 	float acc = 0;
 	float speed = 10;
 };
