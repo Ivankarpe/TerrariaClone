@@ -40,7 +40,10 @@ const int BLOCK_SIZE = 32;
 const int TEXTURE_SIZE = 16;
 
 
-
+struct B_info {
+	int height;
+	int width;
+};
 struct Buttons {
 	bool w, a, s, d, space;
 };
@@ -64,7 +67,10 @@ enum Textures
 {
 	 loh, smoothGrass1, smoothGrass2, smoothGrass3, leftDiagonalGrass1 = 48, rightDiagonalGrass1, underLeftDiagonalGrass1 = 64, underRightDiagonalGrass1
 };
-
+enum B_ID
+{
+	B_NONE_TO_DIRT=1, B_DIRT, B_STONE, B_DIRT_TO_STONE, B_NONE
+};
 struct block {
 	ItemsID ID;
 	bool colideable;
@@ -73,4 +79,5 @@ struct block {
 	bool lightSource = false;
   Textures TEXTURE;
 	bool top = 0;
+	B_ID background = B_NONE;
 };
