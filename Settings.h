@@ -14,7 +14,7 @@ const int MAP_WIDTH = 2000;
 const int MAP_HEIGHT = 300;
 const int FULLSCREEN = 0;
 const int WATERCAPACITY = 500;
-const int MAX_LIGHT = 20;
+const int MAX_LIGHT = 10;
 
 const int CAMERA_WIDTH = 1920;
 const int CAMERA_HEIGHT = 1080;
@@ -42,7 +42,7 @@ const int TEXTURE_SIZE = 16;
 
 
 struct Buttons {
-	bool w, a, s, d, space;
+	bool w, a, s, d, c, space, left, right;
 };
 struct Vector2
 {

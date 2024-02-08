@@ -137,7 +137,7 @@ void Game::Innit()
 	//int VOID = 0;
 	//int STONE = 1;
 	int seed = time(NULL);
-	int STONEProb = 55;
+	int STONEProb = 100;
 	srand(seed);
 	/*
 	for (int x = 0; x < MAP_WIDTH; x++) {//filling map with blocks
@@ -348,12 +348,11 @@ void Game::caveSpawn(int x, int y, int caveChance, int caveMinAngle, int caveMax
 
 void Game::Update()
 {
-	counter += deltaTime;
 	player.Update(deltaTime, Map);
 
-	while (counter > 50) {
+	while (counter > 500) {
 		UpdateWater();
-		counter -= 50;
+		counter -= 500;
 	}
 }
 
@@ -482,69 +481,151 @@ void Game::setGrass(int x, int y) {
 	}
 }
 
-
+//void Game::advancedCoursor(int mouseX, int mouseY, int distance){
+//
+//	
+//}
 
 void Game::on_left_click(SDL_Event event) {
 
-	int mouseX, mouseY, distance;
-	
+	int mouseX, mouseY, distance, mousePosX, MousePosY;
+
 	SDL_GetMouseState(&mouseX, &mouseY);
 	SDL_Log("left clicked in: (%d, %d)", mouseX, mouseY);
 	mouseX += cameraPos.x - cameraPos.x / BLOCK_SIZE * BLOCK_SIZE;
 	mouseY += cameraPos.y - cameraPos.y / BLOCK_SIZE * BLOCK_SIZE;
 
-	distance = pow((mouseX - CAMERA_WIDTH / 2), 2) + pow((mouseY - CAMERA_HEIGHT / 2), 2);
+	distance = pow(((player.GetPos().x - cameraPos.x - 16) - mouseX), 2) + pow(((player.GetPos().y - cameraPos.y - 16) - mouseY), 2);
+
 	SDL_Log("dist: (%d)", distance);
 
-	
+
 	SDL_Log("colid: (%d)", Map[cameraPos.y / BLOCK_SIZE + mouseY / BLOCK_SIZE][cameraPos.x / BLOCK_SIZE + mouseX / BLOCK_SIZE].colideable);
 
 
 
-	SDL_Log("lightness: (%d)", 255 / MAX_LIGHT * (MAX_LIGHT - Map[cameraPos.y / BLOCK_SIZE + mouseY / BLOCK_SIZE][cameraPos.x / BLOCK_SIZE + mouseX / BLOCK_SIZE].lightness)); 
+	SDL_Log("lightness: (%d)", 255 / MAX_LIGHT * (MAX_LIGHT - Map[cameraPos.y / BLOCK_SIZE + mouseY / BLOCK_SIZE][cameraPos.x / BLOCK_SIZE + mouseX / BLOCK_SIZE].lightness));
+	MousePosY = cameraPos.y / BLOCK_SIZE + mouseY / BLOCK_SIZE;
+	mousePosX = cameraPos.x / BLOCK_SIZE + mouseX / BLOCK_SIZE;
 
-	if (distance / BLOCK_SIZE <= 90000 / BLOCK_SIZE && Map[cameraPos.y / BLOCK_SIZE + mouseY / BLOCK_SIZE][cameraPos.x / BLOCK_SIZE + mouseX / BLOCK_SIZE].ID == NONE) {
+
+	if (distance / BLOCK_SIZE <= 90000 / BLOCK_SIZE && Map[MousePosY][mousePosX].ID == NONE) {
 		block tem = inventory.Place();
 		if (tem.ID != NONE || tem.ID != NONE5) {
-			Map[cameraPos.y / BLOCK_SIZE + mouseY / BLOCK_SIZE][cameraPos.x / BLOCK_SIZE + mouseX / BLOCK_SIZE] = tem;
+			Map[MousePosY][mousePosX] = tem;
 			if (tem.ID == TORCH) {
-				Map[cameraPos.y / BLOCK_SIZE + mouseY / BLOCK_SIZE][cameraPos.x / BLOCK_SIZE + mouseX / BLOCK_SIZE].lightSource = true;
+				Map[MousePosY][mousePosX].lightSource = true;
+			}
+			for (int i = mousePosX - 1; i <= mousePosX + 1; i++) {
+				for (int j = MousePosY - 1; j <= MousePosY + 1; j++) {
+					setGrass(i, j);
+				}
 			}
 		}
-		
+
 	}
 
 	std::thread thread(&Game::UpdateLight, this);
 	thread.detach();
 
-
+	 
 }
 
 void Game::on_right_click(SDL_Event event) {
-
-	int mouseX, mouseY, distance, mousePosX, MousePosY;
+	int mouseX, mouseY, distance;
 
 	SDL_GetMouseState(&mouseX, &mouseY);
-	mouseX += cameraPos.x - cameraPos.x / BLOCK_SIZE * BLOCK_SIZE;
-	mouseY += cameraPos.y - cameraPos.y / BLOCK_SIZE * BLOCK_SIZE;
-	SDL_Log("right clicked in: (%d, %d)", mouseX, mouseY);
 
-	distance = pow(((player.GetPos().x - cameraPos.x - 16) - mouseX), 2) + pow(((player.GetPos().y - cameraPos.y - 16) - mouseY), 2);
-	SDL_Log("dist: (%d)", distance);
+	int relativePlayerX = player.GetPos().x - cameraPos.x;
+	int relativePlayerY = player.GetPos().y - cameraPos.y;
 
-	if (distance / BLOCK_SIZE <= 90000 / BLOCK_SIZE && Map[cameraPos.y / BLOCK_SIZE + mouseY / BLOCK_SIZE][cameraPos.x / BLOCK_SIZE + mouseX / BLOCK_SIZE].ID != NONE) {
-		MousePosY = cameraPos.y / BLOCK_SIZE + mouseY / BLOCK_SIZE;
-		mousePosX = cameraPos.x / BLOCK_SIZE + mouseX / BLOCK_SIZE;
-		inventory.PickUp({ Map[MousePosY][mousePosX], 1 });
-		Map[MousePosY][mousePosX] = { NONE,0 };
-		for (int i = mousePosX - 1; i <= mousePosX + 1; i++) {
-			for (int j = MousePosY - 1; j <= MousePosY + 1; j++) {
-				setGrass(i, j);
+	int deltaX = relativePlayerX / BLOCK_SIZE - mouseX / BLOCK_SIZE;
+	int deltaY = relativePlayerY / BLOCK_SIZE - mouseY / BLOCK_SIZE;
+
+	distance = sqrt(pow((deltaX), 2) + pow((deltaY), 2));
+
+	if (distance > 10) {
+		deltaX = static_cast<int> (static_cast<float> (deltaX) * 10.f / static_cast<float> (distance));
+		deltaY = static_cast<int> (static_cast<float> (deltaY) * 10.f / static_cast<float> (distance));
+	}
+
+	int steps = std::max(std::abs(deltaX), std::abs(deltaY));
+	int step = 0;
+
+	int currentX, currentY;
+	bool left = player.GetPos().x % BLOCK_SIZE < 16;
+	do {
+		currentX = player.GetPos().x / BLOCK_SIZE - step * deltaX / steps;
+		currentY = player.GetPos().y / BLOCK_SIZE - step * deltaY / steps;
+		if (currentX >= 0 && currentX < MAP_WIDTH && currentY >= 0 && currentY < MAP_HEIGHT) {
+			if (Map[currentY][currentX].ID != NONE) {// coursor direction
+			inventory.PickUp({ Map[currentY][currentX], 1 });
+			Map[currentY][currentX].ID = NONE;
+			Map[currentY][currentX].colideable = 0;
+
+			for (int i = currentX - 1; i <= currentX + 1; i++) {
+				for (int j = currentY - 1; j <= currentY + 1; j++) {
+					setGrass(i, j);
+				}
+			}
+			break;
+			}
+			else if (Map[currentY][currentX].ID == NONE && Map[currentY][currentX - 1].ID != NONE && left) {// vertical-left direction
+				inventory.PickUp({ Map[currentY][currentX - 1], 1 });
+				Map[currentY][currentX - 1].ID = NONE;
+				Map[currentY][currentX - 1].colideable = 0;
+
+				for (int i = currentX - 1 - 1; i <= currentX - 1 + 1; i++) {
+					for (int j = currentY - 1; j <= currentY + 1; j++) {
+						setGrass(i, j);
+					}
+				}
+				break;
+			}
+			else if (Map[currentY][currentX].ID == NONE && Map[currentY][currentX + 1].ID != NONE && !left ) {// vertical-right direction
+				inventory.PickUp({ Map[currentY][currentX + 1], 1 });
+				Map[currentY][currentX + 1].ID = NONE;
+				Map[currentY][currentX + 1].colideable = 0;
+
+				for (int i = currentX + 1 - 1; i <= currentX + 1 + 1; i++) {
+					for (int j = currentY - 1; j <= currentY + 1; j++) {
+						setGrass(i, j); 
+					}
+				}
+				break;
+			}
+			else if (Map[currentY][currentX].ID == NONE && Map[currentY - 1][currentX].ID != NONE) {//horizontal-up direction
+				inventory.PickUp({ Map[currentY][currentX + 1], 1 });
+				Map[currentY - 1][currentX].ID = NONE;
+				Map[currentY - 1][currentX].colideable = 0;
+
+				for (int i = currentX - 1; i <= currentX + 1; i++) {
+					for (int j = currentY - 1 - 1; j <= currentY - 1 + 1; j++) {
+						setGrass(i, j);
+					}
+				}
+				break;
+			}
+			else if (Map[currentY][currentX].ID == NONE && Map[currentY + 1][currentX].ID != NONE) {//horizontal-down direction
+				inventory.PickUp({ Map[currentY][currentX + 1], 1 });
+				Map[currentY + 1][currentX].ID = NONE;
+				Map[currentY + 1][currentX].colideable = 0;
+
+				for (int i = currentX- 1; i <= currentX + 1; i++) {
+					for (int j = currentY + 1 - 1; j <= currentY + 1 + 1; j++) {
+						setGrass(i, j);
+					}
+				}
+				break;
 			}
 		}
-	}
-	std::thread thread(&Game::UpdateLight, this);
-	thread.detach();
+		step++;
+	} while (step <= steps);
+
+	UpdateLight();
+
+	/*std::thread thread(&Game::UpdateLight, this);
+	thread.detach();*/
 }
 
 void Game::SetDeltaTime(Uint32 deltaTime)
@@ -808,10 +889,10 @@ void Game::Render()
 	//dest = {player.GetPos().x -cameraPos.x-64, player.GetPos().y - cameraPos.y-64, 128, 128};
 	//SDL_RenderCopy(renderer, hoe, NULL, &dest);
 	SDL_Rect rect;
-	rect.x = player.GetPos().x - cameraPos.x - 16;
-	rect.y = player.GetPos().y - cameraPos.y - 16;
-	rect.w = 32;
-	rect.h = 32;
+	rect.x = player.GetPos().x - cameraPos.x - 24;
+	rect.y = player.GetPos().y - cameraPos.y - 40;
+	rect.w = 48;
+	rect.h = 80;
 
 	SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
 	SDL_RenderFillRect(renderer, &rect);
@@ -844,10 +925,10 @@ void Game::Inputs()
 		case SDL_MOUSEBUTTONDOWN:
 			switch (event.button.button) {
 			case SDL_BUTTON_LEFT:
-				on_left_click(event);
+				butt.left = true;
 				break;
 			case SDL_BUTTON_RIGHT:
-				on_right_click(event);
+				butt.right = true;
 				break;
 			default:
 				break;
@@ -879,7 +960,11 @@ void Game::Inputs()
 			case SDLK_d:
 				std::cout << "You Clicked \'D\'" << std::endl;
 				butt.d = true;
-				break;	
+				break; 
+			case SDLK_c:
+					std::cout << "You Clicked \'C\'" << std::endl;
+					butt.c = true;
+					break;
 			case SDLK_SPACE:
 				std::cout << "You Clicked \'space\'" << std::endl;
 				butt.space = true;
@@ -908,6 +993,22 @@ void Game::Inputs()
 				std::cout << "You upped \'D\'" << std::endl;
 				butt.d = false;
 				break;
+			case SDLK_c:
+				std::cout << "You Clicked \'C\'" << std::endl;
+				butt.c = false;
+				break;
+			}
+			break;
+		case SDL_MOUSEBUTTONUP:
+			switch (event.button.button) {
+			case SDL_BUTTON_LEFT:
+				butt.left = false;
+				break;
+			case SDL_BUTTON_RIGHT:
+				butt.right = false;
+				break;
+			default:
+				break;
 			}
 			break;
 		default:
@@ -915,7 +1016,8 @@ void Game::Inputs()
 		}
 
 	}
-	
+	float DigSpeed = 1;
+
 	Vector2f dir = { 0,0 };
 	if (butt.a && player.GetPos().x != 0) {
 		dir.x -= 1;
@@ -926,6 +1028,17 @@ void Game::Inputs()
 	if (butt.space ) {
 		player.Jump(Map);
 	}
+	if (butt.left) {
+		on_left_click(event);
+	}
+	counter += deltaTime;
+	if (butt.right) {
+		if (counter > 5) {
+			on_right_click(event);
+		}
+	}
+	
+
 	player.Move(dir, deltaTime, Map);
 	if (player.GetGamemode() == 1) {
 		dir = { 0,0 };
