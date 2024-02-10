@@ -15,7 +15,9 @@ void Game::Innit()
 		window = SDL_CreateWindow("Terraria", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, CAMERA_WIDTH, CAMERA_HEIGHT, 0);
 	}
 
-
+	std::thread thread(&Game::TaskManager, this);
+	thread.detach();
+	
 	renderer = SDL_CreateRenderer(window, 0, 0);
 	SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
 	running = true;
@@ -208,7 +210,7 @@ void Game::Innit()
 	for (int x = 0; x < MAP_WIDTH - 1; x++) {//filling map with blocks
 		for (int y = heights[x]; y < heights[x] + heights2[x] + 7; y++) {
 			if (y <= heights[x] + heights2[x] + 5 && Map[y][x].ID != NONE5) {
-				Map[y][x] = { .ID = DIRT,.colideable =  1, .TEXTURE = static_cast<Textures>(19),.top = 1 };
+				Map[y][x] = { .ID = DIRT,.colideable =  1, .stateIndex = static_cast<Textures>(19),.top = 1 };
 			}
 		}
 	}
@@ -276,7 +278,7 @@ void Game::Innit()
 		}
 	}
 
-	UpdateLight();
+	tasks.push({ LIGHT_UPATE,-1, 0 });
 
 }
 
@@ -327,7 +329,7 @@ void Game::caveSpawn(int x, int y, int caveChance, int caveMinAngle, int caveMax
 
 
 			for (int step = 0; step <= steps; step++) {
-				int pathWidth = rand() % 2 + 1;
+				int pathWidth = rand() % 2 + 3;
 				int currentX = x + step * deltaX / steps;
 				int currentY = y + step * deltaY / steps;
 
@@ -350,9 +352,9 @@ void Game::Update()
 {
 	player.Update(deltaTime, Map);
 
-	while (counter > 500) {
+	while (counter > 10) {
 		UpdateWater();
-		counter -= 500;
+		counter -= 10;
 	}
 }
 
@@ -360,6 +362,7 @@ void Game::setGrass(int x, int y) {
 	if (x >= 0 && x < MAP_WIDTH) {
 		if (Map[y][x].ID != NONE && Map[y][x].ID != NONE5) {
 
+			int curentTexture = Map[y][x].stateIndex;
 			bool down = false;
 			bool right = false;
 			bool up = false;
@@ -388,107 +391,151 @@ void Game::setGrass(int x, int y) {
 			}
 
 			if ((!left) && (!up) && (down) && (right)) {//.....'''''
-				int randomLeftDiagonalGrass = leftDiagonalGrass1 + rand() % 3 * 2;
-				Map[y][x].TEXTURE = static_cast<Textures>(randomLeftDiagonalGrass);
+				if (Map[y][x].stateIndex != Textures::rightdown) {
+
+					Map[y][x].stateIndex = Textures::rightdown;
+					Map[y][x].randomComponentOfIndex = rand() % 3 * 2;
+				}
 			}
 			else if (up && down && left && right) {//........
-				int randomsmoothGrass = 17 + rand() % 3;
-				Map[y][x].TEXTURE = static_cast<Textures>(randomsmoothGrass);
-			}
-			else if ((left) && (up) && (down) && (right) && !upleft) {//.....:'''''
-				Map[y][x].TEXTURE = static_cast<Textures>(97);
+				if (Map[y][x].stateIndex != Textures::all) {
+
+					Map[y][x].stateIndex = Textures::all;
+					Map[y][x].randomComponentOfIndex = rand() % 3;
+				}
 			}
 			else if ((left) && (!up) && (down) && (!right)) {//'''''.....
-				int randomRightDiagonalGrass = rightDiagonalGrass1 + rand() % 3 * 2;
+				if (Map[y][x].stateIndex != Textures::leftdown) {
 
-				Map[y][x].TEXTURE = static_cast<Textures>(49);
+					Map[y][x].stateIndex = Textures::leftdown;
+					Map[y][x].randomComponentOfIndex = rand() % 3 * 2;
+				}
 			}
-			else if ((left) && (up) && (down) && (right) && !upright) {//'''':.....
-				Map[y][x].TEXTURE = static_cast<Textures>(96);
-			}
+
+			//else if ((left) && (up) && (down) && (right) && !upleft) {//.....:'''''
+			//	Map[y][x].stateIndex = static_cast<Textures>(97);
+			//}
+			// 
+			//else if ((left) && (up) && (down) && (right) && !upright) {//'''':.....
+			//	Map[y][x].stateIndex = static_cast<Textures>(96);
+			//}
+			//else if ((left) && (up) && (down) && (right) && !downright) {//.....:'''''
+			//	Map[y][x].stateIndex = static_cast<Textures>(80);
+			//}
+			//else if ((left) && (up) && (down) && (right) && !downleft) {//'''':.....
+			//	Map[y][x].stateIndex = static_cast<Textures>(81);
+			//}
 
 
 			////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 			else if ((!left) && (up) && (!down) && (right)) {//'''''.....
-				int randomUnderLeftDiagonalGrass1 = underLeftDiagonalGrass1 + rand() % 3 * 2;
-				Map[y][x].TEXTURE = static_cast<Textures>(randomUnderLeftDiagonalGrass1);
-				
+				if (Map[y][x].stateIndex != Textures::rightup) {
+
+					Map[y][x].stateIndex = Textures::rightup;
+					Map[y][x].randomComponentOfIndex = rand() % 3 * 2;
+				}
 			}
-			else if ((left) && (up) && (down) && (right) && !downright) {//.....:'''''
-				Map[y][x].TEXTURE = static_cast<Textures>(80);
+			else if ((left) && (up) && (!down) && (!right)) {//'''''.....
+				if (Map[y][x].stateIndex != Textures::leftup) {
+
+					Map[y][x].stateIndex = Textures::leftup;
+					Map[y][x].randomComponentOfIndex = rand() % 3 * 2;
+				}
 			}
-			else if ((left) && (up) && (!down) && (!right)/*Map[y + 1][x].ID != DIRT  && Map[y][x + 1].ID != DIRT*/) {//'''''.....
-				int randomRightDiagonalGrass = rightDiagonalGrass1 + rand() % 3 * 2;
-				Map[y][x].TEXTURE = static_cast<Textures>(underRightDiagonalGrass1);
-			}
-			else if ((left) && (up) && (down) && (right) && !downleft) {//'''':.....
-				Map[y][x].TEXTURE = static_cast<Textures>(81);
-			}
-			//else if (Map[y - 1][x].ID == DIRT && y > heights[x] + heights2[x] + 4){
-			//	//randomLeftDiagonalGrass = leftDiagonalGrass1 + rand() % 3 * 2;
-			//	Map[y][x].TEXTURE =static_cast<Textures>(202) ;
-			//}
 
 			///////////////////////////////////////////////////
 
 			else if (!up && !down && !left && right) {
-				int randomsmoothGrass = 9 + 16 * (rand() % 3);
-				Map[y][x].TEXTURE = static_cast<Textures>(randomsmoothGrass);
+				if (Map[y][x].stateIndex != Textures::onlyright) {
 
+					Map[y][x].stateIndex = Textures::onlyright;
+					Map[y][x].randomComponentOfIndex = 16 * (rand() % 3);
+				}
 			}
 			else if (!up && !down && left && !right) {
-				int randomsmoothGrass = 12 + 16 * (rand() % 3);
-				Map[y][x].TEXTURE = static_cast<Textures>(randomsmoothGrass);
+				if (Map[y][x].stateIndex != Textures::onlyleft) {
 
+					Map[y][x].stateIndex = Textures::onlyleft;
+					Map[y][x].randomComponentOfIndex = 16 * (rand() % 3);
+				}
 			}
 			else if (!up && down && !left && !right) {
-				int randomsmoothGrass = 6 + rand() % 3;
-				Map[y][x].TEXTURE = static_cast<Textures>(randomsmoothGrass);
+				if (Map[y][x].stateIndex != Textures::onlydown) {
 
+					Map[y][x].stateIndex = Textures::onlydown;
+					Map[y][x].randomComponentOfIndex = rand() % 3;
+				}
 			}
 			else if (up && !down && !left && !right) {
-				int randomsmoothGrass = 54 + rand() % 3;
-				Map[y][x].TEXTURE = static_cast<Textures>(randomsmoothGrass);
+				if (Map[y][x].stateIndex != Textures::onlyup) {
 
+					Map[y][x].stateIndex = Textures::onlyup;
+					Map[y][x].randomComponentOfIndex = rand() % 3;
+				}
 			}
 			/////////////////////
 			else if (!up && !down && !left && !right) {
-				int randomsmoothGrass = 57 + rand() % 3;
-				Map[y][x].TEXTURE = static_cast<Textures>(randomsmoothGrass);
+				if (Map[y][x].stateIndex != Textures::single) {
 
+					Map[y][x].stateIndex = Textures::single;
+					Map[y][x].randomComponentOfIndex = rand() % 3;
+				}
 			}
 			////////////////////////////
 
 
 			else if (!up && down && left && right) {//........
-				int randomsmoothGrass = smoothGrass1 + rand() % 3;
-				Map[y][x].TEXTURE = static_cast<Textures>(randomsmoothGrass);
+				
+				if (Map[y][x].stateIndex != Textures::allbutup) {
+
+					Map[y][x].stateIndex = Textures::allbutup;
+					Map[y][x].randomComponentOfIndex = rand() % 3;
+				}
 			}
 			else if (up && !down && left && right) {//........
-				int randomsmoothGrass = 33 + rand() % 3;
-				Map[y][x].TEXTURE = static_cast<Textures>(randomsmoothGrass);
+				if (Map[y][x].stateIndex != Textures::allbutdown) {
+
+					Map[y][x].stateIndex = Textures::allbutdown;
+					Map[y][x].randomComponentOfIndex = rand() % 3;
+				}
 			}
 			else if (up && down && !left && right) {//........
-				int randomsmoothGrass = 16 * (rand() % 3);
-				Map[y][x].TEXTURE = static_cast<Textures>(randomsmoothGrass);
+				if (Map[y][x].stateIndex != Textures::allbutleft) {
+
+					Map[y][x].stateIndex = Textures::allbutleft;
+					Map[y][x].randomComponentOfIndex = 16 * (rand() % 3);
+				}
+
 			}
 			else if (up && down && left && !right) {//........
-				int randomsmoothGrass = 4 + 16 * (rand() % 3);
-				Map[y][x].TEXTURE = static_cast<Textures>(randomsmoothGrass);
+				if (Map[y][x].stateIndex != Textures::allbutright) {
+
+					Map[y][x].stateIndex = Textures::allbutright;
+					Map[y][x].randomComponentOfIndex = 16 * (rand() % 3);
+				}
+			}
+			else if (up && down && !left && !right) {//........
+				if (Map[y][x].stateIndex != Textures::updown) {
+
+					Map[y][x].stateIndex = Textures::updown;
+					Map[y][x].randomComponentOfIndex = 16 * (rand() % 3);
+				}
+			}
+			else if (!up && !down && left && right) {//........
+				if (Map[y][x].stateIndex != Textures::leftright) {
+
+					Map[y][x].stateIndex = Textures::leftright;
+					Map[y][x].randomComponentOfIndex = rand() % 3;
+				}
 			}
 		}
 	}
 }
 
-//void Game::advancedCoursor(int mouseX, int mouseY, int distance){
-//
-//	
-//}
-
 void Game::on_left_click(SDL_Event event) {
 
-	int mouseX, mouseY, distance, mousePosX, MousePosY;
+	int mouseX, mouseY, distance, MousePosX, MousePosY;
 
 	SDL_GetMouseState(&mouseX, &mouseY);
 	SDL_Log("left clicked in: (%d, %d)", mouseX, mouseY);
@@ -506,17 +553,17 @@ void Game::on_left_click(SDL_Event event) {
 
 	SDL_Log("lightness: (%d)", 255 / MAX_LIGHT * (MAX_LIGHT - Map[cameraPos.y / BLOCK_SIZE + mouseY / BLOCK_SIZE][cameraPos.x / BLOCK_SIZE + mouseX / BLOCK_SIZE].lightness));
 	MousePosY = cameraPos.y / BLOCK_SIZE + mouseY / BLOCK_SIZE;
-	mousePosX = cameraPos.x / BLOCK_SIZE + mouseX / BLOCK_SIZE;
+	MousePosX = cameraPos.x / BLOCK_SIZE + mouseX / BLOCK_SIZE;
 
 
-	if (distance / BLOCK_SIZE <= 90000 / BLOCK_SIZE && Map[MousePosY][mousePosX].ID == NONE) {
+	if (distance / BLOCK_SIZE <= 90000 / BLOCK_SIZE && Map[MousePosY][MousePosX].ID == NONE) {
 		block tem = inventory.Place();
 		if (tem.ID != NONE || tem.ID != NONE5) {
-			Map[MousePosY][mousePosX] = tem;
+			Map[MousePosY][MousePosX] = tem;
 			if (tem.ID == TORCH) {
-				Map[MousePosY][mousePosX].lightSource = true;
+				Map[MousePosY][MousePosX].lightSource = true;
 			}
-			for (int i = mousePosX - 1; i <= mousePosX + 1; i++) {
+			for (int i = MousePosX - 1; i <= MousePosX + 1; i++) {
 				for (int j = MousePosY - 1; j <= MousePosY + 1; j++) {
 					setGrass(i, j);
 				}
@@ -524,9 +571,9 @@ void Game::on_left_click(SDL_Event event) {
 		}
 
 	}
-
-	std::thread thread(&Game::UpdateLight, this);
-	thread.detach();
+	tasks.push({ LIGHT_UPATE, MousePosX, MousePosY });
+	//std::thread thread(&Game::UpdateLight, this);
+	//thread.detach();
 
 	 
 }
@@ -549,7 +596,7 @@ void Game::on_right_click(SDL_Event event) {
 		deltaY = static_cast<int> (static_cast<float> (deltaY) * 10.f / static_cast<float> (distance));
 	}
 
-	int steps = std::max(std::abs(deltaX), std::abs(deltaY));
+	int steps = std::max(std::max(std::abs(deltaX), std::abs(deltaY)), 1);
 	int step = 0;
 
 	int currentX, currentY;
@@ -562,7 +609,8 @@ void Game::on_right_click(SDL_Event event) {
 			inventory.PickUp({ Map[currentY][currentX], 1 });
 			Map[currentY][currentX].ID = NONE;
 			Map[currentY][currentX].colideable = 0;
-
+			
+			//tasks.push({ LIGHT_UPATE,currentX, currentY });
 			for (int i = currentX - 1; i <= currentX + 1; i++) {
 				for (int j = currentY - 1; j <= currentY + 1; j++) {
 					setGrass(i, j);
@@ -574,7 +622,8 @@ void Game::on_right_click(SDL_Event event) {
 				inventory.PickUp({ Map[currentY][currentX - 1], 1 });
 				Map[currentY][currentX - 1].ID = NONE;
 				Map[currentY][currentX - 1].colideable = 0;
-
+				
+				//tasks.push({ LIGHT_UPATE,currentX - 1, currentY });
 				for (int i = currentX - 1 - 1; i <= currentX - 1 + 1; i++) {
 					for (int j = currentY - 1; j <= currentY + 1; j++) {
 						setGrass(i, j);
@@ -586,7 +635,8 @@ void Game::on_right_click(SDL_Event event) {
 				inventory.PickUp({ Map[currentY][currentX + 1], 1 });
 				Map[currentY][currentX + 1].ID = NONE;
 				Map[currentY][currentX + 1].colideable = 0;
-
+				
+				//tasks.push({ LIGHT_UPATE,currentX +1, currentY });
 				for (int i = currentX + 1 - 1; i <= currentX + 1 + 1; i++) {
 					for (int j = currentY - 1; j <= currentY + 1; j++) {
 						setGrass(i, j); 
@@ -598,7 +648,8 @@ void Game::on_right_click(SDL_Event event) {
 				inventory.PickUp({ Map[currentY][currentX + 1], 1 });
 				Map[currentY - 1][currentX].ID = NONE;
 				Map[currentY - 1][currentX].colideable = 0;
-
+				
+				//tasks.push({ LIGHT_UPATE,currentX, currentY-1 });
 				for (int i = currentX - 1; i <= currentX + 1; i++) {
 					for (int j = currentY - 1 - 1; j <= currentY - 1 + 1; j++) {
 						setGrass(i, j);
@@ -610,7 +661,7 @@ void Game::on_right_click(SDL_Event event) {
 				inventory.PickUp({ Map[currentY][currentX + 1], 1 });
 				Map[currentY + 1][currentX].ID = NONE;
 				Map[currentY + 1][currentX].colideable = 0;
-
+				//tasks.push({ LIGHT_UPATE,currentX , currentY +1 });
 				for (int i = currentX- 1; i <= currentX + 1; i++) {
 					for (int j = currentY + 1 - 1; j <= currentY + 1 + 1; j++) {
 						setGrass(i, j);
@@ -622,10 +673,10 @@ void Game::on_right_click(SDL_Event event) {
 		step++;
 	} while (step <= steps);
 
-	UpdateLight();
+	//UpdateLight();
 
-	/*std::thread thread(&Game::UpdateLight, this);
-	thread.detach();*/
+	//std::thread thread(&Game::UpdateLight, this);
+	//thread.detach();
 }
 
 void Game::SetDeltaTime(Uint32 deltaTime)
@@ -644,7 +695,7 @@ void Game::DrawMap(InfoForRender info) {
 
 			if (Map[info.firstPos.y + j][info.firstPos.x + i].ID != NONE && Map[info.firstPos.y + j][info.firstPos.x + i].ID != NONE5) {
 				textureIndex = static_cast<int>(Map[info.firstPos.y + j][info.firstPos.x + i].ID);
-				realTextureIndex = static_cast<int>(Map[info.firstPos.y + j][info.firstPos.x + i].TEXTURE);
+				realTextureIndex = static_cast<int>(Map[info.firstPos.y + j][info.firstPos.x + i].stateIndex)+ Map[info.firstPos.y + j][info.firstPos.x + i].randomComponentOfIndex;
 				SDL_Rect sours = { realTextureIndex % 16 * 16 + realTextureIndex % 16 * 2,realTextureIndex / 16 * 16 + realTextureIndex / 16 * 2,TEXTURE_SIZE,TEXTURE_SIZE };
 
 				//SDL_Rect dest = { i * BLOCK_SIZE ,j * BLOCK_SIZE,BLOCK_SIZE,BLOCK_SIZE };
@@ -678,8 +729,8 @@ void Game::DrawMap(InfoForRender info) {
 			SDL_Rect rect;
 			rect.x = i * BLOCK_SIZE - info.dosPos.x;
 			rect.y = j * BLOCK_SIZE - info.dosPos.y;
-			rect.w = 32;
-			rect.h = 32;
+			rect.w = BLOCK_SIZE;
+			rect.h = BLOCK_SIZE;
 
 			SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255 / MAX_LIGHT * (MAX_LIGHT - Map[info.firstPos.y + j][info.firstPos.x + i].lightness));
 			SDL_RenderFillRect(renderer, &rect);
@@ -687,6 +738,7 @@ void Game::DrawMap(InfoForRender info) {
 		}
 	}
 }
+
 void Game::UpdateWater() {
 	bool mooved = false;
 	for (size_t x = 0; x < MAP_WIDTH; x++) {
@@ -804,41 +856,96 @@ void Game::UpdateWater() {
 	}
 }
 
-
-void Game::UpdateLight()
+void Game::UpdateLight(int x, int y)
 {
-	for (size_t x = 0; x < MAP_WIDTH; x++) {
-		for (size_t y = 0; y < MAP_HEIGHT; y++) {
+	if (x == -1) {
+		for (int x = 0; x < MAP_WIDTH; x++) {
+			for (int y = 0; y < MAP_HEIGHT; y++) {
 
-			int min_dist = MAX_LIGHT;
-			for (int i = -MAX_LIGHT - 1; i < MAX_LIGHT + 1; i++) {
-				for (int j = -MAX_LIGHT - 1; j < MAX_LIGHT + 1; j++) {
-					if (x + i < 0 || x + i >= MAP_WIDTH || y + j < 0 || y + j >= MAP_HEIGHT) {
-						continue;
-					}
+				int min_dist = MAX_LIGHT;
+				for (int i = -MAX_LIGHT - 1; i < MAX_LIGHT + 1; i++) {
+					for (int j = -MAX_LIGHT - 1; j < MAX_LIGHT + 1; j++) {
+						if (x + i < 0 || x + i >= MAP_WIDTH || y + j < 0 || y + j >= MAP_HEIGHT) {
+							continue;
+						}
 
-					if (Map[y + j][x + i].lightSource) {
-						int dist = abs(i) + abs(j) - 1;
-						if (dist < min_dist) {
-							min_dist = dist;
+						if (Map[y + j][x + i].lightSource) {
+							int dist = abs(i) + abs(j) - 1;
+							if (dist < min_dist) {
+								min_dist = dist;
+							}
 						}
 					}
 				}
-			}
-			Map[y][x].lightness = MAX_LIGHT - min_dist;
-			if (Map[y][x].lightness < 0) {
-				Map[y][x].lightness = 0;
-			}
-			if (Map[y][x].lightness > MAX_LIGHT) {
-				Map[y][x].lightness = MAX_LIGHT;
-			}
+				Map[y][x].lightness = MAX_LIGHT - min_dist;
+				if (Map[y][x].lightness < 0) {
+					Map[y][x].lightness = 0;
+				}
+				if (Map[y][x].lightness > MAX_LIGHT) {
+					Map[y][x].lightness = MAX_LIGHT;
+				}
 
+
+
+			}
+		}
+	}
+	else {
+
+		int fx = x;
+		int fy = y;
+		for (int x = -MAX_LIGHT - 1 + fx; x < MAX_LIGHT + 1 + fx; x++) {
+			for (int y = -MAX_LIGHT - 1 + fy; y < MAX_LIGHT + 1 + fy; y++) {
+
+				int min_dist = MAX_LIGHT;
+				for (int i = -MAX_LIGHT - 1; i < MAX_LIGHT + 1; i++) {
+					for (int j = -MAX_LIGHT - 1; j < MAX_LIGHT + 1; j++) {
+						if (x + i < 0 || x + i >= MAP_WIDTH || y + j < 0 || y + j >= MAP_HEIGHT) {
+							continue;
+						}
+
+						if (Map[y + j][x + i].lightSource) {
+							int dist = abs(i) + abs(j) - 1;
+							if (dist < min_dist) {
+								min_dist = dist;
+							}
+						}
+					}
+				}
+				Map[y][x].lightness = MAX_LIGHT - min_dist;
+				if (Map[y][x].lightness < 0) {
+					Map[y][x].lightness = 0;
+				}
+				if (Map[y][x].lightness > MAX_LIGHT) {
+					Map[y][x].lightness = MAX_LIGHT;
+				}
+
+
+			}
 		}
 	}
 }
 
+void Game::TaskManager()
+{
+	while (true)
+	{
+		if (!tasks.empty()) {
+			SDL_Log("%d",tasks.size());
+			switch (tasks.front().type)
+			{
+			case LIGHT_UPATE:
+				UpdateLight(tasks.front().x, tasks.front().y);
+				break;
+			default:
+				break;
+			}
+			tasks.pop();
+		}
+		SDL_Delay(10);
+	}
 
-
+}
 
 void Game::Render()
 {
@@ -858,13 +965,13 @@ void Game::Render()
 	{
 		cameraPos.y= 0;
 	}
-	if (cameraPos.x >= MAP_WIDTH*BLOCK_SIZE-CAMERA_WIDTH-BLOCK_SIZE)
+	if (cameraPos.x >= MAP_WIDTH*BLOCK_SIZE-CAMERA_WIDTH-BLOCK_SIZE*2)
 	{
-		cameraPos.x = MAP_WIDTH * BLOCK_SIZE - CAMERA_WIDTH - BLOCK_SIZE;
+		cameraPos.x = MAP_WIDTH * BLOCK_SIZE - CAMERA_WIDTH - BLOCK_SIZE*2;
 	}
-	if (cameraPos.y >= MAP_HEIGHT * BLOCK_SIZE - CAMERA_HEIGHT - BLOCK_SIZE)
+	if (cameraPos.y >= MAP_HEIGHT * BLOCK_SIZE - CAMERA_HEIGHT - BLOCK_SIZE*2)
 	{
-		cameraPos.y = MAP_HEIGHT * BLOCK_SIZE - CAMERA_HEIGHT - BLOCK_SIZE;
+		cameraPos.y = MAP_HEIGHT * BLOCK_SIZE - CAMERA_HEIGHT - BLOCK_SIZE*2;
 	}
 	Vector2 firstPos = { cameraPos.x / BLOCK_SIZE, cameraPos.y / BLOCK_SIZE};
 	Vector2 dosPos = { cameraPos.x - firstPos.x*BLOCK_SIZE, cameraPos.y - firstPos.y*BLOCK_SIZE };
@@ -886,15 +993,15 @@ void Game::Render()
 	SDL_RenderCopy(renderer, texture, &sours, &dest);
 	
 	inventory.Render(renderer, texture);
-	//dest = {player.GetPos().x -cameraPos.x-64, player.GetPos().y - cameraPos.y-64, 128, 128};
+	//dest = {player.GetPos().x -cameraPos.x- static_cast<int>(1.5 * BLOCK_SIZE / 2), player.GetPos().y - cameraPos.y - static_cast<int>(2.75 * BLOCK_SIZE / 2),  static_cast<int>(1.5 * BLOCK_SIZE),  static_cast<int>(2.75 * BLOCK_SIZE )};
 	//SDL_RenderCopy(renderer, hoe, NULL, &dest);
 	SDL_Rect rect;
-	rect.x = player.GetPos().x - cameraPos.x - 24;
-	rect.y = player.GetPos().y - cameraPos.y - 40;
-	rect.w = 48;
-	rect.h = 80;
+	rect.x = player.GetPos().x - cameraPos.x - 1.5 * BLOCK_SIZE / 2;
+	rect.y = player.GetPos().y - cameraPos.y - 2.75 * BLOCK_SIZE / 2;
+	rect.w = 1.5 * BLOCK_SIZE;
+	rect.h = 2.75 * BLOCK_SIZE;
 
-	SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
+	SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255);
 	SDL_RenderFillRect(renderer, &rect);
 
 
