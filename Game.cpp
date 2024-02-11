@@ -539,10 +539,10 @@ void Game::on_left_click(SDL_Event event) {
 	SDL_Log("lightness: (%d)", 255 / MAX_LIGHT * (MAX_LIGHT - Map[cameraPos.y / BLOCK_SIZE + mouseY / BLOCK_SIZE][cameraPos.x / BLOCK_SIZE + mouseX / BLOCK_SIZE].lightness)); 
 
 	if (distance / BLOCK_SIZE <= 90000 / BLOCK_SIZE && Map[cameraPos.y / BLOCK_SIZE + mouseY / BLOCK_SIZE][cameraPos.x / BLOCK_SIZE + mouseX / BLOCK_SIZE].ID == NONE) {
-		block tem = inventory.Place();
-		if (tem.ID != NONE || tem.ID != NONE5) {
-			Map[cameraPos.y / BLOCK_SIZE + mouseY / BLOCK_SIZE][cameraPos.x / BLOCK_SIZE + mouseX / BLOCK_SIZE].ID = tem.ID;
-			if (tem.ID == TORCH) {
+		ItemsID tem = inventory.Place();
+		if (tem != NONE) {
+			Map[cameraPos.y / BLOCK_SIZE + mouseY / BLOCK_SIZE][cameraPos.x / BLOCK_SIZE + mouseX / BLOCK_SIZE].ID = tem;
+			if (tem == TORCH) {
 				Map[cameraPos.y / BLOCK_SIZE + mouseY / BLOCK_SIZE][cameraPos.x / BLOCK_SIZE + mouseX / BLOCK_SIZE].lightSource = true;
 			}
 		}
@@ -570,8 +570,10 @@ void Game::on_right_click(SDL_Event event) {
 	if (distance / BLOCK_SIZE <= 90000 / BLOCK_SIZE && Map[cameraPos.y / BLOCK_SIZE + mouseY / BLOCK_SIZE][cameraPos.x / BLOCK_SIZE + mouseX / BLOCK_SIZE].ID != NONE) {
 		MousePosY = cameraPos.y / BLOCK_SIZE + mouseY / BLOCK_SIZE;
 		mousePosX = cameraPos.x / BLOCK_SIZE + mouseX / BLOCK_SIZE;
-		inventory.PickUp({ Map[MousePosY][mousePosX], 1 });
-		Map[MousePosY][mousePosX] = { NONE,0 };
+		inventory.PickUp({ Map[MousePosY][mousePosX].ID, 1 });
+		Map[MousePosY][mousePosX].ID = NONE;
+		Map[MousePosY][mousePosX].colideable = 0;
+		Map[MousePosY][mousePosX].lightSource = Map[MousePosY][mousePosX].background == B_NONE;
 		for (int i = mousePosX - 1; i <= mousePosX + 1; i++) {
 			for (int j = MousePosY - 1; j <= MousePosY + 1; j++) {
 				setGrass(i, j);

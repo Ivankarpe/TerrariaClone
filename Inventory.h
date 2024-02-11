@@ -3,7 +3,7 @@
 #include "Settings.h"
 struct Item
 {
-	block ID;
+	ItemsID ID;
 	int count;
 };
 class Inventory
@@ -13,7 +13,7 @@ public:
 
 	bool PickUp(Item item);
 	
-	block Place();
+	ItemsID Place();
 
 	void ChangeActiveSlot(int slot);
 
@@ -21,9 +21,9 @@ public:
 
 	int GetActiveSlotIndex();
 
-	block GetActiveSlotItem();
+	ItemsID GetActiveSlotItem();
 
-	block GetSlotItem(int slot);
+	ItemsID GetSlotItem(int slot);
 
 	int GetSize() { return size; }
 

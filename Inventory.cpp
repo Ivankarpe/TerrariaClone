@@ -45,10 +45,13 @@ Inventory::Inventory() {
 
 bool Inventory::PickUp(Item item)
 {
+    if (item.ID == NONE || item.ID == NONE5) {
+        return false;
+    }
     int firstEmptyIndex = -1;
     for (size_t i = 0; i < size; i++)
     {
-        if (inventory[i].ID.ID == item.ID.ID) {
+        if (inventory[i].ID == item.ID) {
             firstEmptyIndex = i;
             break;
         }
@@ -57,7 +60,7 @@ bool Inventory::PickUp(Item item)
 
         for (size_t i = 0; i < size; i++)
         {
-            if (inventory[i].ID.ID == NONE) {
+            if (inventory[i].ID == NONE) {
                 firstEmptyIndex = i;
                 break;
             }
@@ -74,14 +77,17 @@ bool Inventory::PickUp(Item item)
     return true;
 }
 
-block Inventory::Place()
+ItemsID Inventory::Place()
 {
-    if (GetActiveSlotItem().ID == AIR) {
-        return { NONE, 0 };
+    if (GetActiveSlotItem() == NONE) {
+        return NONE;
     }
+
     inventory[activeSlot].count -= 1;
-    if (inventory[activeSlot].count < 0) {
+    if (inventory[activeSlot].count <= 0) {
+        auto tem = inventory[activeSlot].ID;
         DeleteActiveItem();
+        return tem;
     }
     return inventory[activeSlot].ID;
 }
@@ -96,7 +102,7 @@ void Inventory::ChangeActiveSlot(int slot)
 
 void Inventory::DeleteActiveItem()
 {
-    inventory[activeSlot] = { AIR,0 };
+    inventory[activeSlot] = { NONE ,0 };
 }
 
 int Inventory::GetActiveSlotIndex()
@@ -104,12 +110,12 @@ int Inventory::GetActiveSlotIndex()
     return activeSlot;
 }
 
-block Inventory::GetActiveSlotItem()
+ItemsID Inventory::GetActiveSlotItem()
 {
     return inventory[activeSlot].ID;
 }
 
-block Inventory::GetSlotItem(int slot)
+ItemsID Inventory::GetSlotItem(int slot)
 {
     return inventory[slot].ID;
 }
@@ -131,22 +137,22 @@ void Inventory::Render(SDL_Renderer* renderer, SDL_Texture* texture)
         Item item = inventory[i];
         if (i == activeSlot) {
             SDL_Rect rect;
-            rect.x = i * BLOCK_SIZE + (i + 1) * 8 + 25 - 4;
+            rect.x = i * 32 + (i + 1) * 8 + 25 - 4;
             rect.y = 25 + 8 - 4;
             rect.w = 40;
             rect.h = 40;
 
-            SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
+            SDL_SetRenderDrawColor(renderer, 255, 0, 0, 125);
             SDL_RenderFillRect(renderer, &rect);
         }
-        int textureIndex = static_cast<int>(item.ID.ID);
+        int textureIndex = static_cast<int>(item.ID);
         SDL_Rect sours = { textureIndex % 16 * TEXTURE_SIZE , textureIndex / 16 * TEXTURE_SIZE ,TEXTURE_SIZE,TEXTURE_SIZE };
-        SDL_Rect dest = { i * BLOCK_SIZE + (i + 1) * 8 + 25, 25 + 8, BLOCK_SIZE, BLOCK_SIZE };
+        SDL_Rect dest = { i * 32 + (i + 1) * 8 + 25, 25 + 8, 32, 32 };
         SDL_RenderCopy(renderer, texture, &sours, &dest);
 
         SDL_Surface* textSurface = TTF_RenderText_Solid(rFont, std::to_string(item.count).c_str(), SDL_Color(20, 20, 20));
 
-        SDL_Rect abcPosition = { i * BLOCK_SIZE + (i + 1) * 8 + 25, 48,textSurface->w,textSurface->h };
+        SDL_Rect abcPosition = { i * 32 + (i + 1) * 8 + 25, 48,textSurface->w,textSurface->h };
 
         SDL_Texture* mTexture = SDL_CreateTextureFromSurface(renderer, textSurface);
         SDL_RenderCopy(renderer, mTexture, NULL, &abcPosition);
