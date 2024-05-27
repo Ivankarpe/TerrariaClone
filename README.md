@@ -12,4 +12,4 @@ In this project, we wanted to do most of the things ourselves, such as rendering
  - https://imgur.com/gallery/prewiev-teraria-clone-VkPgPej
 ## Installation
  - Just run
-      ```Release\TerrariaClone.exe```
+      ```Main\Release\TerrariaClone.exe```
