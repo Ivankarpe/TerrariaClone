@@ -371,9 +371,9 @@ void Game::Update()
 {
 	player.Update(deltaTime, Map);
 
-	while (counter > 10) {
+	while (counter > 100) {
 		UpdateWater();
-		counter -= 10;
+		counter -= 100;
 	}
 }
 
@@ -775,8 +775,8 @@ void Game::DrawMap(InfoForRender info) {
 
 void Game::UpdateWater() {
 	bool mooved = false;
-	for (size_t x = 0; x < MAP_WIDTH; x++) {
-		for (size_t y = MAP_HEIGHT - 2; y > 0; y--) {
+	for (size_t x = 2; x < MAP_WIDTH-2; x++) {
+		for (size_t y = MAP_HEIGHT - 2; y > 2; y--) {
 
 			if (Map[y][x].area != 0) {//water
 				mooved = false;
@@ -968,7 +968,7 @@ void Game::TaskManager()
 	while (true)
 	{
 		if (!tasks.empty()) {
-			SDL_Log("%d",tasks.size());
+			//SDL_Log("%d",tasks.size());
 			switch (tasks.front().type)
 			{
 			case LIGHT_UPATE:
