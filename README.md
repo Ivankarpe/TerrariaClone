@@ -8,7 +8,8 @@ In this project, we wanted to do most of the things ourselves, such as rendering
  - Left mouse button (LMB) - place blocks, right mouse button (RMB) - break blocks via smart cursor
  - Mouse wheel to change inventory slots
  - You have 100 torches; place them carefully
-
+## Preview
+ - https://imgur.com/gallery/prewiev-teraria-clone-VkPgPej
 ## Installation
  - Just run
       ```Release\TerrariaClone.exe```
