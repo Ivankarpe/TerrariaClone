@@ -1,6 +1,6 @@
 ## This is our little clone of Terraria
-We tried to recreate an 8-D sideview platformer using only SDL.
-In this project, we wanted to do most of the things ourselves, such as rendering blocks, calculating physics, calculating the area of water (well, it's 2D after all), and calculating shadows.
+We tried to recreate an 2-D sideview platformer using only SDL.
+In this project, we wanted to do most of the things ourselves, such as rendering blocks, calculating physics, calculating the area of water (well, it's 2D after all), and calculating shadows and lightning.
 ## Functions
  - Movement by A, D, and spacebar keys
  - Switch game modes (F1 - survival; F2 - spectator)
