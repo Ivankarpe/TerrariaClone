@@ -5,6 +5,7 @@
 #include "PerlinNoise.hpp"
 #include "Inventory.h"
 #include <map>
+#include <queue>
 struct InfoForRender {
 	Vector2 firstPos;
 	Vector2 dosPos;
@@ -43,15 +44,14 @@ public:
 
 	void setGrass(int x, int y);
 
-	
-
 	void DrawMap(InfoForRender info);
 
 	void UpdateWater();
 
-	void UpdateLight();
+	void UpdateLight(int x, int y);
 
 
+	void TaskManager();
 private:
 	SDL_Window* window;
 
@@ -78,8 +78,8 @@ private:
 
 	Inventory inventory;
 	Uint32 deltaTime;
-
+	
 	Uint32 counter = 0;
-
+	std::queue<Task> tasks;
 };
 
