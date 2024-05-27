@@ -158,9 +158,10 @@ void Game::Innit()
 	int seed = time(NULL);
 	int STONEProb = 100;
 	srand(seed);
-	/*
+	
 	for (int x = 0; x < MAP_WIDTH; x++) {//filling map with blocks
 		for (int y = heights[x]; y < MAP_HEIGHT; y++) {
+			/*
 			if (y == heights[x]) {
 				Map[y][x] = { GRASS, 1 };
 				if (Map[y - 1][x].area == 0) {
@@ -197,7 +198,8 @@ void Game::Innit()
 					}
 				}
 			}
-			else if (y < heights[x] + heights2[x] + 5)
+			
+			else*/ if (y < heights[x] + heights2[x] + 5)
 			{
 				Map[y][x] = { DIRT,1 };
 			}
@@ -213,7 +215,7 @@ void Game::Innit()
 			}
 		}
 	}
-	*/
+	
 	for (int x = 0; x < MAP_WIDTH - 0; ++x) {
 		for (int y = 0 + heights[x] + heights2[x] / 2; y < MAP_HEIGHT - 0; ++y) {
 			if (y > heights[x] + heights2[x]) {
@@ -715,60 +717,52 @@ void Game::DrawMap(InfoForRender info) {
 		{
 			block element = Map[info.firstPos.y + j][info.firstPos.x + i];
 
-			if (element.background != B_NONE) {
-				SDL_Rect sours;
-				sours.x = ((info.firstPos.x + i) % b_infos[element.background].width) * TEXTURE_SIZE;
-				sours.y = ((info.firstPos.y + j) % b_infos[element.background].height) * TEXTURE_SIZE;
-				sours.w = TEXTURE_SIZE;
-				sours.h = TEXTURE_SIZE;
+
+			SDL_Rect sours;
+			
+
+			SDL_Rect dest = { i * BLOCK_SIZE - info.dosPos.x,j * BLOCK_SIZE - info.dosPos.y,BLOCK_SIZE,BLOCK_SIZE };
+
+			if (Map[info.firstPos.y + j][info.firstPos.x + i].ID != NONE && Map[info.firstPos.y + j][info.firstPos.x + i].ID != NONE5) {
+				textureIndex = static_cast<int>(Map[info.firstPos.y + j][info.firstPos.x + i].ID);
+				realTextureIndex = static_cast<int>(Map[info.firstPos.y + j][info.firstPos.x + i].stateIndex) + Map[info.firstPos.y + j][info.firstPos.x + i].randomComponentOfIndex;
+				sours = { realTextureIndex % 16 * 16 + realTextureIndex % 16 * 2,realTextureIndex / 16 * 16 + realTextureIndex / 16 * 2,TEXTURE_SIZE,TEXTURE_SIZE };
+
 				//SDL_Rect dest = { i * BLOCK_SIZE ,j * BLOCK_SIZE,BLOCK_SIZE,BLOCK_SIZE };
 				SDL_Rect dest = { i * BLOCK_SIZE - info.dosPos.x,j * BLOCK_SIZE - info.dosPos.y,BLOCK_SIZE,BLOCK_SIZE };
 
-
-				if (Map[info.firstPos.y + j][info.firstPos.x + i].ID != NONE && Map[info.firstPos.y + j][info.firstPos.x + i].ID != NONE5) {
-					textureIndex = static_cast<int>(Map[info.firstPos.y + j][info.firstPos.x + i].ID);
-					realTextureIndex = static_cast<int>(Map[info.firstPos.y + j][info.firstPos.x + i].stateIndex) + Map[info.firstPos.y + j][info.firstPos.x + i].randomComponentOfIndex;
-
-					sours = { realTextureIndex % 16 * 16 + realTextureIndex % 16 * 2,realTextureIndex / 16 * 16 + realTextureIndex / 16 * 2,TEXTURE_SIZE,TEXTURE_SIZE };
-
-					//SDL_Rect dest = { i * BLOCK_SIZE ,j * BLOCK_SIZE,BLOCK_SIZE,BLOCK_SIZE };
-					SDL_Rect dest = { i * BLOCK_SIZE - info.dosPos.x,j * BLOCK_SIZE - info.dosPos.y,BLOCK_SIZE,BLOCK_SIZE };
-
-					SDL_RenderCopy(renderer, textures[element.ID], &sours, &dest);
-				}
-
-				//SDL_Rect dest = { i * BLOCK_SIZE - info.dosPos.x,j * BLOCK_SIZE - info.dosPos.y,BLOCK_SIZE,BLOCK_SIZE };
-				if (element.area != 0) {
-					textureIndex = 205;
-					if (Map[info.firstPos.y + j - 1][info.firstPos.x + i].area != 0) {}
-					else {
-						dest.h = element.area / (float)(WATERCAPACITY) * (float)(BLOCK_SIZE);
-						if (dest.h < 1) {
-							dest.h = 1;
-						}
-						if (dest.h > BLOCK_SIZE) {
-							dest.h = BLOCK_SIZE;
-						}
-						int dh = BLOCK_SIZE - dest.h;
-						dest.y += dh;
+				SDL_RenderCopy(renderer, textures[Map[info.firstPos.y + j][info.firstPos.x + i].ID], &sours, &dest);
+			}
+			
+			if (element.area != 0) {
+				textureIndex = 205;
+				if (Map[info.firstPos.y + j - 1][info.firstPos.x + i].area != 0) {}
+				else {
+					dest.h = element.area / (float)(WATERCAPACITY) * (float)(BLOCK_SIZE);
+					if (dest.h < 1) {
+						dest.h = 1;
 					}
-					sours = { textureIndex % 16 * TEXTURE_SIZE ,textureIndex / 16 * TEXTURE_SIZE ,TEXTURE_SIZE,TEXTURE_SIZE };
-
-					SDL_RenderCopy(renderer, texture, &sours, &dest);
-
+					if (dest.h > BLOCK_SIZE) {
+						dest.h = BLOCK_SIZE;
+					}
+					int dh = BLOCK_SIZE - dest.h;
+					dest.y += dh;
 				}
-				textureIndex = 221;
 				sours = { textureIndex % 16 * TEXTURE_SIZE ,textureIndex / 16 * TEXTURE_SIZE ,TEXTURE_SIZE,TEXTURE_SIZE };
-				SDL_Rect rect;
-				rect.x = i * BLOCK_SIZE - info.dosPos.x;
-				rect.y = j * BLOCK_SIZE - info.dosPos.y;
-				rect.w = BLOCK_SIZE;
-				rect.h = BLOCK_SIZE;
 
-				//SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255 / MAX_LIGHT * (MAX_LIGHT - Map[info.firstPos.y + j][info.firstPos.x + i].lightness));
-				//SDL_RenderFillRect(renderer, &rect);
+				SDL_RenderCopy(renderer, texture, &sours, &dest);
 
 			}
+			SDL_Rect rect;
+			rect.x = i * BLOCK_SIZE - info.dosPos.x;
+			rect.y = j * BLOCK_SIZE - info.dosPos.y;
+			rect.w = BLOCK_SIZE;
+			rect.h = BLOCK_SIZE;
+
+			SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255 / MAX_LIGHT * (MAX_LIGHT - Map[info.firstPos.y + j][info.firstPos.x + i].lightness));
+			SDL_RenderFillRect(renderer, &rect);
+
+
 		}
 	}
 }
