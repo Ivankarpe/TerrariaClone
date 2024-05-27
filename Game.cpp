@@ -352,9 +352,9 @@ void Game::Update()
 {
 	player.Update(deltaTime, Map);
 
-	while (counter > 10) {
+	while (counter > 100) {
 		UpdateWater();
-		counter -= 10;
+		counter -= 100;
 	}
 }
 
@@ -732,8 +732,8 @@ void Game::DrawMap(InfoForRender info) {
 			rect.w = BLOCK_SIZE;
 			rect.h = BLOCK_SIZE;
 
-			//SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255 / MAX_LIGHT * (MAX_LIGHT - Map[info.firstPos.y + j][info.firstPos.x + i].lightness));
-			//SDL_RenderFillRect(renderer, &rect);
+			SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255 / MAX_LIGHT * (MAX_LIGHT - Map[info.firstPos.y + j][info.firstPos.x + i].lightness));
+			SDL_RenderFillRect(renderer, &rect);
 
 		}
 	}
@@ -931,7 +931,7 @@ void Game::TaskManager()
 	while (true)
 	{
 		if (!tasks.empty()) {
-			SDL_Log("%d",tasks.size());
+			//SDL_Log("%d",tasks.size());
 			switch (tasks.front().type)
 			{
 			case LIGHT_UPATE:
