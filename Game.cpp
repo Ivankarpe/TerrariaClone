@@ -706,7 +706,7 @@ void Game::SetDeltaTime(Uint32 deltaTime)
 }
 
 void Game::DrawMap(InfoForRender info) {
-	
+
 	int textureIndex;
 	int realTextureIndex;
 	for (size_t i = info.Start; i < info.End; i++)//filling screen with blocks
@@ -725,49 +725,50 @@ void Game::DrawMap(InfoForRender info) {
 				SDL_Rect dest = { i * BLOCK_SIZE - info.dosPos.x,j * BLOCK_SIZE - info.dosPos.y,BLOCK_SIZE,BLOCK_SIZE };
 
 
-			if (Map[info.firstPos.y + j][info.firstPos.x + i].ID != NONE && Map[info.firstPos.y + j][info.firstPos.x + i].ID != NONE5) {
-				textureIndex = static_cast<int>(Map[info.firstPos.y + j][info.firstPos.x + i].ID);
-				realTextureIndex = static_cast<int>(Map[info.firstPos.y + j][info.firstPos.x + i].stateIndex)+ Map[info.firstPos.y + j][info.firstPos.x + i].randomComponentOfIndex;
+				if (Map[info.firstPos.y + j][info.firstPos.x + i].ID != NONE && Map[info.firstPos.y + j][info.firstPos.x + i].ID != NONE5) {
+					textureIndex = static_cast<int>(Map[info.firstPos.y + j][info.firstPos.x + i].ID);
+					realTextureIndex = static_cast<int>(Map[info.firstPos.y + j][info.firstPos.x + i].stateIndex) + Map[info.firstPos.y + j][info.firstPos.x + i].randomComponentOfIndex;
 
-				SDL_Rect sours = { realTextureIndex % 16 * 16 + realTextureIndex % 16 * 2,realTextureIndex / 16 * 16 + realTextureIndex / 16 * 2,TEXTURE_SIZE,TEXTURE_SIZE };
+					sours = { realTextureIndex % 16 * 16 + realTextureIndex % 16 * 2,realTextureIndex / 16 * 16 + realTextureIndex / 16 * 2,TEXTURE_SIZE,TEXTURE_SIZE };
 
-				//SDL_Rect dest = { i * BLOCK_SIZE ,j * BLOCK_SIZE,BLOCK_SIZE,BLOCK_SIZE };
-				SDL_Rect dest = { i * BLOCK_SIZE - info.dosPos.x,j * BLOCK_SIZE - info.dosPos.y,BLOCK_SIZE,BLOCK_SIZE };
+					//SDL_Rect dest = { i * BLOCK_SIZE ,j * BLOCK_SIZE,BLOCK_SIZE,BLOCK_SIZE };
+					SDL_Rect dest = { i * BLOCK_SIZE - info.dosPos.x,j * BLOCK_SIZE - info.dosPos.y,BLOCK_SIZE,BLOCK_SIZE };
 
-				SDL_RenderCopy(renderer, textures[element.ID], &sours, &dest);
-			}
-			
-			SDL_Rect dest = { i * BLOCK_SIZE - info.dosPos.x,j * BLOCK_SIZE - info.dosPos.y,BLOCK_SIZE,BLOCK_SIZE };
-			if (element.area != 0) {
-				textureIndex = 205;
-				if (Map[info.firstPos.y + j - 1][info.firstPos.x + i].area != 0) {}
-				else {
-					dest.h = element.area / (float)(WATERCAPACITY) * (float)(BLOCK_SIZE);
-					if (dest.h < 1) {
-						dest.h = 1;
-					}
-					if (dest.h > BLOCK_SIZE) {
-						dest.h = BLOCK_SIZE;
-					}
-					int dh = BLOCK_SIZE - dest.h;
-					dest.y += dh;
+					SDL_RenderCopy(renderer, textures[element.ID], &sours, &dest);
 				}
-				SDL_Rect sours = { textureIndex % 16 * TEXTURE_SIZE ,textureIndex / 16 * TEXTURE_SIZE ,TEXTURE_SIZE,TEXTURE_SIZE };
 
-				SDL_RenderCopy(renderer, texture, &sours, &dest);
+				//SDL_Rect dest = { i * BLOCK_SIZE - info.dosPos.x,j * BLOCK_SIZE - info.dosPos.y,BLOCK_SIZE,BLOCK_SIZE };
+				if (element.area != 0) {
+					textureIndex = 205;
+					if (Map[info.firstPos.y + j - 1][info.firstPos.x + i].area != 0) {}
+					else {
+						dest.h = element.area / (float)(WATERCAPACITY) * (float)(BLOCK_SIZE);
+						if (dest.h < 1) {
+							dest.h = 1;
+						}
+						if (dest.h > BLOCK_SIZE) {
+							dest.h = BLOCK_SIZE;
+						}
+						int dh = BLOCK_SIZE - dest.h;
+						dest.y += dh;
+					}
+					sours = { textureIndex % 16 * TEXTURE_SIZE ,textureIndex / 16 * TEXTURE_SIZE ,TEXTURE_SIZE,TEXTURE_SIZE };
+
+					SDL_RenderCopy(renderer, texture, &sours, &dest);
+
+				}
+				textureIndex = 221;
+				sours = { textureIndex % 16 * TEXTURE_SIZE ,textureIndex / 16 * TEXTURE_SIZE ,TEXTURE_SIZE,TEXTURE_SIZE };
+				SDL_Rect rect;
+				rect.x = i * BLOCK_SIZE - info.dosPos.x;
+				rect.y = j * BLOCK_SIZE - info.dosPos.y;
+				rect.w = BLOCK_SIZE;
+				rect.h = BLOCK_SIZE;
+
+				//SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255 / MAX_LIGHT * (MAX_LIGHT - Map[info.firstPos.y + j][info.firstPos.x + i].lightness));
+				//SDL_RenderFillRect(renderer, &rect);
 
 			}
-			textureIndex = 221;
-			SDL_Rect sours = { textureIndex % 16 * TEXTURE_SIZE ,textureIndex / 16 * TEXTURE_SIZE ,TEXTURE_SIZE,TEXTURE_SIZE };
-			SDL_Rect rect;
-			rect.x = i * BLOCK_SIZE - info.dosPos.x;
-			rect.y = j * BLOCK_SIZE - info.dosPos.y;
-			rect.w = BLOCK_SIZE;
-			rect.h = BLOCK_SIZE;
-
-			//SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255 / MAX_LIGHT * (MAX_LIGHT - Map[info.firstPos.y + j][info.firstPos.x + i].lightness));
-			//SDL_RenderFillRect(renderer, &rect);
-
 		}
 	}
 }
