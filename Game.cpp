@@ -596,8 +596,8 @@ void Game::DrawMap(InfoForRender info) {
 			rect.w = 32;
 			rect.h = 32;
 
-			SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255 / MAX_LIGHT * (MAX_LIGHT - Map[info.firstPos.y + j][info.firstPos.x + i].lightness));
-			SDL_RenderFillRect(renderer, &rect);
+			//SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255 / MAX_LIGHT * (MAX_LIGHT - Map[info.firstPos.y + j][info.firstPos.x + i].lightness));
+			//SDL_RenderFillRect(renderer, &rect);
 
 		}
 	}
