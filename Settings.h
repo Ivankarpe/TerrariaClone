@@ -40,7 +40,10 @@ const int BLOCK_SIZE =24;
 const int TEXTURE_SIZE = 16;
 
 
-
+struct B_info {
+	int height;
+	int width;
+};
 struct Buttons {
 	bool w, a, s, d, c, space, left, right;
 };
@@ -68,6 +71,12 @@ enum Task_type
 {
 	LIGHT_UPATE, QUIT
 };
+
+enum B_ID
+{
+	B_NONE_TO_DIRT=1, B_DIRT, B_STONE, B_DIRT_TO_STONE, B_NONE
+};
+
 struct block {
 	ItemsID ID;
 	bool colideable;
@@ -77,6 +86,7 @@ struct block {
 	Textures stateIndex;
 	int randomComponentOfIndex;
 	bool top = 0;
+	B_ID background = B_NONE;
 };
 
 struct Task

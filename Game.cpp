@@ -30,10 +30,27 @@ void Game::Innit()
 	textures.insert({DIRT, grassTexture});
 	SDL_FreeSurface(temp);
 
+	
 	temp = IMG_Load("Tiles_1.png");
 	grassTexture = SDL_CreateTextureFromSurface(renderer, temp);
 	textures.insert({ STONE, grassTexture });
 	SDL_FreeSurface(temp);
+	for (size_t i = 1; i <= 4; i++)
+	{
+		std::string name = "Background_";
+		name += std::to_string(i);
+		name += ".png";
+		temp = IMG_Load(name.c_str());
+		SDL_Log(name.c_str());
+		if (temp == nullptr) {
+			continue;
+		}
+		SDL_Texture* background = SDL_CreateTextureFromSurface(renderer, temp);
+		b_infos.insert({ static_cast<B_ID>(i), {temp->h / 16 ,  temp->w / 16  } });
+		backrounds.insert({ static_cast<B_ID>(i), background });
+		SDL_FreeSurface(temp);
+
+	}
 
 	temp = IMG_Load("klipartz.com.png");
 	hoe = SDL_CreateTextureFromSurface(renderer, temp);
@@ -247,8 +264,8 @@ void Game::Innit()
 				}
 			}
 
-			if (Map[h][w].ID == NONE && STONECounter >= 6) Map[h][w] = { STONE, 1 };
-			if (Map[h][w].ID == STONE && STONECounter <= 3) Map[h][w] = { NONE, 0 };
+			if (Map[h][w].ID == NONE && STONECounter >= 6) Map[h][w] = { .ID = STONE, .colideable = 1 };
+			if (Map[h][w].ID == STONE && STONECounter <= 3) Map[h][w] = { .ID = NONE, .colideable = 0 };
 		}
 	}
 
@@ -278,7 +295,9 @@ void Game::Innit()
 		}
 	}
 
+
 	tasks.push({ LIGHT_UPATE,-1, 0 });
+
 
 }
 
@@ -559,7 +578,9 @@ void Game::on_left_click(SDL_Event event) {
 	if (distance / BLOCK_SIZE <= 90000 / BLOCK_SIZE && Map[MousePosY][MousePosX].ID == NONE) {
 		block tem = inventory.Place();
 		if (tem.ID != NONE || tem.ID != NONE5) {
+
 			Map[MousePosY][MousePosX] = tem;
+
 			if (tem.ID == TORCH) {
 				Map[MousePosY][MousePosX].lightSource = true;
 			}
@@ -692,24 +713,36 @@ void Game::DrawMap(InfoForRender info) {
 	{
 		for (size_t j = 0; j < CAMERA_HEIGHT / BLOCK_SIZE + 2; j++)
 		{
+			block element = Map[info.firstPos.y + j][info.firstPos.x + i];
+
+			if (element.background != B_NONE) {
+				SDL_Rect sours;
+				sours.x = ((info.firstPos.x + i) % b_infos[element.background].width) * TEXTURE_SIZE;
+				sours.y = ((info.firstPos.y + j) % b_infos[element.background].height) * TEXTURE_SIZE;
+				sours.w = TEXTURE_SIZE;
+				sours.h = TEXTURE_SIZE;
+				//SDL_Rect dest = { i * BLOCK_SIZE ,j * BLOCK_SIZE,BLOCK_SIZE,BLOCK_SIZE };
+				SDL_Rect dest = { i * BLOCK_SIZE - info.dosPos.x,j * BLOCK_SIZE - info.dosPos.y,BLOCK_SIZE,BLOCK_SIZE };
+
 
 			if (Map[info.firstPos.y + j][info.firstPos.x + i].ID != NONE && Map[info.firstPos.y + j][info.firstPos.x + i].ID != NONE5) {
 				textureIndex = static_cast<int>(Map[info.firstPos.y + j][info.firstPos.x + i].ID);
 				realTextureIndex = static_cast<int>(Map[info.firstPos.y + j][info.firstPos.x + i].stateIndex)+ Map[info.firstPos.y + j][info.firstPos.x + i].randomComponentOfIndex;
+
 				SDL_Rect sours = { realTextureIndex % 16 * 16 + realTextureIndex % 16 * 2,realTextureIndex / 16 * 16 + realTextureIndex / 16 * 2,TEXTURE_SIZE,TEXTURE_SIZE };
 
 				//SDL_Rect dest = { i * BLOCK_SIZE ,j * BLOCK_SIZE,BLOCK_SIZE,BLOCK_SIZE };
 				SDL_Rect dest = { i * BLOCK_SIZE - info.dosPos.x,j * BLOCK_SIZE - info.dosPos.y,BLOCK_SIZE,BLOCK_SIZE };
 
-				SDL_RenderCopy(renderer, textures[Map[info.firstPos.y + j][info.firstPos.x + i].ID], &sours, &dest);
+				SDL_RenderCopy(renderer, textures[element.ID], &sours, &dest);
 			}
 			
 			SDL_Rect dest = { i * BLOCK_SIZE - info.dosPos.x,j * BLOCK_SIZE - info.dosPos.y,BLOCK_SIZE,BLOCK_SIZE };
-			if (Map[info.firstPos.y + j][info.firstPos.x + i].area != 0) {
+			if (element.area != 0) {
 				textureIndex = 205;
 				if (Map[info.firstPos.y + j - 1][info.firstPos.x + i].area != 0) {}
 				else {
-					dest.h = Map[info.firstPos.y + j][info.firstPos.x + i].area / (float)(WATERCAPACITY) * (float)(BLOCK_SIZE);
+					dest.h = element.area / (float)(WATERCAPACITY) * (float)(BLOCK_SIZE);
 					if (dest.h < 1) {
 						dest.h = 1;
 					}
@@ -732,7 +765,7 @@ void Game::DrawMap(InfoForRender info) {
 			rect.w = BLOCK_SIZE;
 			rect.h = BLOCK_SIZE;
 
-			SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255 / MAX_LIGHT * (MAX_LIGHT - Map[info.firstPos.y + j][info.firstPos.x + i].lightness));
+			SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255 / MAX_LIGHT * (MAX_LIGHT - element.lightness));
 			SDL_RenderFillRect(renderer, &rect);
 
 		}
@@ -856,7 +889,9 @@ void Game::UpdateWater() {
 	}
 }
 
+
 void Game::UpdateLight(int x, int y)
+
 {
 	if (x == -1) {
 		for (int x = 0; x < MAP_WIDTH; x++) {
@@ -926,6 +961,7 @@ void Game::UpdateLight(int x, int y)
 	}
 }
 
+
 void Game::TaskManager()
 {
 	while (true)
@@ -946,6 +982,7 @@ void Game::TaskManager()
 	}
 
 }
+
 
 void Game::Render()
 {

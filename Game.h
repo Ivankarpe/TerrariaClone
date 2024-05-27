@@ -61,10 +61,11 @@ private:
 
 	SDL_Texture* grassTexture;
 	std::map<ItemsID, SDL_Texture*> textures;
+	std::map<B_ID, SDL_Texture*> backrounds;
 	SDL_Texture* hoe;
 
 	SDL_Texture* tree_Top;
-
+	std::map<B_ID, B_info> b_infos;
 	bool running = false;
 	
 	std::vector<std::vector<block>> Map;
