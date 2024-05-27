@@ -732,8 +732,8 @@ void Game::DrawMap(InfoForRender info) {
 			rect.w = BLOCK_SIZE;
 			rect.h = BLOCK_SIZE;
 
-			SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255 / MAX_LIGHT * (MAX_LIGHT - Map[info.firstPos.y + j][info.firstPos.x + i].lightness));
-			SDL_RenderFillRect(renderer, &rect);
+			//SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255 / MAX_LIGHT * (MAX_LIGHT - Map[info.firstPos.y + j][info.firstPos.x + i].lightness));
+			//SDL_RenderFillRect(renderer, &rect);
 
 		}
 	}
@@ -741,8 +741,8 @@ void Game::DrawMap(InfoForRender info) {
 
 void Game::UpdateWater() {
 	bool mooved = false;
-	for (size_t x = 0; x < MAP_WIDTH; x++) {
-		for (size_t y = MAP_HEIGHT - 2; y > 0; y--) {
+	for (size_t x = 2; x < MAP_WIDTH-2; x++) {
+		for (size_t y = MAP_HEIGHT - 2; y > 2; y--) {
 
 			if (Map[y][x].area != 0) {//water
 				mooved = false;
